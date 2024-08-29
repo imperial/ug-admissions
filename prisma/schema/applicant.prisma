@@ -1,0 +1,18 @@
+enum Gender {
+  MALE
+  FEMALE
+  OTHER
+}
+
+model Applicant {
+  id                 Int     @id @default(autoincrement())
+  cid                String  @unique
+  ucasNumber         String  @unique
+  gender             Gender
+  firstName          String
+  surname            String
+  email              String
+  primaryNationality String
+  otherNationality   String?
+  applications Application[]
+}

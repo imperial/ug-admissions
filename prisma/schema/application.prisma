@@ -1,0 +1,34 @@
+enum FeeStatus {
+  HOME
+  OVERSEAS
+  UNKNOWN
+}
+
+enum QualificationType {
+  GCSE_COMPATIBLE
+  A_LEVELS_COMPATIBLE
+}
+
+model Application {
+  id                    Int             @id @default(autoincrement())
+  applicant             Applicant       @relation(fields: [applicantId], references: [id])
+  applicantId           Int
+  admissionsCycle       Int
+  applicationDate       DateTime
+  wideningParticipation Boolean
+  hasDisability         Boolean
+  feeStatus             FeeStatus
+  tmuaPaper1Score       Decimal         @db.Decimal(2, 1)
+  tmuaPaper2Score       Decimal         @db.Decimal(2, 1)
+  tmuaOverallScore      Decimal         @db.Decimal(2, 1)
+  qualifications        Qualification[]
+}
+
+model Qualification {
+  id            Int               @id @default(autoincrement())
+  type          QualificationType
+  title         String
+  score         Decimal           @db.Decimal(3, 1)
+  application   Application       @relation(fields: [applicationId], references: [id])
+  applicationId Int
+}

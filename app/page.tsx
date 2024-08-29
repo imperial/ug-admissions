@@ -2,23 +2,31 @@ import prisma from "@/db";
 import { Table } from "@radix-ui/themes";
 
 export default async function Home() {
-  const users = await prisma.user.findMany();
+  const applications = await prisma.application.findMany({
+    include: { applicant: true },
+  });
   return (
     <Table.Root>
       <Table.Header>
         <Table.Row>
-          <Table.ColumnHeaderCell>Full name</Table.ColumnHeaderCell>
-          <Table.ColumnHeaderCell>Email</Table.ColumnHeaderCell>
-          <Table.ColumnHeaderCell>Group</Table.ColumnHeaderCell>
+          <Table.ColumnHeaderCell>CID</Table.ColumnHeaderCell>
+          <Table.ColumnHeaderCell>UCAS Number</Table.ColumnHeaderCell>
+          <Table.ColumnHeaderCell>First name</Table.ColumnHeaderCell>
+          <Table.ColumnHeaderCell>Last name</Table.ColumnHeaderCell>
+          <Table.ColumnHeaderCell>Fee status</Table.ColumnHeaderCell>
+          <Table.ColumnHeaderCell>Widening Participation</Table.ColumnHeaderCell>
         </Table.Row>
       </Table.Header>
 
       <Table.Body>
-        {users.map((user) => (
-          <Table.Row key={user.id}>
-            <Table.RowHeaderCell>{user.name}</Table.RowHeaderCell>
-            <Table.Cell>{user.email}</Table.Cell>
-            <Table.Cell>{user.group}</Table.Cell>
+        {applications.map((application) => (
+          <Table.Row key={application.id}>
+            <Table.RowHeaderCell>{application.applicant.cid}</Table.RowHeaderCell>
+            <Table.Cell>{application.applicant.ucasNumber}</Table.Cell>
+            <Table.Cell>{application.applicant.firstName}</Table.Cell>
+            <Table.Cell>{application.applicant.surname}</Table.Cell>
+            <Table.Cell>{application.feeStatus}</Table.Cell>
+            <Table.Cell>{application.wideningParticipation.toString()}</Table.Cell>
           </Table.Row>
         ))}
       </Table.Body>
