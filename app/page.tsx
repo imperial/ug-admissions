@@ -1,6 +1,8 @@
+import prisma from "@/db";
 import { Table } from "@radix-ui/themes";
 
-export default function Home() {
+export default async function Home() {
+  const users = await prisma.user.findMany();
   return (
     <Table.Root>
       <Table.Header>
@@ -12,23 +14,13 @@ export default function Home() {
       </Table.Header>
 
       <Table.Body>
-        <Table.Row>
-          <Table.RowHeaderCell>Danilo Sousa</Table.RowHeaderCell>
-          <Table.Cell>danilo@example.com</Table.Cell>
-          <Table.Cell>Developer</Table.Cell>
-        </Table.Row>
-
-        <Table.Row>
-          <Table.RowHeaderCell>Zahra Ambessa</Table.RowHeaderCell>
-          <Table.Cell>zahra@example.com</Table.Cell>
-          <Table.Cell>Admin</Table.Cell>
-        </Table.Row>
-
-        <Table.Row>
-          <Table.RowHeaderCell>Jasper Eriksson</Table.RowHeaderCell>
-          <Table.Cell>jasper@example.com</Table.Cell>
-          <Table.Cell>Developer</Table.Cell>
-        </Table.Row>
+        {users.map((user) => (
+          <Table.Row key={user.id}>
+            <Table.RowHeaderCell>{user.name}</Table.RowHeaderCell>
+            <Table.Cell>{user.email}</Table.Cell>
+            <Table.Cell>{user.group}</Table.Cell>
+          </Table.Row>
+        ))}
       </Table.Body>
     </Table.Root>
   );
