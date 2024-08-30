@@ -1,10 +1,10 @@
-import prisma from "@/db";
-import { Table } from "@radix-ui/themes";
+import prisma from '@/db'
+import { Table } from '@radix-ui/themes'
 
 export default async function Home() {
   const applications = await prisma.application.findMany({
-    include: { applicant: true },
-  });
+    include: { applicant: true }
+  })
   return (
     <Table.Root>
       <Table.Header>
@@ -31,5 +31,5 @@ export default async function Home() {
         ))}
       </Table.Body>
     </Table.Root>
-  );
+  )
 }
