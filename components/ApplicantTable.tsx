@@ -2,7 +2,7 @@
 
 import { Applicant } from "@prisma/client"
 import { createColumnHelper } from "@tanstack/react-table"
-import TanstackTable from "@/components/TanstackTable"
+import TanstackTable from "./TanstackTable"
 
 type ApplicantRow = Pick<Applicant, 'cid' | 'firstName'>
 const columnHelper = createColumnHelper<ApplicantRow>()
