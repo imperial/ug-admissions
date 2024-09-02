@@ -31,11 +31,10 @@ const createApplication = () => {
 }
 
 async function main() {
-  for (let i = 0; i < 30; i++) {
+  for (let i = 0; i < 30; i++)
     await prisma.application.create({
       data: createApplication()
     })
-  }
 }
 
 
