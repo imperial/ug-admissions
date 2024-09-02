@@ -2,6 +2,8 @@
 
 import { Table } from '@radix-ui/themes'
 import { ColumnDef, flexRender, getCoreRowModel, useReactTable } from '@tanstack/react-table'
+import Pagination from './Pagination'
+import { useState } from 'react'
 
 interface TanstackTableProps<T> {
     data: T[]
@@ -9,6 +11,7 @@ interface TanstackTableProps<T> {
 }
 
 const TanstackTable = <T,>({ data, columns }: TanstackTableProps<T>) => {
+  const [page, setPage] = useState(0)
   const table = useReactTable({
     data,
     columns,
@@ -16,6 +19,7 @@ const TanstackTable = <T,>({ data, columns }: TanstackTableProps<T>) => {
   })
 
   return (
+    <>
     <Table.Root>
       <Table.Header>
         {table.getHeaderGroups().map((headerGroup) => (
@@ -42,7 +46,11 @@ const TanstackTable = <T,>({ data, columns }: TanstackTableProps<T>) => {
         ))}
       </Table.Body>
     </Table.Root>
+
+    <Pagination page={page} setPage={setPage} totalPages={table.getPageCount()}/>
+    </>
   )
 }
+
 
 export default TanstackTable
