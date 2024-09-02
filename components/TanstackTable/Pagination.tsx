@@ -1,7 +1,11 @@
 'use client'
 
+import { ChevronLeftIcon, ChevronRightIcon } from '@radix-ui/react-icons'
+import { Button, IconButton } from '@radix-ui/themes'
 import React from 'react'
 import { Pagination as HeadlessPagination } from 'react-headless-pagination'
+import styles from './pagination.module.css'
+
 
 interface PaginationProps {
   page: number
@@ -11,8 +15,6 @@ interface PaginationProps {
 
 const Pagination = ({ page, setPage, totalPages }: PaginationProps) => {
   return (
-    <>
-      Current page: {page + 1}
       <HeadlessPagination
         totalPages={totalPages}
         edgePageCount={0}
@@ -20,18 +22,21 @@ const Pagination = ({ page, setPage, totalPages }: PaginationProps) => {
         currentPage={page}
         setCurrentPage={setPage}
         truncableText="..."
+        className={styles.pagination}
       >
-        <HeadlessPagination.PrevButton className="">Previous</HeadlessPagination.PrevButton>
+        <HeadlessPagination.PrevButton as={<IconButton variant="outline" />}>
+          <ChevronLeftIcon />
+        </HeadlessPagination.PrevButton>
 
-        <nav className="flex justify-center flex-grow">
-          <ul className="flex items-center">
-            <HeadlessPagination.PageButton activeClassName="" inactiveClassName="" className="" />
-          </ul>
-        </nav>
+        <HeadlessPagination.PageButton
+          as={<Button variant="outline" />}
+          activeClassName={styles.activePageButton}
+        />
 
-        <HeadlessPagination.NextButton className="">Next</HeadlessPagination.NextButton>
+        <HeadlessPagination.NextButton as={<IconButton variant="outline" />}>
+          <ChevronRightIcon />
+        </HeadlessPagination.NextButton>
       </HeadlessPagination>
-    </>
   )
 }
 
