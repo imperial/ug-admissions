@@ -14,31 +14,38 @@ const columnHelper = createColumnHelper<ApplicationRow>()
 const columns = [
   columnHelper.accessor('applicant.cid', {
     cell: (info) => info.getValue(),
-    header: 'CID'
+    header: 'CID',
+    id: 'applicant.cid'
   }),
   columnHelper.accessor('applicant.ucasNumber', {
     cell: (info) => info.getValue(),
-    header: 'UCAS number'
+    header: 'UCAS number',
+    id: 'applicant.ucasNumber'
   }),
   columnHelper.accessor('applicant.firstName', {
     cell: (info) => info.getValue(),
-    header: 'First Name'
+    header: 'First Name',
+    id: 'applicant.firstName'
   }),
   columnHelper.accessor('applicant.surname', {
     cell: (info) => info.getValue(),
-    header: 'Last Name'
+    header: 'Last Name',
+    id: 'applicant.surname'
   }),
   columnHelper.accessor('feeStatus', {
     cell: (info) => info.getValue(),
-    header: 'Fee Status'
+    header: 'Fee Status',
+    id: 'feeStatus'
   }),
   columnHelper.accessor('wideningParticipation', {
     cell: (info) => info.getValue().toString(),
-    header: 'Widening Participation'
+    header: 'Widening Participation',
+    id: 'wideningParticipation'
   }),
   columnHelper.accessor('nextAction', {
     cell: (info) => info.getValue(),
-    header: 'Next Action'
+    header: 'Next Action',
+    id: 'nextAction'
   })
 ]
 
