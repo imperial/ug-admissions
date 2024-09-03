@@ -1,13 +1,13 @@
 .pagination {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    gap: 1em;
-    margin-top: 1em;
-    list-style: none;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 1em;
+  margin-top: 1em;
+  list-style: none;
 }
 
 .activePageButton {
-    background-color: blue;
-    color: white;
+  background-color: blue;
+  color: white;
 }
