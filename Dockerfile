@@ -19,6 +19,7 @@ COPY . .
 # Learn more here: https://nextjs.org/telemetry
 ENV NEXT_TELEMETRY_DISABLED=1
 
+RUN npx prisma generate
 RUN npm run build
 
 # Production image, copy all the files and run next
