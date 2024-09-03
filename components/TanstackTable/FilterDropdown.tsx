@@ -1,19 +1,20 @@
-import { NextAction } from '@prisma/client'
 import { Select } from '@radix-ui/themes'
 import React, { FC } from 'react'
 
 interface FilterDropdownProps {
   onValueChange: (value: string) => void
+  values: string[]
+  placeholder?: string
 }
 
-const FilterDropdown: FC<FilterDropdownProps> = ({ onValueChange }) => {
+const FilterDropdown: FC<FilterDropdownProps> = ({ onValueChange, values, placeholder }) => {
   return (
     <Select.Root onValueChange={onValueChange}>
-      <Select.Trigger placeholder="Next Action" />
+      <Select.Trigger placeholder={placeholder ?? ''} />
       <Select.Content>
-        {[...Object.keys(NextAction), 'ALL'].map((action) => (
-          <Select.Item key={action} value={action}>
-            {action}
+        {values.map((value) => (
+          <Select.Item key={value} value={value}>
+            {value}
           </Select.Item>
         ))}
       </Select.Content>
