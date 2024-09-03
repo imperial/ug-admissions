@@ -59,7 +59,10 @@ const TanstackTable = <T,>({ data, columns }: TanstackTableProps<T>) => {
 
   return (
     <>
-      <FilterDropdown onValueChange={onNextActionFilterChange} />
+      <FilterDropdown
+        onValueChange={onNextActionFilterChange}
+        values={[...Object.keys(NextAction), 'ALL']}
+      />
       <Table.Root>
         <Table.Header>
           {table.getHeaderGroups().map((headerGroup) => (
