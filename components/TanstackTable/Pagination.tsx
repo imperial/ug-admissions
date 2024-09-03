@@ -2,7 +2,7 @@
 
 import { ChevronLeftIcon, ChevronRightIcon } from '@radix-ui/react-icons'
 import { Button, IconButton } from '@radix-ui/themes'
-import React from 'react'
+import React, { FC } from 'react'
 import { Pagination as HeadlessPagination } from 'react-headless-pagination'
 import styles from './pagination.module.css'
 
@@ -13,7 +13,7 @@ interface PaginationProps {
   totalPages: number
 }
 
-const Pagination = ({ page, setPage, totalPages }: PaginationProps) => {
+const Pagination: FC<PaginationProps> = ({ page, setPage, totalPages }) => {
   return (
       <HeadlessPagination
         totalPages={totalPages}
