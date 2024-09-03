@@ -1,6 +1,6 @@
 'use client'
 
-import { Applicant } from '@prisma/client'
+import type { Applicant } from '@prisma/client'
 import { createColumnHelper } from '@tanstack/react-table'
 import React, { FC } from 'react'
 
