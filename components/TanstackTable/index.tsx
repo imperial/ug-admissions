@@ -10,6 +10,7 @@ import {
 } from '@tanstack/react-table'
 import { useState } from 'react'
 
+import FilterDropdown from './FilterDropdown'
 import Pagination from './Pagination'
 
 interface TanstackTableProps<T> {
@@ -33,6 +34,7 @@ const TanstackTable = <T,>({ data, columns }: TanstackTableProps<T>) => {
 
   return (
     <>
+      <FilterDropdown />
       <Table.Root>
         <Table.Header>
           {table.getHeaderGroups().map((headerGroup) => (
