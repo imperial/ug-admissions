@@ -9,6 +9,16 @@ enum QualificationType {
   A_LEVELS_COMPATIBLE
 }
 
+enum NextAction {
+  TMUA_CANDIDATE
+  TMUA_RESULT
+  ADMIN_SCORING
+  REVIEWER_SCORING
+  UG_TUTOR_REVIEW
+  INFORM_CANDIDATE
+  CANDIDATE_INFORMED
+}
+
 model Application {
   id                    Int             @id @default(autoincrement())
   applicant             Applicant       @relation(fields: [applicantId], references: [id])
@@ -22,6 +32,7 @@ model Application {
   tmuaPaper2Score       Decimal         @db.Decimal(2, 1)
   tmuaOverallScore      Decimal         @db.Decimal(2, 1)
   qualifications        Qualification[]
+  nextAction    NextAction        @default(TMUA_CANDIDATE)
 }
 
 model Qualification {
