@@ -11,6 +11,7 @@ import {
   getPaginationRowModel,
   useReactTable
 } from '@tanstack/react-table'
+import { usePathname, useRouter, useSearchParams } from 'next/navigation'
 import { useState } from 'react'
 
 import FilterDropdown from './FilterDropdown'
@@ -22,8 +23,17 @@ interface TanstackTableProps<T> {
 }
 
 const TanstackTable = <T,>({ data, columns }: TanstackTableProps<T>) => {
+  const router = useRouter()
+  const pathname = usePathname()
+  const searchParams = useSearchParams()
+
   const [pagination, setPagination] = useState({ pageIndex: 0, pageSize: 30 })
-  const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([])
+  const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>(
+    searchParams.get('nextAction')
+      ? [{ id: 'nextAction', value: searchParams.get('nextAction') }]
+      : []
+  )
+
   const table = useReactTable({
     data,
     columns,
@@ -38,7 +48,11 @@ const TanstackTable = <T,>({ data, columns }: TanstackTableProps<T>) => {
     }
   })
 
-  const setColumnFilter = (currentId: string, value: unknown) => {
+  const setColumnFilter = (currentId: string, value: string) => {
+    const params = new URLSearchParams(searchParams.toString())
+    params.set(currentId, value)
+    router.push(pathname + '?' + params.toString())
+
     setColumnFilters([
       ...columnFilters.filter(({ id }) => id !== currentId),
       { id: currentId, value }
@@ -46,6 +60,10 @@ const TanstackTable = <T,>({ data, columns }: TanstackTableProps<T>) => {
   }
 
   const removeColumnFilter = (currentId: string) => {
+    const params = new URLSearchParams(searchParams.toString())
+    params.delete(currentId)
+    router.push(pathname + '?' + params.toString())
+
     setColumnFilters(columnFilters.filter(({ id }) => id !== currentId))
   }
 
@@ -62,6 +80,8 @@ const TanstackTable = <T,>({ data, columns }: TanstackTableProps<T>) => {
       <FilterDropdown
         onValueChange={onNextActionFilterChange}
         values={[...Object.keys(NextAction), 'ALL']}
+        placeholder="Next Action"
+        defaultValue={(columnFilters.find(({ id }) => id === 'nextAction')?.value ?? '') as string}
       />
       <Table.Root>
         <Table.Header>
