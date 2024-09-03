@@ -21,10 +21,8 @@ interface ApplicantTableProps {
   applicants: ApplicantRow[]
 }
 
-const ApplicantTable: FC<ApplicantTableProps> = ({ applicants }) => {
-    return (
-        <TanstackTable data={applicants} columns={columns} />
-    )
-}
+const ApplicantTable: FC<ApplicantTableProps> = ({ applicants }) => (
+  <TanstackTable data={applicants} columns={columns} />
+)
 
 export default ApplicantTable
