@@ -46,6 +46,8 @@ jobs:
         with:
           path: node_modules
           key: ${{ runner.os }}-nextjs-${{ hashFiles('package-lock.json') }}
+      - name: Prisma generate
+        run: npx prisma generate
       - name: Check types
         run: npm run type-check
 
