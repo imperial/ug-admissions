@@ -1,13 +1,22 @@
-import ApplicantTable from '@/components/ApplicantTable'
+import ApplicationTable from '@/components/ApplicationTable'
 import prisma from '@/db'
 
 export default async function Home() {
-  const applicants = await prisma.applicant.findMany({
+  const applications = await prisma.application.findMany({
     select: {
-      cid: true,
-      firstName: true
+      applicant: {
+        select: {
+          cid: true,
+          ucasNumber: true,
+          firstName: true,
+          surname: true
+        }
+      },
+      feeStatus: true,
+      wideningParticipation: true,
+      nextAction: true
     }
   })
 
-  return <ApplicantTable applicants={applicants} />
+  return <ApplicationTable applications={applications} />
 }
