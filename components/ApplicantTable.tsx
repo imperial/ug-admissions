@@ -1,5 +1,6 @@
 "use client"
 
+import React, {FC} from "react"
 import { Applicant } from "@prisma/client"
 import { createColumnHelper } from "@tanstack/react-table"
 import TanstackTable from "./TanstackTable"
@@ -16,7 +17,11 @@ const columns = [
   })
 ]
 
-const ApplicantTable = ({ applicants }: { applicants: ApplicantRow[] }) => {
+interface ApplicantTableProps {
+  applicants: ApplicantRow[]
+}
+
+const ApplicantTable: FC<ApplicantTableProps> = ({ applicants }) => {
     return (
         <TanstackTable data={applicants} columns={columns} />
     )
