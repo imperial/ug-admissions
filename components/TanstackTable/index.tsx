@@ -1,10 +1,13 @@
 'use client'
 
+import { NextAction } from '@prisma/client'
 import { Table } from '@radix-ui/themes'
 import {
   ColumnDef,
+  ColumnFiltersState,
   flexRender,
   getCoreRowModel,
+  getFilteredRowModel,
   getPaginationRowModel,
   useReactTable
 } from '@tanstack/react-table'
@@ -19,22 +22,44 @@ interface TanstackTableProps<T> {
 }
 
 const TanstackTable = <T,>({ data, columns }: TanstackTableProps<T>) => {
-  const [pagination, setPagination] = useState({ pageIndex: 0, pageSize: 5 })
-
+  const [pagination, setPagination] = useState({ pageIndex: 0, pageSize: 30 })
+  const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([])
   const table = useReactTable({
     data,
     columns,
     getCoreRowModel: getCoreRowModel(),
     getPaginationRowModel: getPaginationRowModel(),
+    getFilteredRowModel: getFilteredRowModel(),
     onPaginationChange: setPagination,
+    onColumnFiltersChange: setColumnFilters,
     state: {
-      pagination
+      pagination,
+      columnFilters
     }
   })
 
+  const setColumnFilter = (currentId: string, value: unknown) => {
+    setColumnFilters([
+      ...columnFilters.filter(({ id }) => id !== currentId),
+      { id: currentId, value }
+    ])
+  }
+
+  const removeColumnFilter = (currentId: string) => {
+    setColumnFilters(columnFilters.filter(({ id }) => id !== currentId))
+  }
+
+  const onNextActionFilterChange = (value: string) => {
+    if (value === 'ALL') {
+      removeColumnFilter('nextAction')
+    } else {
+      setColumnFilter('nextAction', value)
+    }
+  }
+
   return (
     <>
-      <FilterDropdown />
+      <FilterDropdown onValueChange={onNextActionFilterChange} />
       <Table.Root>
         <Table.Header>
           {table.getHeaderGroups().map((headerGroup) => (
