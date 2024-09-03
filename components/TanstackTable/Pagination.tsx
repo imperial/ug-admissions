@@ -5,8 +5,6 @@ import { Button, IconButton } from '@radix-ui/themes'
 import React, { FC } from 'react'
 import { Pagination as HeadlessPagination } from 'react-headless-pagination'
 
-import styles from './pagination.module.css'
-
 interface PaginationProps {
   page: number
   setPage: (page: number) => void
@@ -22,7 +20,7 @@ const Pagination: FC<PaginationProps> = ({ page, setPage, totalPages }) => {
       currentPage={page}
       setCurrentPage={setPage}
       truncableText="..."
-      className={styles.pagination}
+      className="flex gap-3 justify-center items-center mt-3 list-none"
     >
       <HeadlessPagination.PrevButton as={<IconButton variant="outline" />}>
         <ChevronLeftIcon />
@@ -30,7 +28,7 @@ const Pagination: FC<PaginationProps> = ({ page, setPage, totalPages }) => {
 
       <HeadlessPagination.PageButton
         as={<Button variant="outline" />}
-        activeClassName={styles.activePageButton}
+        activeClassName="bg-blue-500 text-white"
       />
 
       <HeadlessPagination.NextButton as={<IconButton variant="outline" />}>
