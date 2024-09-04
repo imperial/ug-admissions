@@ -58,6 +58,7 @@ const columns = [
 
 interface ApplicationTableProps {
   applications: ApplicationRow[]
+  reviewerIds: number[]
 }
 
 const ApplicationTable: FC<ApplicationTableProps> = ({ applications }) => (
