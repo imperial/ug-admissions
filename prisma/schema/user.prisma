@@ -1,0 +1,16 @@
+enum Role {
+  UG_TUTOR
+  REVIEWER
+  ADMIN
+  DEV
+}
+
+model User {
+  id              Int           @id @default(autoincrement())
+  admissionsCycle Int
+  loginId         String
+  role            Role
+  applications    Application[]
+
+  @@unique([admissionsCycle, loginId])
+}
