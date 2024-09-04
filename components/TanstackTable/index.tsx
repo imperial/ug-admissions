@@ -31,6 +31,7 @@ const TanstackTable = <T,>({ data, columns }: TanstackTableProps<T>) => {
   const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([])
   const [nextActionFilterValue, setNextActionFilterValue] = useState('ALL')
 
+  // searchParams determine what filters should be applied and the value of the dropdown
   useEffect(() => {
     setColumnFilters(
       searchParams.get('nextAction')
@@ -54,30 +55,31 @@ const TanstackTable = <T,>({ data, columns }: TanstackTableProps<T>) => {
     }
   })
 
-  const setColumnFilter = (currentId: string, value: string) => {
+  const updateSearchParam = (currentId: string, value: string) => {
     const params = new URLSearchParams(searchParams.toString())
     params.set(currentId, value)
     router.push(pathname + '?' + params.toString())
   }
 
-  const removeColumnFilter = (currentId: string) => {
+  const removeSearchParam = (currentId: string) => {
     const params = new URLSearchParams(searchParams.toString())
     params.delete(currentId)
     router.push(pathname + '?' + params.toString())
   }
 
-  const onNextActionFilterChange = (value: string) => {
+  // update searchParams which in turn update the dropdown value and the filters
+  const onNextActionDropdownChange = (value: string) => {
     if (value === 'ALL') {
-      removeColumnFilter('nextAction')
+      removeSearchParam('nextAction')
     } else {
-      setColumnFilter('nextAction', value)
+      updateSearchParam('nextAction', value)
     }
   }
 
   return (
     <>
       <FilterDropdown
-        onValueChange={onNextActionFilterChange}
+        onValueChange={onNextActionDropdownChange}
         values={[...Object.keys(NextAction), 'ALL']}
         currentValue={nextActionFilterValue}
       />
