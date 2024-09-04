@@ -14,7 +14,12 @@ export default async function Home() {
       },
       feeStatus: true,
       wideningParticipation: true,
-      nextAction: true
+      nextAction: true,
+      reviewer: {
+        select: {
+          loginId: true
+        }
+      }
     }
   })
 

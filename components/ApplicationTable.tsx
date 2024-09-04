@@ -1,6 +1,6 @@
 'use client'
 
-import { Applicant, Application, NextAction } from '@prisma/client'
+import { Applicant, Application, User } from '@prisma/client'
 import { createColumnHelper } from '@tanstack/react-table'
 import React, { FC } from 'react'
 
@@ -8,7 +8,9 @@ import TanstackTable from './TanstackTable'
 
 type ApplicationRow = Pick<Application, 'nextAction' | 'feeStatus' | 'wideningParticipation'> & {
   applicant: Pick<Applicant, 'cid' | 'ucasNumber' | 'firstName' | 'surname'>
+  reviewer: Pick<User, 'loginId'> | null
 }
+
 const columnHelper = createColumnHelper<ApplicationRow>()
 
 const columns = [
@@ -46,6 +48,11 @@ const columns = [
     cell: (info) => info.getValue(),
     header: 'Next Action',
     id: 'nextAction'
+  }),
+  columnHelper.accessor('reviewer.loginId', {
+    cell: (info) => info.getValue(),
+    header: 'Reviewer',
+    id: 'reviewer.loginId'
   })
 ]
 
