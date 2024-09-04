@@ -17,8 +17,8 @@ const FilterDropdown: FC<FilterDropdownProps> = ({
   title
 }) => {
   return (
-    <Flex gapX="3">
-      {title && <Text className="text-center">{title}</Text>}
+    <Flex gapX="3" align="center">
+      {title && <Text className="text-center">{`${title}: `}</Text>}
       <Select.Root onValueChange={onValueChange} value={currentValue}>
         <Select.Trigger placeholder={placeholder ?? ''} />
         <Select.Content>
