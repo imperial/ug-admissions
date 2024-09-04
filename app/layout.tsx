@@ -1,11 +1,11 @@
 import { Theme } from '@radix-ui/themes'
 import '@radix-ui/themes/styles.css'
+import classNames from 'classnames'
 import type { Metadata } from 'next'
 import { Inter } from 'next/font/google'
 import 'tailwindcss/tailwind.css'
 
 const inter = Inter({ subsets: ['latin'] })
-const classNames = require('classnames')
 
 export const metadata: Metadata = {
   title: 'Create Next App',
