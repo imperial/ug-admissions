@@ -8,7 +8,7 @@ on:
   push:
     branches:
       - main
-      - 'feat/*'
+      - 'feat-*'
   pull_request:
     branches:
       - main
@@ -46,6 +46,8 @@ jobs:
         with:
           path: node_modules
           key: ${{ runner.os }}-nextjs-${{ hashFiles('package-lock.json') }}
+      - name: Prisma generate
+        run: npx prisma generate
       - name: Check types
         run: npm run type-check
 
@@ -91,6 +93,7 @@ jobs:
       - type-check
       - style-check
       - lint
+    if: github.ref == 'refs/heads/main'
     runs-on: ubuntu-latest
     # Sets the permissions granted to the `GITHUB_TOKEN` for the actions in this job.
     permissions:

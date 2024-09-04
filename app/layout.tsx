@@ -1,5 +1,6 @@
 import { Theme } from '@radix-ui/themes'
 import '@radix-ui/themes/styles.css'
+import classNames from 'classnames'
 import type { Metadata } from 'next'
 import { Inter } from 'next/font/google'
 import 'tailwindcss/tailwind.css'
@@ -18,7 +19,7 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
-      <body className={inter.className}>
+      <body className={classNames(inter.className, 'p-6')}>
         <Theme>{children}</Theme>
       </body>
     </html>

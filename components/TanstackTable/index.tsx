@@ -1,15 +1,20 @@
 'use client'
 
+import { NextAction } from '@prisma/client'
 import { Table } from '@radix-ui/themes'
 import {
   ColumnDef,
+  ColumnFiltersState,
   flexRender,
   getCoreRowModel,
+  getFilteredRowModel,
   getPaginationRowModel,
   useReactTable
 } from '@tanstack/react-table'
+import { usePathname, useRouter, useSearchParams } from 'next/navigation'
 import { useState } from 'react'
 
+import FilterDropdown from './FilterDropdown'
 import Pagination from './Pagination'
 
 interface TanstackTableProps<T> {
@@ -18,21 +23,66 @@ interface TanstackTableProps<T> {
 }
 
 const TanstackTable = <T,>({ data, columns }: TanstackTableProps<T>) => {
-  const [pagination, setPagination] = useState({ pageIndex: 0, pageSize: 5 })
+  const router = useRouter()
+  const pathname = usePathname()
+  const searchParams = useSearchParams()
+
+  const [pagination, setPagination] = useState({ pageIndex: 0, pageSize: 30 })
+  const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>(
+    searchParams.get('nextAction')
+      ? [{ id: 'nextAction', value: searchParams.get('nextAction') }]
+      : []
+  )
 
   const table = useReactTable({
     data,
     columns,
     getCoreRowModel: getCoreRowModel(),
     getPaginationRowModel: getPaginationRowModel(),
+    getFilteredRowModel: getFilteredRowModel(),
     onPaginationChange: setPagination,
+    onColumnFiltersChange: setColumnFilters,
     state: {
-      pagination
+      pagination,
+      columnFilters
     }
   })
 
+  const setColumnFilter = (currentId: string, value: string) => {
+    const params = new URLSearchParams(searchParams.toString())
+    params.set(currentId, value)
+    router.push(pathname + '?' + params.toString())
+
+    setColumnFilters([
+      ...columnFilters.filter(({ id }) => id !== currentId),
+      { id: currentId, value }
+    ])
+  }
+
+  const removeColumnFilter = (currentId: string) => {
+    const params = new URLSearchParams(searchParams.toString())
+    params.delete(currentId)
+    router.push(pathname + '?' + params.toString())
+
+    setColumnFilters(columnFilters.filter(({ id }) => id !== currentId))
+  }
+
+  const onNextActionFilterChange = (value: string) => {
+    if (value === 'ALL') {
+      removeColumnFilter('nextAction')
+    } else {
+      setColumnFilter('nextAction', value)
+    }
+  }
+
   return (
     <>
+      <FilterDropdown
+        onValueChange={onNextActionFilterChange}
+        values={[...Object.keys(NextAction), 'ALL']}
+        placeholder="Next Action"
+        defaultValue={(columnFilters.find(({ id }) => id === 'nextAction')?.value ?? '') as string}
+      />
       <Table.Root>
         <Table.Header>
           {table.getHeaderGroups().map((headerGroup) => (
