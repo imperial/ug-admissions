@@ -3,6 +3,8 @@ import prisma from '@/db'
 import { Role } from '@prisma/client'
 import { log } from 'console'
 
+export const dynamic = 'force-dynamic'
+
 export default async function Home() {
   const applications = await prisma.application.findMany({
     select: {
