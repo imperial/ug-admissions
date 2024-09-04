@@ -1,7 +1,7 @@
 'use client'
 
 import { Applicant, Application, NextAction, User } from '@prisma/client'
-import { Card } from '@radix-ui/themes'
+import { Card, Flex } from '@radix-ui/themes'
 import { ColumnFiltersState, createColumnHelper } from '@tanstack/react-table'
 import { usePathname, useRouter, useSearchParams } from 'next/navigation'
 import React, { FC, useEffect, useState } from 'react'
@@ -104,16 +104,20 @@ const ApplicationTable: FC<ApplicationTableProps> = ({ applications, reviewerIds
   return (
     <>
       <Card>
-        <FilterDropdown
-          values={[...reviewerIds, 'ALL']}
-          currentValue={reviewerFilterValue}
-          onValueChange={(value) => onFilterDropdownChange('reviewer', value)}
-        />
-        <FilterDropdown
-          values={[...Object.keys(NextAction), 'ALL']}
-          currentValue={nextActionFilterValue}
-          onValueChange={(value) => onFilterDropdownChange('nextAction', value)}
-        />
+        <Flex gapX="5">
+          <FilterDropdown
+            values={[...Object.keys(NextAction), 'ALL']}
+            currentValue={nextActionFilterValue}
+            onValueChange={(value) => onFilterDropdownChange('nextAction', value)}
+            title="Next Action"
+          />
+          <FilterDropdown
+            values={[...reviewerIds, 'ALL']}
+            currentValue={reviewerFilterValue}
+            onValueChange={(value) => onFilterDropdownChange('reviewer', value)}
+            title="Reviewer"
+          />
+        </Flex>
       </Card>
       <TanstackTable
         data={applications}
