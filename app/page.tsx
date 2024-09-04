@@ -1,6 +1,8 @@
 import ApplicationTable from '@/components/ApplicationTable'
 import prisma from '@/db'
 
+export const dynamic = 'force-dynamic'
+
 export default async function Home() {
   const applications = await prisma.application.findMany({
     select: {
