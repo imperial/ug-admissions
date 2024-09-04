@@ -1,30 +1,35 @@
-import { Select } from '@radix-ui/themes'
+import { Flex, Select, Text } from '@radix-ui/themes'
 import React, { FC } from 'react'
 
 interface FilterDropdownProps {
   onValueChange: (value: string) => void
   values: string[]
-  placeholder?: string
   currentValue: string
+  placeholder?: string
+  title?: string
 }
 
 const FilterDropdown: FC<FilterDropdownProps> = ({
   onValueChange,
   values,
+  currentValue,
   placeholder,
-  currentValue
+  title
 }) => {
   return (
-    <Select.Root onValueChange={onValueChange} value={currentValue}>
-      <Select.Trigger placeholder={placeholder ?? ''} />
-      <Select.Content>
-        {values.map((value) => (
-          <Select.Item key={value} value={value}>
-            {value}
-          </Select.Item>
-        ))}
-      </Select.Content>
-    </Select.Root>
+    <Flex gapX="3" align="center">
+      {title && <Text className="text-center">{`${title}:`}</Text>}
+      <Select.Root onValueChange={onValueChange} value={currentValue}>
+        <Select.Trigger placeholder={placeholder ?? ''} />
+        <Select.Content>
+          {values.map((value) => (
+            <Select.Item key={value} value={value}>
+              {value}
+            </Select.Item>
+          ))}
+        </Select.Content>
+      </Select.Root>
+    </Flex>
   )
 }
 
