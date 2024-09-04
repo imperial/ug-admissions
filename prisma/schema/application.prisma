@@ -32,7 +32,8 @@ model Application {
   tmuaPaper2Score       Decimal         @db.Decimal(2, 1)
   tmuaOverallScore      Decimal         @db.Decimal(2, 1)
   qualifications        Qualification[]
-  nextAction    NextAction        @default(TMUA_CANDIDATE)
+  nextAction            NextAction        @default(TMUA_CANDIDATE)
+  // outcomes             Outcome[]
 }
 
 model Qualification {
