@@ -1,45 +1,34 @@
 'use client'
 
-import { NextAction } from '@prisma/client'
 import { Table } from '@radix-ui/themes'
 import {
   ColumnDef,
   ColumnFiltersState,
+  OnChangeFn,
   flexRender,
   getCoreRowModel,
   getFilteredRowModel,
   getPaginationRowModel,
   useReactTable
 } from '@tanstack/react-table'
-import { usePathname, useRouter, useSearchParams } from 'next/navigation'
-import { useEffect, useState } from 'react'
+import { useState } from 'react'
 
-import FilterDropdown from './FilterDropdown'
 import Pagination from './Pagination'
 
 interface TanstackTableProps<T> {
   data: T[]
   columns: ColumnDef<T, any>[]
+  columnFilters: ColumnFiltersState
+  setColumnFilters: OnChangeFn<ColumnFiltersState>
 }
 
-const TanstackTable = <T,>({ data, columns }: TanstackTableProps<T>) => {
-  const router = useRouter()
-  const pathname = usePathname()
-  const searchParams = useSearchParams()
-
+const TanstackTable = <T,>({
+  data,
+  columns,
+  columnFilters,
+  setColumnFilters
+}: TanstackTableProps<T>) => {
   const [pagination, setPagination] = useState({ pageIndex: 0, pageSize: 30 })
-  const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([])
-  const [nextActionFilterValue, setNextActionFilterValue] = useState('ALL')
-
-  // searchParams determine what filters should be applied and the value of the dropdown
-  useEffect(() => {
-    setColumnFilters(
-      searchParams.get('nextAction')
-        ? [{ id: 'nextAction', value: searchParams.get('nextAction') }]
-        : []
-    )
-    setNextActionFilterValue(searchParams.get('nextAction') || 'ALL')
-  }, [searchParams, setNextActionFilterValue, setColumnFilters])
 
   const table = useReactTable({
     data,
@@ -55,34 +44,8 @@ const TanstackTable = <T,>({ data, columns }: TanstackTableProps<T>) => {
     }
   })
 
-  const updateSearchParam = (name: string, value: string) => {
-    const params = new URLSearchParams(searchParams.toString())
-    params.set(name, value)
-    router.push(pathname + '?' + params.toString())
-  }
-
-  const removeSearchParam = (name: string) => {
-    const params = new URLSearchParams(searchParams.toString())
-    params.delete(name)
-    router.push(pathname + '?' + params.toString())
-  }
-
-  // update searchParams which in turn update the dropdown value and the filters
-  const onFilterDropdownChange = (name: string, value: string) => {
-    if (value === 'ALL') {
-      removeSearchParam(name)
-    } else {
-      updateSearchParam(name, value)
-    }
-  }
-
   return (
     <>
-      <FilterDropdown
-        onValueChange={(value) => onFilterDropdownChange('nextAction', value)}
-        values={[...Object.keys(NextAction), 'ALL']}
-        currentValue={nextActionFilterValue}
-      />
       <Table.Root>
         <Table.Header>
           {table.getHeaderGroups().map((headerGroup) => (
