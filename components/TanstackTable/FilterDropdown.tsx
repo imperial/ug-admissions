@@ -5,17 +5,17 @@ interface FilterDropdownProps {
   onValueChange: (value: string) => void
   values: string[]
   placeholder?: string
-  defaultValue?: string
+  currentValue: string
 }
 
 const FilterDropdown: FC<FilterDropdownProps> = ({
   onValueChange,
   values,
   placeholder,
-  defaultValue
+  currentValue
 }) => {
   return (
-    <Select.Root onValueChange={onValueChange} defaultValue={defaultValue}>
+    <Select.Root onValueChange={onValueChange} value={currentValue}>
       <Select.Trigger placeholder={placeholder ?? ''} />
       <Select.Content>
         {values.map((value) => (
