@@ -68,18 +68,18 @@ const TanstackTable = <T,>({ data, columns }: TanstackTableProps<T>) => {
   }
 
   // update searchParams which in turn update the dropdown value and the filters
-  const onNextActionDropdownChange = (value: string) => {
+  const onFilterDropdownChange = (name: string, value: string) => {
     if (value === 'ALL') {
-      removeSearchParam('nextAction')
+      removeSearchParam(name)
     } else {
-      updateSearchParam('nextAction', value)
+      updateSearchParam(name, value)
     }
   }
 
   return (
     <>
       <FilterDropdown
-        onValueChange={onNextActionDropdownChange}
+        onValueChange={(value) => onFilterDropdownChange('nextAction', value)}
         values={[...Object.keys(NextAction), 'ALL']}
         currentValue={nextActionFilterValue}
       />
