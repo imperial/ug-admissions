@@ -12,7 +12,7 @@ import FilterDropdown from './TanstackTable/FilterDropdown'
 
 type ApplicationRow = Pick<Application, 'nextAction' | 'feeStatus' | 'wideningParticipation'> & {
   applicant: Pick<Applicant, 'cid' | 'ucasNumber' | 'firstName' | 'surname'>
-  reviewer: Pick<User, 'loginId'> | null
+  reviewer: Pick<User, 'login'> | null
 }
 
 const ALL_DROPDOWN_OPTION = 'All'
@@ -57,7 +57,7 @@ const columns = [
     header: 'Next Action',
     id: SEARCH_PARAM_NEXT_ACTION
   }),
-  columnHelper.accessor('reviewer.loginId', {
+  columnHelper.accessor('reviewer.login', {
     cell: (info) => info.getValue(),
     header: 'Reviewer',
     id: SEARCH_PARAM_REVIEWER

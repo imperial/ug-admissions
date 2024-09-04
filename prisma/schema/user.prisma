@@ -8,9 +8,9 @@ enum Role {
 model User {
   id              Int           @id @default(autoincrement())
   admissionsCycle Int
-  loginId         String
+  login        String
   role            Role
   applications    Application[]
 
-  @@unique([admissionsCycle, loginId])
+  @@unique([admissionsCycle, login])
 }

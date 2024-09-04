@@ -7,7 +7,7 @@ const prisma = new PrismaClient()
 const createUser = (role: Role) => {
   return {
     admissionsCycle: faker.date.future().getFullYear(),
-    loginId: faker.string.alpha({ length: 2 }).toLowerCase() + faker.string.numeric({ length: 3 }),
+    login: faker.string.alpha({ length: 2 }).toLowerCase() + faker.string.numeric({ length: 3 }),
     role: role
   }
 }

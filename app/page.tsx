@@ -20,7 +20,7 @@ export default async function Home() {
       nextAction: true,
       reviewer: {
         select: {
-          loginId: true
+          login: true
         }
       }
     }
@@ -29,16 +29,16 @@ export default async function Home() {
   const reviewerIds = (
     await prisma.user.findMany({
       select: {
-        loginId: true
+        login: true
       },
       where: {
         role: Role.REVIEWER
       },
       orderBy: {
-        loginId: 'asc'
+        login: 'asc'
       }
     })
-  ).map((user) => user.loginId)
+  ).map((user) => user.login)
 
   return <ApplicationTable applications={applications} reviewerIds={reviewerIds} />
 }
