@@ -1,6 +1,7 @@
 import ApplicationTable from '@/components/ApplicationTable'
 import prisma from '@/db'
 import { Role } from '@prisma/client'
+import { log } from 'console'
 
 export default async function Home() {
   const applications = await prisma.application.findMany({
@@ -31,6 +32,9 @@ export default async function Home() {
       },
       where: {
         role: Role.REVIEWER
+      },
+      orderBy: {
+        loginId: 'asc'
       }
     })
   ).map((user) => user.loginId)

@@ -69,15 +69,15 @@ const ApplicationTable: FC<ApplicationTableProps> = ({ applications, reviewerIds
   const pathname = usePathname()
   const searchParams = useSearchParams()
   const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([])
-  const [nextActionFilterValue, setNextActionFilterValue] = useState('ALL')
-  const [reviewerFilterValue, setReviewerFilterValue] = useState('ALL')
+  const [nextActionFilterValue, setNextActionFilterValue] = useState('All')
+  const [reviewerFilterValue, setReviewerFilterValue] = useState('All')
 
   // searchParams determine what filters should be applied and the value of the dropdown
   useEffect(() => {
     setColumnFilters(Array.from(searchParams).map(([key, value]) => ({ id: key, value: value })))
 
-    setNextActionFilterValue(searchParams.get('nextAction') || 'ALL')
-    setReviewerFilterValue(searchParams.get('reviewer') || 'ALL')
+    setNextActionFilterValue(searchParams.get('nextAction') || 'All')
+    setReviewerFilterValue(searchParams.get('reviewer') || 'All')
   }, [searchParams, setNextActionFilterValue, setReviewerFilterValue, setColumnFilters])
 
   const updateSearchParam = (name: string, value: string) => {
@@ -94,7 +94,7 @@ const ApplicationTable: FC<ApplicationTableProps> = ({ applications, reviewerIds
 
   // update searchParams which in turn update the dropdown value and the filters
   const onFilterDropdownChange = (name: string, value: string) => {
-    if (value === 'ALL') {
+    if (value === 'All') {
       removeSearchParam(name)
     } else {
       updateSearchParam(name, value)
@@ -106,13 +106,13 @@ const ApplicationTable: FC<ApplicationTableProps> = ({ applications, reviewerIds
       <Card>
         <Flex gapX="5">
           <FilterDropdown
-            values={[...Object.keys(NextAction), 'ALL']}
+            values={['All', ...Object.keys(NextAction)]}
             currentValue={nextActionFilterValue}
             onValueChange={(value) => onFilterDropdownChange('nextAction', value)}
             title="Next Action"
           />
           <FilterDropdown
-            values={[...reviewerIds, 'ALL']}
+            values={['All', ...reviewerIds]}
             currentValue={reviewerFilterValue}
             onValueChange={(value) => onFilterDropdownChange('reviewer', value)}
             title="Reviewer"
