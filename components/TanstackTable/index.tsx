@@ -55,15 +55,15 @@ const TanstackTable = <T,>({ data, columns }: TanstackTableProps<T>) => {
     }
   })
 
-  const updateSearchParam = (currentId: string, value: string) => {
+  const updateSearchParam = (name: string, value: string) => {
     const params = new URLSearchParams(searchParams.toString())
-    params.set(currentId, value)
+    params.set(name, value)
     router.push(pathname + '?' + params.toString())
   }
 
-  const removeSearchParam = (currentId: string) => {
+  const removeSearchParam = (name: string) => {
     const params = new URLSearchParams(searchParams.toString())
-    params.delete(currentId)
+    params.delete(name)
     router.push(pathname + '?' + params.toString())
   }
 
