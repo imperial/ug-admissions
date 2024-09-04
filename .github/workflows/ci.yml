@@ -93,6 +93,7 @@ jobs:
       - type-check
       - style-check
       - lint
+    if: github.ref == 'refs/heads/main'
     runs-on: ubuntu-latest
     # Sets the permissions granted to the `GITHUB_TOKEN` for the actions in this job.
     permissions:
