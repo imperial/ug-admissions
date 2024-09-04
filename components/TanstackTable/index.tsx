@@ -12,7 +12,7 @@ import {
   useReactTable
 } from '@tanstack/react-table'
 import { usePathname, useRouter, useSearchParams } from 'next/navigation'
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 
 import FilterDropdown from './FilterDropdown'
 import Pagination from './Pagination'
@@ -28,11 +28,17 @@ const TanstackTable = <T,>({ data, columns }: TanstackTableProps<T>) => {
   const searchParams = useSearchParams()
 
   const [pagination, setPagination] = useState({ pageIndex: 0, pageSize: 30 })
-  const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>(
-    searchParams.get('nextAction')
-      ? [{ id: 'nextAction', value: searchParams.get('nextAction') }]
-      : []
-  )
+  const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([])
+  const [nextActionFilterValue, setNextActionFilterValue] = useState('ALL')
+
+  useEffect(() => {
+    setColumnFilters(
+      searchParams.get('nextAction')
+        ? [{ id: 'nextAction', value: searchParams.get('nextAction') }]
+        : []
+    )
+    setNextActionFilterValue(searchParams.get('nextAction') || 'ALL')
+  }, [searchParams, setNextActionFilterValue, setColumnFilters])
 
   const table = useReactTable({
     data,
@@ -52,19 +58,12 @@ const TanstackTable = <T,>({ data, columns }: TanstackTableProps<T>) => {
     const params = new URLSearchParams(searchParams.toString())
     params.set(currentId, value)
     router.push(pathname + '?' + params.toString())
-
-    setColumnFilters([
-      ...columnFilters.filter(({ id }) => id !== currentId),
-      { id: currentId, value }
-    ])
   }
 
   const removeColumnFilter = (currentId: string) => {
     const params = new URLSearchParams(searchParams.toString())
     params.delete(currentId)
     router.push(pathname + '?' + params.toString())
-
-    setColumnFilters(columnFilters.filter(({ id }) => id !== currentId))
   }
 
   const onNextActionFilterChange = (value: string) => {
@@ -80,8 +79,7 @@ const TanstackTable = <T,>({ data, columns }: TanstackTableProps<T>) => {
       <FilterDropdown
         onValueChange={onNextActionFilterChange}
         values={[...Object.keys(NextAction), 'ALL']}
-        placeholder="Next Action"
-        defaultValue={(columnFilters.find(({ id }) => id === 'nextAction')?.value ?? '') as string}
+        currentValue={nextActionFilterValue}
       />
       <Table.Root>
         <Table.Header>
