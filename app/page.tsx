@@ -1,7 +1,6 @@
 import ApplicationTable from '@/components/ApplicationTable'
 import prisma from '@/db'
 import { Role } from '@prisma/client'
-import { log } from 'console'
 
 export const dynamic = 'force-dynamic'
 
@@ -41,9 +40,5 @@ export default async function Home() {
     })
   ).map((user) => user.loginId)
 
-  return (
-    <>
-      <ApplicationTable applications={applications} reviewerIds={reviewerIds} />
-    </>
-  )
+  return <ApplicationTable applications={applications} reviewerIds={reviewerIds} />
 }
