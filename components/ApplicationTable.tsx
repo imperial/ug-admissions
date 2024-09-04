@@ -1,5 +1,6 @@
 'use client'
 
+import FilterBar from '@/app/FilterBar'
 import { Applicant, Application, User } from '@prisma/client'
 import { createColumnHelper } from '@tanstack/react-table'
 import React, { FC } from 'react'
@@ -62,7 +63,10 @@ interface ApplicationTableProps {
 }
 
 const ApplicationTable: FC<ApplicationTableProps> = ({ applications }) => (
-  <TanstackTable data={applications} columns={columns} />
+  <>
+    <FilterBar />
+    <TanstackTable data={applications} columns={columns} />
+  </>
 )
 
 export default ApplicationTable
