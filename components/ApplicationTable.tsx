@@ -1,14 +1,24 @@
 'use client'
 
-import { Applicant, Application, NextAction } from '@prisma/client'
-import { createColumnHelper } from '@tanstack/react-table'
-import React, { FC } from 'react'
+import type { Applicant, Application, User } from '@prisma/client'
+import { NextAction } from '@prisma/client'
+import { Card, Flex } from '@radix-ui/themes'
+import { ColumnFiltersState, createColumnHelper } from '@tanstack/react-table'
+import { usePathname, useRouter, useSearchParams } from 'next/navigation'
+import React, { FC, useEffect, useState } from 'react'
 
 import TanstackTable from './TanstackTable'
+import FilterDropdown from './TanstackTable/FilterDropdown'
 
 type ApplicationRow = Pick<Application, 'nextAction' | 'feeStatus' | 'wideningParticipation'> & {
   applicant: Pick<Applicant, 'cid' | 'ucasNumber' | 'firstName' | 'surname'>
+  reviewer: Pick<User, 'login'> | null
 }
+
+const ALL_DROPDOWN_OPTION = 'All'
+const SEARCH_PARAM_NEXT_ACTION = 'nextAction'
+const SEARCH_PARAM_REVIEWER = 'reviewer'
+
 const columnHelper = createColumnHelper<ApplicationRow>()
 
 const columns = [
@@ -45,16 +55,80 @@ const columns = [
   columnHelper.accessor('nextAction', {
     cell: (info) => info.getValue(),
     header: 'Next Action',
-    id: 'nextAction'
+    id: SEARCH_PARAM_NEXT_ACTION
+  }),
+  columnHelper.accessor('reviewer.login', {
+    cell: (info) => info.getValue(),
+    header: 'Reviewer',
+    id: SEARCH_PARAM_REVIEWER
   })
 ]
 
 interface ApplicationTableProps {
   applications: ApplicationRow[]
+  reviewerIds: string[]
 }
 
-const ApplicationTable: FC<ApplicationTableProps> = ({ applications }) => (
-  <TanstackTable data={applications} columns={columns} />
-)
+const ApplicationTable: FC<ApplicationTableProps> = ({ applications, reviewerIds }) => {
+  const router = useRouter()
+  const pathname = usePathname()
+  const searchParams = useSearchParams()
+  const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([])
+  const [nextActionFilterValue, setNextActionFilterValue] = useState(ALL_DROPDOWN_OPTION)
+  const [reviewerFilterValue, setReviewerFilterValue] = useState(ALL_DROPDOWN_OPTION)
+
+  // searchParams determine what filters should be applied and the value of the dropdown
+  useEffect(() => {
+    setColumnFilters(Array.from(searchParams).map(([key, value]) => ({ id: key, value: value })))
+
+    setNextActionFilterValue(searchParams.get(SEARCH_PARAM_NEXT_ACTION) || ALL_DROPDOWN_OPTION)
+    setReviewerFilterValue(searchParams.get(SEARCH_PARAM_REVIEWER) || ALL_DROPDOWN_OPTION)
+  }, [searchParams, setNextActionFilterValue, setReviewerFilterValue, setColumnFilters])
+
+  const updateSearchParam = (name: string, value: string) => {
+    const params = new URLSearchParams(searchParams.toString())
+    params.set(name, value)
+    router.push(`${pathname}?${params}`)
+  }
+
+  const removeSearchParam = (name: string) => {
+    const params = new URLSearchParams(searchParams.toString())
+    params.delete(name)
+    router.push(`${pathname}?${params}`)
+  }
+
+  // update searchParams which in turn update the dropdown value and the filters
+  const onFilterDropdownChange = (name: string, value: string) => {
+    if (value === ALL_DROPDOWN_OPTION) removeSearchParam(name)
+    else updateSearchParam(name, value)
+  }
+
+  return (
+    <>
+      <Card>
+        <Flex gapX="5">
+          <FilterDropdown
+            values={[ALL_DROPDOWN_OPTION, ...Object.keys(NextAction)]}
+            currentValue={nextActionFilterValue}
+            onValueChange={(value) => onFilterDropdownChange(SEARCH_PARAM_NEXT_ACTION, value)}
+            title="Next Action"
+          />
+          <FilterDropdown
+            values={[ALL_DROPDOWN_OPTION, ...reviewerIds]}
+            currentValue={reviewerFilterValue}
+            onValueChange={(value) => onFilterDropdownChange(SEARCH_PARAM_REVIEWER, value)}
+            title="Reviewer"
+          />
+        </Flex>
+      </Card>
+      <TanstackTable
+        data={applications}
+        columns={columns}
+        columnFilters={columnFilters}
+        setColumnFilters={setColumnFilters}
+      />
+    </>
+  )
+}
 
 export default ApplicationTable

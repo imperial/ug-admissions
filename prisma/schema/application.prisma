@@ -33,6 +33,8 @@ model Application {
   tmuaOverallScore      Decimal         @db.Decimal(2, 1)
   qualifications        Qualification[]
   nextAction            NextAction      @default(TMUA_CANDIDATE)
+  reviewer              User?           @relation(fields: [reviewerId], references: [id])
+  reviewerId            Int?
 }
 
 model Qualification {
