@@ -5,6 +5,7 @@ import { Inter } from 'next/font/google'
 import 'tailwindcss/tailwind.css'
 
 const inter = Inter({ subsets: ['latin'] })
+const classNames = require('classnames')
 
 export const metadata: Metadata = {
   title: 'Create Next App',
@@ -18,7 +19,7 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
-      <body className={inter.className + ' p-6'}>
+      <body className={classNames(inter.className, 'p-6')}>
         <Theme>{children}</Theme>
       </body>
     </html>
