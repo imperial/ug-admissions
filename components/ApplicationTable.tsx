@@ -55,31 +55,30 @@ const columns = [
   columnHelper.accessor('reviewer.loginId', {
     cell: (info) => info.getValue(),
     header: 'Reviewer',
-    id: 'reviewer.loginId'
+    id: 'reviewer'
   })
 ]
 
 interface ApplicationTableProps {
   applications: ApplicationRow[]
-  reviewerIds: number[]
+  reviewerIds: string[]
 }
 
-const ApplicationTable: FC<ApplicationTableProps> = ({ applications }) => {
+const ApplicationTable: FC<ApplicationTableProps> = ({ applications, reviewerIds }) => {
   const router = useRouter()
   const pathname = usePathname()
   const searchParams = useSearchParams()
   const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([])
   const [nextActionFilterValue, setNextActionFilterValue] = useState('ALL')
+  const [reviewerFilterValue, setReviewerFilterValue] = useState('ALL')
 
   // searchParams determine what filters should be applied and the value of the dropdown
   useEffect(() => {
-    setColumnFilters(
-      searchParams.get('nextAction')
-        ? [{ id: 'nextAction', value: searchParams.get('nextAction') }]
-        : []
-    )
+    setColumnFilters(Array.from(searchParams).map(([key, value]) => ({ id: key, value: value })))
+
     setNextActionFilterValue(searchParams.get('nextAction') || 'ALL')
-  }, [searchParams, setNextActionFilterValue, setColumnFilters])
+    setReviewerFilterValue(searchParams.get('reviewer') || 'ALL')
+  }, [searchParams, setNextActionFilterValue, setReviewerFilterValue, setColumnFilters])
 
   const updateSearchParam = (name: string, value: string) => {
     const params = new URLSearchParams(searchParams.toString())
@@ -106,14 +105,14 @@ const ApplicationTable: FC<ApplicationTableProps> = ({ applications }) => {
     <>
       <Card>
         <FilterDropdown
-          values={['apple', 'banana']}
-          currentValue={'apple'}
-          onValueChange={() => {}}
+          values={[...reviewerIds, 'ALL']}
+          currentValue={reviewerFilterValue}
+          onValueChange={(value) => onFilterDropdownChange('reviewer', value)}
         />
         <FilterDropdown
-          onValueChange={(value) => onFilterDropdownChange('nextAction', value)}
           values={[...Object.keys(NextAction), 'ALL']}
           currentValue={nextActionFilterValue}
+          onValueChange={(value) => onFilterDropdownChange('nextAction', value)}
         />
       </Card>
       <TanstackTable

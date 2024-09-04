@@ -27,13 +27,13 @@ export default async function Home() {
   const reviewerIds = (
     await prisma.user.findMany({
       select: {
-        id: true
+        loginId: true
       },
       where: {
         role: Role.REVIEWER
       }
     })
-  ).map((user) => user.id)
+  ).map((user) => user.loginId)
 
   return (
     <>
