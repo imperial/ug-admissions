@@ -2,13 +2,23 @@
 
 import Dropdown from '@/components/TanstackTable/Dropdown'
 import { upsertAdminScoring } from '@/lib/forms'
-import { QualificationType16, QualificationType18 } from '@prisma/client'
-import { Button, Dialog, Flex, Heading, TextField } from '@radix-ui/themes'
+import { Applicant, QualificationType16, QualificationType18 } from '@prisma/client'
+import { CrossCircledIcon } from '@radix-ui/react-icons'
+import { Button, Callout, Dialog, Flex, Heading, TextField } from '@radix-ui/themes'
 import React, { FC, useState } from 'react'
+import { useFormState } from 'react-dom'
 
-const AdminScoringForm: FC = () => {
+interface AdminScoringFormProps {
+  applicant: Pick<Applicant, 'cid' | 'ucasNumber' | 'firstName' | 'surname'>
+}
+
+const AdminScoringForm: FC<AdminScoringFormProps> = ({ applicant }: AdminScoringFormProps) => {
   const [age16ExamType, setAge16ExamType] = useState('')
   const [age18ExamType, setAge18ExamType] = useState('')
+
+  const upsertAdminScoringWithId = upsertAdminScoring.bind(null, applicant.cid)
+  const [state, formAction] = useFormState(upsertAdminScoringWithId, { status: '', message: '' })
+
   return (
     <Dialog.Root>
       <Dialog.Trigger>
@@ -17,8 +27,15 @@ const AdminScoringForm: FC = () => {
 
       <Dialog.Content maxWidth="450px">
         <Dialog.Title>Admin Scoring Form</Dialog.Title>
-
-        <form className="flex flex-col gap-5" action={upsertAdminScoring}>
+        {state.status === 'error' && (
+          <Callout.Root size="1" color="red" className="mb-3">
+            <Callout.Icon>
+              <CrossCircledIcon />
+            </Callout.Icon>
+            <Callout.Text>{state.message}</Callout.Text>
+          </Callout.Root>
+        )}
+        <form className="flex flex-col gap-5" action={formAction}>
           <Heading as="h3" size="3">
             Age 16 exam
           </Heading>
@@ -48,6 +65,8 @@ const AdminScoringForm: FC = () => {
               max={10.0}
               step={0.1}
               className="flex-grow"
+              disabled={!age16ExamType}
+              required={!!age16ExamType}
             />
           </Flex>
 
@@ -78,6 +97,8 @@ const AdminScoringForm: FC = () => {
               max={10.0}
               step={0.1}
               className="flex-grow"
+              disabled={!age18ExamType}
+              required={!!age18ExamType}
             />
           </Flex>
           <Flex gap="2" direction="column">

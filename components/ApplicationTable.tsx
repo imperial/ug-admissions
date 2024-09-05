@@ -63,7 +63,10 @@ const columns = [
     header: 'Reviewer',
     id: SEARCH_PARAM_REVIEWER
   }),
-  columnHelper.display({ id: 'adminFormButton', cell: () => <AdminScoringForm /> })
+  columnHelper.display({
+    id: 'adminFormButton',
+    cell: (info) => <AdminScoringForm applicant={info.row.original.applicant} />
+  })
 ]
 
 interface ApplicationTableProps {
