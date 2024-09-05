@@ -1,5 +1,6 @@
 'use client'
 
+import AdminScoringForm from '@/components/AdminScoringForm'
 import type { Applicant, Application, User } from '@prisma/client'
 import { NextAction } from '@prisma/client'
 import { Card, Flex } from '@radix-ui/themes'
@@ -8,7 +9,7 @@ import { usePathname, useRouter, useSearchParams } from 'next/navigation'
 import React, { FC, useEffect, useState } from 'react'
 
 import TanstackTable from './TanstackTable'
-import FilterDropdown from './TanstackTable/FilterDropdown'
+import Dropdown from './TanstackTable/Dropdown'
 
 type ApplicationRow = Pick<Application, 'nextAction' | 'feeStatus' | 'wideningParticipation'> & {
   applicant: Pick<Applicant, 'cid' | 'ucasNumber' | 'firstName' | 'surname'>
@@ -61,7 +62,8 @@ const columns = [
     cell: (info) => info.getValue(),
     header: 'Reviewer',
     id: SEARCH_PARAM_REVIEWER
-  })
+  }),
+  columnHelper.display({ id: 'adminFormButton', cell: () => <AdminScoringForm /> })
 ]
 
 interface ApplicationTableProps {
@@ -107,13 +109,13 @@ const ApplicationTable: FC<ApplicationTableProps> = ({ applications, reviewerIds
     <>
       <Card>
         <Flex gapX="5">
-          <FilterDropdown
+          <Dropdown
             values={[ALL_DROPDOWN_OPTION, ...Object.keys(NextAction)]}
             currentValue={nextActionFilterValue}
             onValueChange={(value) => onFilterDropdownChange(SEARCH_PARAM_NEXT_ACTION, value)}
             title="Next Action"
           />
-          <FilterDropdown
+          <Dropdown
             values={[ALL_DROPDOWN_OPTION, ...reviewerIds]}
             currentValue={reviewerFilterValue}
             onValueChange={(value) => onFilterDropdownChange(SEARCH_PARAM_REVIEWER, value)}
