@@ -1,5 +1,12 @@
 import { faker } from '@faker-js/faker'
-import { Application, PrismaClient, Role, User } from '@prisma/client'
+import {
+  Application,
+  PrismaClient,
+  QualificationType16,
+  QualificationType18,
+  Role,
+  User
+} from '@prisma/client'
 import { FeeStatus, Gender, NextAction } from '@prisma/client'
 
 const prisma = new PrismaClient()
@@ -36,9 +43,32 @@ const createApplication = (reviewer: User) => {
     tmuaPaper1Score: faker.number.float({ multipleOf: 0.1, min: 1.0, max: 9.0 }),
     tmuaPaper2Score: faker.number.float({ multipleOf: 0.1, min: 1.0, max: 9.0 }),
     tmuaOverallScore: faker.number.float({ multipleOf: 0.1, min: 1.0, max: 9.0 }),
+    age16ExamType: faker.helpers.arrayElement(
+      Object.keys(QualificationType16)
+    ) as QualificationType16,
+    age16Score: faker.number.float({ multipleOf: 0.1, min: 0.0, max: 10.0 }),
+    age18ExamType: faker.helpers.arrayElement(
+      Object.keys(QualificationType18)
+    ) as QualificationType18,
+    age18Score: faker.number.float({ multipleOf: 0.1, min: 0.0, max: 10.0 }),
     reviewer: {
       connect: {
         id: reviewer.id
+      }
+    }
+  }
+}
+
+const createReview = (application: Application) => {
+  return {
+    motivationAssessments: faker.number.float({ multipleOf: 0.1, min: 0.0, max: 10.0 }),
+    extracurricularAssessments: faker.number.float({ multipleOf: 0.1, min: 0.0, max: 10.0 }),
+    examComments: faker.person.bio(),
+    examRatingBy:
+      faker.string.alpha({ length: 2 }).toLowerCase() + faker.string.numeric({ length: 3 }),
+    application: {
+      connect: {
+        id: application.id
       }
     }
   }
@@ -49,7 +79,10 @@ async function main() {
     const user = await prisma.user.create({ data: createUser(Role.REVIEWER) })
 
     for (let j = 0; j < 10; j++) {
-      await prisma.application.create({ data: createApplication(user) })
+      const application = await prisma.application.create({ data: createApplication(user) })
+      if (j % 2 == 0) {
+        await prisma.imperialReview.create({ data: createReview(application) })
+      }
     }
   }
 }

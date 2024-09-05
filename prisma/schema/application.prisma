@@ -4,11 +4,6 @@ enum FeeStatus {
   UNKNOWN
 }
 
-enum QualificationType {
-  GCSE_COMPATIBLE
-  A_LEVELS_COMPATIBLE
-}
-
 enum NextAction {
   TMUA_CANDIDATE
   TMUA_RESULT
@@ -19,29 +14,52 @@ enum NextAction {
   CANDIDATE_INFORMED
 }
 
+enum QualificationType16 {
+  GCSE
+  INDIAN_X
+  MALAYSIAN
+  SINGAPORE
+  OTHER
+}
+
+enum QualificationType18 {
+  A_LEVEL
+  INDIAN_XII
+  MALAYSIAN
+  SINGAPORE
+  ROMANIAN
+  OTHER
+}
+
 model Application {
-  id                    Int             @id @default(autoincrement())
-  applicant             Applicant       @relation(fields: [applicantId], references: [id])
+  id                    Int                  @id @default(autoincrement())
+  applicant             Applicant            @relation(fields: [applicantId], references: [id])
   applicantId           Int
   admissionsCycle       Int
   applicationDate       DateTime
   wideningParticipation Boolean
   hasDisability         Boolean
   feeStatus             FeeStatus
-  tmuaPaper1Score       Decimal         @db.Decimal(2, 1)
-  tmuaPaper2Score       Decimal         @db.Decimal(2, 1)
-  tmuaOverallScore      Decimal         @db.Decimal(2, 1)
-  qualifications        Qualification[]
-  nextAction            NextAction      @default(TMUA_CANDIDATE)
-  reviewer              User?           @relation(fields: [reviewerId], references: [id])
+  tmuaPaper1Score       Decimal?             @db.Decimal(2, 1)
+  tmuaPaper2Score       Decimal?             @db.Decimal(2, 1)
+  tmuaOverallScore      Decimal?             @db.Decimal(2, 1)
+  age16ExamType         QualificationType16?
+  age16Score            Decimal?             @db.Decimal(3, 1)
+  age18ExamType         QualificationType18?
+  age18Score            Decimal?             @db.Decimal(3, 1)
+  imperialReview        ImperialReview?
+  nextAction            NextAction           @default(TMUA_CANDIDATE)
+  reviewer              User?                @relation(fields: [reviewerId], references: [id])
   reviewerId            Int?
 }
 
-model Qualification {
-  id            Int               @id @default(autoincrement())
-  type          QualificationType
-  title         String
-  score         Decimal           @db.Decimal(3, 1)
-  application   Application       @relation(fields: [applicationId], references: [id])
-  applicationId Int
+model ImperialReview {
+  id                         Int         @id @default(autoincrement())
+  application                Application @relation(fields: [applicationId], references: [id])
+  applicationId              Int         @unique
+  motivationAssessments      Decimal?    @db.Decimal(3, 1)
+  extracurricularAssessments Decimal?    @db.Decimal(3, 1)
+  examComments               String?
+  examRatingBy               String?
+  examRatingDone             DateTime    @updatedAt
 }
