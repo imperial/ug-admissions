@@ -31,6 +31,13 @@ const AdminScoringForm: FC<AdminScoringFormProps> = ({
 
       <Dialog.Content maxWidth="450px">
         <Dialog.Title>Admin Scoring Form</Dialog.Title>
+
+        <Callout.Root className="mb-3">
+          <Callout.Text size="3">
+            Applicant: {applicant.firstName} {applicant.surname} ({applicant.ucasNumber})
+          </Callout.Text>
+        </Callout.Root>
+
         {state.status === 'error' && (
           <Callout.Root size="1" color="red" className="mb-3">
             <Callout.Icon>
@@ -147,7 +154,9 @@ const AdminScoringForm: FC<AdminScoringFormProps> = ({
               </Button>
             </Dialog.Close>
 
-            <Button type="submit">Save</Button>
+            <Dialog.Close>
+              <Button type="submit">Save</Button>
+            </Dialog.Close>
           </Flex>
         </form>
       </Dialog.Content>

@@ -78,5 +78,6 @@ export const upsertAdminScoring = async (
     }
   })
 
+  console.log('submitted')
   return { status: 'success', message: 'Admin scoring form updated successfully.' }
 }
