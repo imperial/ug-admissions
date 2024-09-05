@@ -6,7 +6,7 @@ interface DropdownProps {
   values: string[]
   currentValue?: string
   placeholder?: string
-  title?: string
+  className?: string
 }
 
 const Dropdown: FC<DropdownProps> = ({
@@ -14,22 +14,19 @@ const Dropdown: FC<DropdownProps> = ({
   values,
   currentValue,
   placeholder,
-  title
+  className
 }) => {
   return (
-    <Flex gapX="3" align="center">
-      {title && <Text className="text-center">{`${title}:`}</Text>}
-      <Select.Root onValueChange={onValueChange} value={currentValue}>
-        <Select.Trigger placeholder={placeholder ?? ''} />
-        <Select.Content>
-          {values.map((value) => (
-            <Select.Item key={value} value={value}>
-              {value}
-            </Select.Item>
-          ))}
-        </Select.Content>
-      </Select.Root>
-    </Flex>
+    <Select.Root onValueChange={onValueChange} value={currentValue}>
+      <Select.Trigger placeholder={placeholder ?? ''} className={className} />
+      <Select.Content>
+        {values.map((value) => (
+          <Select.Item key={value} value={value}>
+            {value}
+          </Select.Item>
+        ))}
+      </Select.Content>
+    </Select.Root>
   )
 }
 
