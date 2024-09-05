@@ -11,7 +11,10 @@ import React, { FC, useEffect, useState } from 'react'
 import TanstackTable from './TanstackTable'
 import Dropdown from './TanstackTable/Dropdown'
 
-type ApplicationRow = Pick<Application, 'nextAction' | 'feeStatus' | 'wideningParticipation'> & {
+type ApplicationRow = Pick<
+  Application,
+  'nextAction' | 'feeStatus' | 'wideningParticipation' | 'id'
+> & {
   applicant: Pick<Applicant, 'cid' | 'ucasNumber' | 'firstName' | 'surname'>
   reviewer: Pick<User, 'login'> | null
 }
@@ -65,7 +68,12 @@ const columns = [
   }),
   columnHelper.display({
     id: 'adminFormButton',
-    cell: (info) => <AdminScoringForm applicant={info.row.original.applicant} />
+    cell: (info) => (
+      <AdminScoringForm
+        applicant={info.row.original.applicant}
+        applicationId={info.row.original.id}
+      />
+    )
   })
 ]
 

@@ -10,13 +10,17 @@ import { useFormState } from 'react-dom'
 
 interface AdminScoringFormProps {
   applicant: Pick<Applicant, 'cid' | 'ucasNumber' | 'firstName' | 'surname'>
+  applicationId: number
 }
 
-const AdminScoringForm: FC<AdminScoringFormProps> = ({ applicant }: AdminScoringFormProps) => {
+const AdminScoringForm: FC<AdminScoringFormProps> = ({
+  applicant,
+  applicationId
+}: AdminScoringFormProps) => {
   const [age16ExamType, setAge16ExamType] = useState('')
   const [age18ExamType, setAge18ExamType] = useState('')
 
-  const upsertAdminScoringWithId = upsertAdminScoring.bind(null, applicant.cid)
+  const upsertAdminScoringWithId = upsertAdminScoring.bind(null, applicationId)
   const [state, formAction] = useFormState(upsertAdminScoringWithId, { status: '', message: '' })
 
   return (
@@ -131,9 +135,9 @@ const AdminScoringForm: FC<AdminScoringFormProps> = ({ applicant }: AdminScoring
 
           <Flex gap="2" direction="column">
             <Heading asChild size="3">
-              <label htmlFor="comments">Comments</label>
+              <label htmlFor="examComments">Comments</label>
             </Heading>
-            <TextField.Root id="comments" name="comments" />
+            <TextField.Root id="examComments" name="examComments" />
           </Flex>
 
           <Flex gap="3" mt="4" justify="end">
