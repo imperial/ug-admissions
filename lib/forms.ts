@@ -3,7 +3,7 @@
 import prisma from '@/db'
 import { QualificationType16, QualificationType18 } from '@prisma/client'
 
-interface FormPassbackState {
+export interface FormPassbackState {
   status: string
   message: string
 }

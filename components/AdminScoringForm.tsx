@@ -1,10 +1,11 @@
 'use client'
 
 import Dropdown from '@/components/TanstackTable/Dropdown'
-import { upsertAdminScoring } from '@/lib/forms'
+import { FormPassbackState, upsertAdminScoring } from '@/lib/forms'
 import { Applicant, QualificationType16, QualificationType18 } from '@prisma/client'
 import { CrossCircledIcon } from '@radix-ui/react-icons'
-import { Button, Callout, Dialog, Flex, Heading, TextField } from '@radix-ui/themes'
+import { Button, Callout, Dialog, Flex, Heading, Text, TextField } from '@radix-ui/themes'
+import { useQuery, useQueryClient } from '@tanstack/react-query'
 import React, { FC, useState } from 'react'
 import { useFormState } from 'react-dom'
 
@@ -17,14 +18,42 @@ const AdminScoringForm: FC<AdminScoringFormProps> = ({
   applicant,
   applicationId
 }: AdminScoringFormProps) => {
+  const [isDialogOpen, setIsDialogOpen] = useState(false)
+
   const [age16ExamType, setAge16ExamType] = useState('')
   const [age18ExamType, setAge18ExamType] = useState('')
 
-  const upsertAdminScoringWithId = upsertAdminScoring.bind(null, applicationId)
+  const {
+    status,
+    fetchStatus,
+    data: prevFormData,
+    refetch
+  } = useQuery({
+    queryKey: [applicationId],
+    queryFn: async () => {
+      const res = await fetch(`/api/adminScoringForm/${applicationId}`)
+      const data = await res.json()
+
+      setAge16ExamType(data.age16ExamType ?? '')
+      setAge18ExamType(data.age18ExamType ?? '')
+
+      return data
+    },
+    enabled: isDialogOpen
+  })
+
+  // Get QueryClient from the context
+  const queryClient = useQueryClient()
+
+  const upsertAdminScoringWithId = (prevState: FormPassbackState, formData: FormData) => {
+    queryClient.invalidateQueries({ queryKey: [applicationId] })
+    return upsertAdminScoring(applicationId, prevFormData, formData)
+  }
+
   const [state, formAction] = useFormState(upsertAdminScoringWithId, { status: '', message: '' })
 
   return (
-    <Dialog.Root>
+    <Dialog.Root open={isDialogOpen} onOpenChange={setIsDialogOpen} defaultOpen={false}>
       <Dialog.Trigger>
         <Button>Admin Scoring Form</Button>
       </Dialog.Trigger>
@@ -78,6 +107,7 @@ const AdminScoringForm: FC<AdminScoringFormProps> = ({
               className="flex-grow"
               disabled={!age16ExamType}
               required={!!age16ExamType}
+              defaultValue={prevFormData?.age16Score}
             />
           </Flex>
 
@@ -110,6 +140,7 @@ const AdminScoringForm: FC<AdminScoringFormProps> = ({
               className="flex-grow"
               disabled={!age18ExamType}
               required={!!age18ExamType}
+              defaultValue={prevFormData?.age18Score}
             />
           </Flex>
           <Flex gap="2" direction="column">
@@ -123,6 +154,7 @@ const AdminScoringForm: FC<AdminScoringFormProps> = ({
               min={0.0}
               max={10.0}
               step={0.1}
+              defaultValue={prevFormData?.imperialReview?.motivationAssessments}
             />
           </Flex>
 
@@ -137,6 +169,7 @@ const AdminScoringForm: FC<AdminScoringFormProps> = ({
               min={0.0}
               max={10.0}
               step={0.1}
+              defaultValue={prevFormData?.imperialReview?.extracurricularAssessments}
             />
           </Flex>
 
