@@ -13,9 +13,9 @@ export interface FormPassbackState {
   message: string
 }
 
-const parseScore = (entry: FormDataEntryValue | null): number | undefined => {
+const parseScore = (entry: FormDataEntryValue | null): number | null => {
   const parsedScore = parseFloat(entry as string)
-  return isNaN(parsedScore) ? undefined : parsedScore
+  return isNaN(parsedScore) ? null : parsedScore
 }
 
 export const upsertAdminScoring = async (
