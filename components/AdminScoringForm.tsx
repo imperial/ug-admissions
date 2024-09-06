@@ -1,5 +1,6 @@
 'use client'
 
+import { AdminScoringData } from '@/app/api/adminScoringForm/[id]/route'
 import Dropdown from '@/components/TanstackTable/Dropdown'
 import { FormPassbackState, upsertAdminScoring } from '@/lib/forms'
 import { Applicant, QualificationType16, QualificationType18 } from '@prisma/client'
@@ -19,27 +20,17 @@ const AdminScoringForm: FC<AdminScoringFormProps> = ({
   applicationId
 }: AdminScoringFormProps) => {
   const [isDialogOpen, setIsDialogOpen] = useState(false)
+  const [adminScoringData, setAdminScoringData] = useState<AdminScoringData | null>(null)
 
-  const [age16ExamType, setAge16ExamType] = useState('')
-  const [age18ExamType, setAge18ExamType] = useState('')
-
-  const {
-    status,
-    fetchStatus,
-    data: prevFormData,
-    refetch
-  } = useQuery({
+  useQuery({
     queryKey: [applicationId],
     queryFn: async () => {
       const res = await fetch(`/api/adminScoringForm/${applicationId}`)
-      const data = await res.json()
-
-      setAge16ExamType(data.age16ExamType ?? '')
-      setAge18ExamType(data.age18ExamType ?? '')
-
-      return data
+      const data: AdminScoringData = await res.json()
+      setAdminScoringData(data)
     },
-    enabled: isDialogOpen
+    enabled: isDialogOpen,
+    staleTime: 0
   })
 
   // Get QueryClient from the context
@@ -47,7 +38,7 @@ const AdminScoringForm: FC<AdminScoringFormProps> = ({
 
   const upsertAdminScoringWithId = (prevState: FormPassbackState, formData: FormData) => {
     queryClient.invalidateQueries({ queryKey: [applicationId] })
-    return upsertAdminScoring(applicationId, prevFormData, formData)
+    return upsertAdminScoring(applicationId, prevState, formData)
   }
 
   const [state, formAction] = useFormState(upsertAdminScoringWithId, { status: '', message: '' })
@@ -80,15 +71,22 @@ const AdminScoringForm: FC<AdminScoringFormProps> = ({
             Age 16 exam
           </Heading>
 
-          <input name="age16ExamType" type="hidden" value={age16ExamType} />
+          <input name="age16ExamType" type="hidden" value={adminScoringData?.age16ExamType} />
           <Flex gap="1" align="center">
             <label className="w-1/5" htmlFor="age16ExamType">
               Type:
             </label>
             <Dropdown
               values={Object.keys(QualificationType16)}
-              currentValue={age16ExamType}
-              onValueChange={setAge16ExamType}
+              currentValue={adminScoringData?.age16ExamType}
+              onValueChange={(value) =>
+                setAdminScoringData(
+                  adminScoringData && {
+                    ...adminScoringData,
+                    age16ExamType: value as QualificationType16
+                  }
+                )
+              }
               className="flex-grow"
             />
           </Flex>
@@ -105,9 +103,9 @@ const AdminScoringForm: FC<AdminScoringFormProps> = ({
               max={10.0}
               step={0.1}
               className="flex-grow"
-              disabled={!age16ExamType}
-              required={!!age16ExamType}
-              defaultValue={prevFormData?.age16Score}
+              disabled={!adminScoringData?.age16ExamType}
+              required={!!adminScoringData?.age16ExamType}
+              defaultValue={adminScoringData?.age16Score}
             />
           </Flex>
 
@@ -118,11 +116,18 @@ const AdminScoringForm: FC<AdminScoringFormProps> = ({
             <label className="w-1/5" htmlFor="age18ExamType">
               Type:
             </label>
-            <input name="age18ExamType" type="hidden" value={age18ExamType} />
+            <input name="age18ExamType" type="hidden" value={adminScoringData?.age18ExamType} />
             <Dropdown
               values={Object.keys(QualificationType18)}
-              currentValue={age18ExamType}
-              onValueChange={setAge18ExamType}
+              currentValue={adminScoringData?.age18ExamType}
+              onValueChange={(value) =>
+                setAdminScoringData(
+                  adminScoringData && {
+                    ...adminScoringData,
+                    age18ExamType: value as QualificationType18
+                  }
+                )
+              }
               className="flex-grow"
             />
           </Flex>
@@ -138,9 +143,9 @@ const AdminScoringForm: FC<AdminScoringFormProps> = ({
               max={10.0}
               step={0.1}
               className="flex-grow"
-              disabled={!age18ExamType}
-              required={!!age18ExamType}
-              defaultValue={prevFormData?.age18Score}
+              disabled={!adminScoringData?.age18ExamType}
+              required={!!adminScoringData?.age18ExamType}
+              defaultValue={adminScoringData?.age18Score}
             />
           </Flex>
           <Flex gap="2" direction="column">
@@ -154,7 +159,7 @@ const AdminScoringForm: FC<AdminScoringFormProps> = ({
               min={0.0}
               max={10.0}
               step={0.1}
-              defaultValue={prevFormData?.imperialReview?.motivationAssessments}
+              defaultValue={adminScoringData?.imperialReview?.motivationAssessments}
             />
           </Flex>
 
@@ -169,7 +174,7 @@ const AdminScoringForm: FC<AdminScoringFormProps> = ({
               min={0.0}
               max={10.0}
               step={0.1}
-              defaultValue={prevFormData?.imperialReview?.extracurricularAssessments}
+              defaultValue={adminScoringData?.imperialReview?.extracurricularAssessments}
             />
           </Flex>
 
@@ -177,7 +182,11 @@ const AdminScoringForm: FC<AdminScoringFormProps> = ({
             <Heading asChild size="3">
               <label htmlFor="examComments">Comments</label>
             </Heading>
-            <TextField.Root id="examComments" name="examComments" />
+            <TextField.Root
+              id="examComments"
+              name="examComments"
+              defaultValue={adminScoringData?.imperialReview?.examComments}
+            />
           </Flex>
 
           <Flex gap="3" mt="4" justify="end">
@@ -187,9 +196,7 @@ const AdminScoringForm: FC<AdminScoringFormProps> = ({
               </Button>
             </Dialog.Close>
 
-            <Dialog.Close>
-              <Button type="submit">Save</Button>
-            </Dialog.Close>
+            <Button type="submit">Save</Button>
           </Flex>
         </form>
       </Dialog.Content>

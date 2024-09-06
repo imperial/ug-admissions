@@ -2,6 +2,7 @@
 
 import prisma from '@/db'
 import { QualificationType16, QualificationType18 } from '@prisma/client'
+import { revalidatePath } from 'next/cache'
 
 export interface FormPassbackState {
   status: string
@@ -78,6 +79,6 @@ export const upsertAdminScoring = async (
     }
   })
 
-  console.log('submitted')
+  revalidatePath('/')
   return { status: 'success', message: 'Admin scoring form updated successfully.' }
 }

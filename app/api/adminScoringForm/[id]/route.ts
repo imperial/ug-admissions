@@ -1,4 +1,19 @@
 import prisma from '@/db'
+import { QualificationType16, QualificationType18 } from '@prisma/client'
+
+export interface AdminScoringData {
+  age16ExamType: QualificationType16
+  age16Score: number
+  age18ExamType: QualificationType18
+  age18Score: number
+  imperialReview: {
+    motivationAssessments: number
+    extracurricularAssessments: number
+    examComments: string
+    examRatingBy: string
+    examRatingDone: Date
+  }
+}
 
 export async function GET(_: Request, { params }: { params: { id: string } }) {
   const applicationId = parseInt(params.id)
