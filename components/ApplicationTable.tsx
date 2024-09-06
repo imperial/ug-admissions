@@ -1,11 +1,9 @@
 'use client'
 
 import AdminScoringForm from '@/components/AdminScoringForm'
-import { NextActionEnum } from '@/lib/types'
-import type { Applicant, Application, User } from '@prisma/client'
+import type { Applicant, Application, ImperialReview, User } from '@prisma/client'
 import { NextAction } from '@prisma/client'
 import { Card, Flex, Text } from '@radix-ui/themes'
-import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import { ColumnFiltersState, createColumnHelper } from '@tanstack/react-table'
 import { usePathname, useRouter, useSearchParams } from 'next/navigation'
 import React, { FC, useEffect, useState } from 'react'
@@ -13,12 +11,10 @@ import React, { FC, useEffect, useState } from 'react'
 import TanstackTable from './TanstackTable'
 import Dropdown from './TanstackTable/Dropdown'
 
-type ApplicationRow = Pick<
-  Application,
-  'nextAction' | 'feeStatus' | 'wideningParticipation' | 'id'
-> & {
-  applicant: Pick<Applicant, 'cid' | 'ucasNumber' | 'firstName' | 'surname'>
-  reviewer: Pick<User, 'login'> | null
+export type ApplicationRow = Application & {
+  applicant: Applicant
+  imperialReview: ImperialReview | null
+  reviewer: User | null
 }
 
 const ALL_DROPDOWN_OPTION = 'All'
@@ -70,13 +66,7 @@ const columns = [
   }),
   columnHelper.display({
     id: 'adminFormButton',
-    cell: (info) => (
-      <AdminScoringForm
-        applicant={info.row.original.applicant}
-        applicationId={info.row.original.id}
-        nextAction={NextActionEnum[info.row.original.nextAction]}
-      />
-    )
+    cell: (info) => <AdminScoringForm row={info.row.original} />
   })
 ]
 
@@ -92,19 +82,6 @@ const ApplicationTable: FC<ApplicationTableProps> = ({ applications, reviewerIds
   const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([])
   const [nextActionFilterValue, setNextActionFilterValue] = useState(ALL_DROPDOWN_OPTION)
   const [reviewerFilterValue, setReviewerFilterValue] = useState(ALL_DROPDOWN_OPTION)
-
-  const [queryClient] = React.useState(
-    () =>
-      new QueryClient({
-        defaultOptions: {
-          queries: {
-            // With SSR, we usually want to set some default staleTime
-            // above 0 to avoid refetching immediately on the client
-            staleTime: 0 // 60 * 1000,
-          }
-        }
-      })
-  )
 
   // searchParams determine what filters should be applied and the value of the dropdown
   useEffect(() => {
@@ -133,7 +110,7 @@ const ApplicationTable: FC<ApplicationTableProps> = ({ applications, reviewerIds
   }
 
   return (
-    <QueryClientProvider client={queryClient}>
+    <>
       <Card>
         <Flex gapX="5">
           <Flex gapX="2" align="center">
@@ -160,7 +137,7 @@ const ApplicationTable: FC<ApplicationTableProps> = ({ applications, reviewerIds
         columnFilters={columnFilters}
         setColumnFilters={setColumnFilters}
       />
-    </QueryClientProvider>
+    </>
   )
 }
 

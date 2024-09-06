@@ -11,24 +11,10 @@ export default async function Home() {
         surname: 'asc'
       }
     },
-    select: {
-      applicant: {
-        select: {
-          cid: true,
-          ucasNumber: true,
-          firstName: true,
-          surname: true
-        }
-      },
-      feeStatus: true,
-      wideningParticipation: true,
-      nextAction: true,
-      id: true,
-      reviewer: {
-        select: {
-          login: true
-        }
-      }
+    include: {
+      applicant: true,
+      imperialReview: true,
+      reviewer: true
     }
   })
 
