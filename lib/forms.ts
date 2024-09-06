@@ -60,7 +60,6 @@ export const upsertAdminScoring = async (
   // admin form can be updated at later stages so make sure to reset to the furthest stage
   const nextActionEnum = Math.max(currentAction, NextActionEnum.REVIEWER_SCORING)
   const nextAction = Object.keys(NextAction)[nextActionEnum] as NextAction
-  console.log(nextAction)
 
   await prisma.application.update({
     where: { id: applicationId },
@@ -90,7 +89,6 @@ export const upsertAdminScoring = async (
     }
   })
 
-  console.log('about to revalidate')
   revalidatePath('/')
   return { status: 'success', message: 'Admin scoring form updated successfully.' }
 }

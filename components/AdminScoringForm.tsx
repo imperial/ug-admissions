@@ -33,16 +33,16 @@ const AdminScoringForm: FC<AdminScoringFormProps> = ({
       setAdminScoringData(data)
       return data
     },
-    enabled: isDialogOpen,
-    staleTime: 0
+    enabled: isDialogOpen
   })
 
   // Get QueryClient from the context
   const queryClient = useQueryClient()
 
-  const upsertAdminScoringWithId = (prevState: FormPassbackState, formData: FormData) => {
-    queryClient.invalidateQueries({ queryKey: [applicationId] })
-    return upsertAdminScoring(nextAction, applicationId, prevState, formData)
+  const upsertAdminScoringWithId = async (prevState: FormPassbackState, formData: FormData) => {
+    const res = await upsertAdminScoring(nextAction, applicationId, prevState, formData)
+    await queryClient.invalidateQueries({ queryKey: [applicationId] })
+    return res
   }
 
   const [state, formAction] = useFormState(upsertAdminScoringWithId, { status: '', message: '' })
