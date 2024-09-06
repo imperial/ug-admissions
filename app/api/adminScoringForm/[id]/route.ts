@@ -39,8 +39,6 @@ export async function GET(_: Request, { params }: { params: { id: string } }) {
     }
   })
 
-  console.log(previousAdminData)
-
   if (previousAdminData === null) {
     return new Response('Not found', { status: 404 })
   }

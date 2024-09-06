@@ -4,10 +4,11 @@ import { AdminScoringData } from '@/app/api/adminScoringForm/[id]/route'
 import Dropdown from '@/components/TanstackTable/Dropdown'
 import { FormPassbackState, upsertAdminScoring } from '@/lib/forms'
 import { NextActionEnum } from '@/lib/types'
-import { Applicant, NextAction, QualificationType16, QualificationType18 } from '@prisma/client'
+import { Applicant, QualificationType16, QualificationType18 } from '@prisma/client'
 import { CrossCircledIcon } from '@radix-ui/react-icons'
-import { Button, Callout, Dialog, Flex, Heading, Text, TextField } from '@radix-ui/themes'
+import { Button, Callout, Dialog, Flex, Heading, Spinner, Text, TextField } from '@radix-ui/themes'
 import { useQuery, useQueryClient } from '@tanstack/react-query'
+import { format } from 'date-fns'
 import React, { FC, useEffect, useState } from 'react'
 import { useFormState } from 'react-dom'
 
@@ -23,6 +24,7 @@ const AdminScoringForm: FC<AdminScoringFormProps> = ({
   nextAction
 }: AdminScoringFormProps) => {
   const [isDialogOpen, setIsDialogOpen] = useState(false)
+  const [isLoading, setIsLoading] = useState(false)
   const [adminScoringData, setAdminScoringData] = useState<AdminScoringData | null>(null)
 
   useQuery({
@@ -36,7 +38,6 @@ const AdminScoringForm: FC<AdminScoringFormProps> = ({
     enabled: isDialogOpen
   })
 
-  // Get QueryClient from the context
   const queryClient = useQueryClient()
 
   const upsertAdminScoringWithId = async (prevState: FormPassbackState, formData: FormData) => {
@@ -48,8 +49,10 @@ const AdminScoringForm: FC<AdminScoringFormProps> = ({
   const [state, formAction] = useFormState(upsertAdminScoringWithId, { status: '', message: '' })
 
   useEffect(() => {
+    console.log('set loading to false')
+    setIsLoading(false)
     if (state.status === 'success') setIsDialogOpen(false)
-  }, [state, setIsDialogOpen])
+  }, [state, setIsDialogOpen, setIsLoading])
 
   return (
     <Dialog.Root open={isDialogOpen} onOpenChange={setIsDialogOpen} defaultOpen={false}>
@@ -60,10 +63,18 @@ const AdminScoringForm: FC<AdminScoringFormProps> = ({
       <Dialog.Content maxWidth="450px">
         <Dialog.Title>Admin Scoring Form</Dialog.Title>
 
-        <Callout.Root className="mb-3">
-          <Callout.Text size="3">
-            Applicant: {applicant.firstName} {applicant.surname} ({applicant.ucasNumber})
+        {adminScoringData?.imperialReview?.examRatingDone &&
+          adminScoringData?.imperialReview?.examRatingBy && (
+            <Text size="2" className="italic text-gray-500">
+              Last edited by {adminScoringData?.imperialReview?.examRatingBy} on{' '}
+              {format(adminScoringData?.imperialReview?.examRatingDone, "dd/MM/yy 'at' hh:mm")}
+            </Text>
+          )}
+        <Callout.Root className="my-5">
+          <Callout.Text size="4">
+            Applicant: {applicant.firstName} {applicant.surname}
           </Callout.Text>
+          <Callout.Text size="4">UCAS number: {applicant.ucasNumber}</Callout.Text>
         </Callout.Root>
 
         {state.status === 'error' && (
@@ -74,7 +85,11 @@ const AdminScoringForm: FC<AdminScoringFormProps> = ({
             <Callout.Text>{state.message}</Callout.Text>
           </Callout.Root>
         )}
-        <form className="flex flex-col gap-5" action={formAction}>
+        <form
+          className="flex flex-col gap-5"
+          action={formAction}
+          onSubmit={() => setIsLoading(true)}
+        >
           <Heading as="h3" size="3">
             Age 16 exam
           </Heading>
@@ -203,8 +218,9 @@ const AdminScoringForm: FC<AdminScoringFormProps> = ({
                 Cancel
               </Button>
             </Dialog.Close>
-
-            <Button type="submit">Save</Button>
+            <Button type="submit" disabled={isLoading}>
+              {isLoading ? <Spinner /> : 'Save'}
+            </Button>
           </Flex>
         </form>
       </Dialog.Content>

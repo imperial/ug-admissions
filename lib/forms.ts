@@ -2,9 +2,7 @@
 
 import prisma from '@/db'
 import { NextAction, QualificationType16, QualificationType18 } from '@prisma/client'
-import next from 'next'
 import { revalidatePath } from 'next/cache'
-import { redirect } from 'next/navigation'
 
 import { NextActionEnum } from './types'
 
