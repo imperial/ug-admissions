@@ -1,6 +1,7 @@
 'use client'
 
 import AdminScoringForm from '@/components/AdminScoringForm'
+import { NextActionEnum } from '@/lib/types'
 import type { Applicant, Application, User } from '@prisma/client'
 import { NextAction } from '@prisma/client'
 import { Card, Flex, Text } from '@radix-ui/themes'
@@ -73,6 +74,7 @@ const columns = [
       <AdminScoringForm
         applicant={info.row.original.applicant}
         applicationId={info.row.original.id}
+        nextAction={NextActionEnum[info.row.original.nextAction]}
       />
     )
   })

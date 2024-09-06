@@ -28,7 +28,7 @@ const TanstackTable = <T,>({
   columnFilters,
   setColumnFilters
 }: TanstackTableProps<T>) => {
-  const [pagination, setPagination] = useState({ pageIndex: 0, pageSize: 30 })
+  const [pagination, setPagination] = useState({ pageIndex: 0, pageSize: 10 })
 
   const table = useReactTable({
     data,

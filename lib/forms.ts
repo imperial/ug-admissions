@@ -1,8 +1,12 @@
 'use server'
 
 import prisma from '@/db'
-import { QualificationType16, QualificationType18 } from '@prisma/client'
+import { NextAction, QualificationType16, QualificationType18 } from '@prisma/client'
+import next from 'next'
 import { revalidatePath } from 'next/cache'
+import { redirect } from 'next/navigation'
+
+import { NextActionEnum } from './types'
 
 export interface FormPassbackState {
   status: string
@@ -15,6 +19,7 @@ const parseScore = (entry: FormDataEntryValue | null): number | undefined => {
 }
 
 export const upsertAdminScoring = async (
+  currentAction: NextActionEnum,
   applicationId: number,
   _: FormPassbackState,
   formData: FormData
@@ -52,13 +57,19 @@ export const upsertAdminScoring = async (
       return { status: 'error', message: 'Scores must be between 0.0 and 10.0.' }
   })
 
+  // admin form can be updated at later stages so make sure to reset to the furthest stage
+  const nextActionEnum = Math.max(currentAction, NextActionEnum.REVIEWER_SCORING)
+  const nextAction = Object.keys(NextAction)[nextActionEnum] as NextAction
+  console.log(nextAction)
+
   await prisma.application.update({
     where: { id: applicationId },
     data: {
       age16ExamType,
       age16Score,
       age18ExamType,
-      age18Score
+      age18Score,
+      nextAction
     }
   })
 
@@ -79,6 +90,7 @@ export const upsertAdminScoring = async (
     }
   })
 
+  console.log('about to revalidate')
   revalidatePath('/')
   return { status: 'success', message: 'Admin scoring form updated successfully.' }
 }

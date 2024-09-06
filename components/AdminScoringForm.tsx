@@ -3,21 +3,24 @@
 import { AdminScoringData } from '@/app/api/adminScoringForm/[id]/route'
 import Dropdown from '@/components/TanstackTable/Dropdown'
 import { FormPassbackState, upsertAdminScoring } from '@/lib/forms'
-import { Applicant, QualificationType16, QualificationType18 } from '@prisma/client'
+import { NextActionEnum } from '@/lib/types'
+import { Applicant, NextAction, QualificationType16, QualificationType18 } from '@prisma/client'
 import { CrossCircledIcon } from '@radix-ui/react-icons'
 import { Button, Callout, Dialog, Flex, Heading, Text, TextField } from '@radix-ui/themes'
 import { useQuery, useQueryClient } from '@tanstack/react-query'
-import React, { FC, useState } from 'react'
+import React, { FC, useEffect, useState } from 'react'
 import { useFormState } from 'react-dom'
 
 interface AdminScoringFormProps {
   applicant: Pick<Applicant, 'cid' | 'ucasNumber' | 'firstName' | 'surname'>
   applicationId: number
+  nextAction: NextActionEnum
 }
 
 const AdminScoringForm: FC<AdminScoringFormProps> = ({
   applicant,
-  applicationId
+  applicationId,
+  nextAction
 }: AdminScoringFormProps) => {
   const [isDialogOpen, setIsDialogOpen] = useState(false)
   const [adminScoringData, setAdminScoringData] = useState<AdminScoringData | null>(null)
@@ -28,6 +31,7 @@ const AdminScoringForm: FC<AdminScoringFormProps> = ({
       const res = await fetch(`/api/adminScoringForm/${applicationId}`)
       const data: AdminScoringData = await res.json()
       setAdminScoringData(data)
+      return data
     },
     enabled: isDialogOpen,
     staleTime: 0
@@ -38,14 +42,18 @@ const AdminScoringForm: FC<AdminScoringFormProps> = ({
 
   const upsertAdminScoringWithId = (prevState: FormPassbackState, formData: FormData) => {
     queryClient.invalidateQueries({ queryKey: [applicationId] })
-    return upsertAdminScoring(applicationId, prevState, formData)
+    return upsertAdminScoring(nextAction, applicationId, prevState, formData)
   }
 
   const [state, formAction] = useFormState(upsertAdminScoringWithId, { status: '', message: '' })
 
+  useEffect(() => {
+    if (state.status === 'success') setIsDialogOpen(false)
+  }, [state, setIsDialogOpen])
+
   return (
     <Dialog.Root open={isDialogOpen} onOpenChange={setIsDialogOpen} defaultOpen={false}>
-      <Dialog.Trigger>
+      <Dialog.Trigger disabled={nextAction < NextActionEnum.ADMIN_SCORING}>
         <Button>Admin Scoring Form</Button>
       </Dialog.Trigger>
 
