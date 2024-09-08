@@ -65,72 +65,69 @@ const AdminScoringForm: FC<AdminScoringFormProps> = ({ row }: AdminScoringFormPr
           </Callout.Root>
         )}
         <form
-          className="flex flex-col gap-5"
+          className="flex flex-col gap-7"
           action={formAction}
           onSubmit={() => setIsLoading(true)}
         >
-          <Heading as="h3" size="3">
-            Age 16 exam
-          </Heading>
+          <Flex direction="column" gap="1">
+            <Heading as="h3" size="2">
+              Age 16 exam
+            </Heading>
+            <LabelledFormField labelText="Type">
+              <Dropdown
+                values={Object.keys(QualificationType16)}
+                currentValue={age16ExamType}
+                onValueChange={setAge16ExamType}
+                className="flex-grow"
+              />
+              <input name="age16ExamType" type="hidden" value={row.age16ExamType?.toString()} />
+            </LabelledFormField>
 
-          <input name="age16ExamType" type="hidden" value={row.age16ExamType?.toString()} />
-          <Flex gap="1" align="center">
-            <label className="w-1/5" htmlFor="age16ExamType">
-              Type:
-            </label>
-            <Dropdown
-              values={Object.keys(QualificationType16)}
-              currentValue={age16ExamType}
-              onValueChange={setAge16ExamType}
-              className="flex-grow"
-            />
+            <LabelledFormField labelText="Score">
+              <TextField.Root
+                id="age16Score"
+                name="age16Score"
+                type="number"
+                min={0.0}
+                max={10.0}
+                step={0.1}
+                className="flex-grow"
+                disabled={!row?.age16ExamType}
+                required={!!row?.age16ExamType}
+                defaultValue={parseFloat(row?.age16Score?.toString() ?? '')}
+              />
+            </LabelledFormField>
           </Flex>
 
-          <LabelledFormField labelText="Score:">
-            <TextField.Root
-              id="age16Score"
-              name="age16Score"
-              type="number"
-              min={0.0}
-              max={10.0}
-              step={0.1}
-              className="flex-grow"
-              disabled={!row?.age16ExamType}
-              required={!!row?.age16ExamType}
-              defaultValue={parseFloat(row?.age16Score?.toString() ?? '')}
-            />
-          </LabelledFormField>
+          <Flex direction="column" gap="1">
+            <Heading as="h3" size="2">
+              Age 18 exam
+            </Heading>
+            <LabelledFormField labelText="Type">
+              <Dropdown
+                values={Object.keys(QualificationType18)}
+                currentValue={age18ExamType}
+                onValueChange={setAge18ExamType}
+                className="flex-grow"
+              />
+              <input name="age18ExamType" type="hidden" value={row.age18ExamType?.toString()} />
+            </LabelledFormField>
 
-          <Heading as="h3" size="3">
-            Age 18 exam
-          </Heading>
-          <input name="age18ExamType" type="hidden" value={row.age18ExamType?.toString()} />
-          <Flex gap="1" align="center">
-            <label className="w-1/5" htmlFor="age18ExamType">
-              Type:
-            </label>
-            <Dropdown
-              values={Object.keys(QualificationType18)}
-              currentValue={age18ExamType}
-              onValueChange={setAge18ExamType}
-              className="flex-grow"
-            />
+            <LabelledFormField labelText="Score">
+              <TextField.Root
+                id="age18Score"
+                name="age18Score"
+                type="number"
+                min={0.0}
+                max={10.0}
+                step={0.1}
+                className="flex-grow"
+                disabled={!row?.age18ExamType}
+                required={!!row?.age18ExamType}
+                defaultValue={parseFloat(row?.age18Score?.toString() ?? '')}
+              />
+            </LabelledFormField>
           </Flex>
-
-          <LabelledFormField labelText="Score">
-            <TextField.Root
-              id="age18Score"
-              name="age18Score"
-              type="number"
-              min={0.0}
-              max={10.0}
-              step={0.1}
-              className="flex-grow"
-              disabled={!row?.age18ExamType}
-              required={!!row?.age18ExamType}
-              defaultValue={parseFloat(row?.age18Score?.toString() ?? '')}
-            />
-          </LabelledFormField>
 
           <LabelledFormField labelText="Motivation Assessments">
             <TextField.Root
