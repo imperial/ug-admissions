@@ -18,7 +18,7 @@ interface AdminScoringFormProps {
 }
 
 const AdminScoringForm: FC<AdminScoringFormProps> = ({ row }: AdminScoringFormProps) => {
-  const { applicant, imperialReview, reviewer } = row
+  const { applicant, imperialReview } = row
   const [isDialogOpen, setIsDialogOpen] = useState(false)
   const [isLoading, setIsLoading] = useState(false)
   const [gcseQualification, setGcseQualification] = useState(row.gcseQualification?.toString())
@@ -82,11 +82,7 @@ const AdminScoringForm: FC<AdminScoringFormProps> = ({ row }: AdminScoringFormPr
                 onValueChange={setGcseQualification}
                 className="flex-grow"
               />
-              <input
-                name="gcseQualification"
-                type="hidden"
-                value={row.gcseQualification?.toString()}
-              />
+              <input name="gcseQualification" type="hidden" value={gcseQualification?.toString()} />
             </LabelledFormField>
 
             <LabelledFormField labelText="Score">
@@ -98,8 +94,8 @@ const AdminScoringForm: FC<AdminScoringFormProps> = ({ row }: AdminScoringFormPr
                 max={10.0}
                 step={0.1}
                 className="flex-grow"
-                disabled={!row?.gcseQualification}
-                required={!!row?.gcseQualification}
+                disabled={!gcseQualification}
+                required={!!gcseQualification}
                 defaultValue={parseFloat(row?.gcseQualificationScore?.toString() ?? '')}
               />
             </LabelledFormField>
@@ -119,7 +115,7 @@ const AdminScoringForm: FC<AdminScoringFormProps> = ({ row }: AdminScoringFormPr
               <input
                 name="aLevelQualification"
                 type="hidden"
-                value={row.aLevelQualification?.toString()}
+                value={aLevelQualification?.toString()}
               />
             </LabelledFormField>
 
@@ -132,8 +128,8 @@ const AdminScoringForm: FC<AdminScoringFormProps> = ({ row }: AdminScoringFormPr
                 max={10.0}
                 step={0.1}
                 className="flex-grow"
-                disabled={!row?.aLevelQualification}
-                required={!!row?.aLevelQualification}
+                disabled={!aLevelQualification}
+                required={!!aLevelQualification}
                 defaultValue={parseFloat(row?.aLevelQualificationScore?.toString() ?? '')}
               />
             </LabelledFormField>
