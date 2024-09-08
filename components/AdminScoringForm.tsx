@@ -11,6 +11,7 @@ import React, { FC, useEffect, useState } from 'react'
 import { useFormState } from 'react-dom'
 
 import { ApplicationRow } from './ApplicationTable'
+import LabelledFormField from './LabelledFormField'
 
 interface AdminScoringFormProps {
   row: ApplicationRow
@@ -85,10 +86,7 @@ const AdminScoringForm: FC<AdminScoringFormProps> = ({ row }: AdminScoringFormPr
             />
           </Flex>
 
-          <Flex gap="1" align="center">
-            <label className="w-1/5" htmlFor="age16Score">
-              Score:
-            </label>
+          <LabelledFormField labelText="Score:">
             <TextField.Root
               id="age16Score"
               name="age16Score"
@@ -101,7 +99,7 @@ const AdminScoringForm: FC<AdminScoringFormProps> = ({ row }: AdminScoringFormPr
               required={!!row?.age16ExamType}
               defaultValue={parseFloat(row?.age16Score?.toString() ?? '')}
             />
-          </Flex>
+          </LabelledFormField>
 
           <Heading as="h3" size="3">
             Age 18 exam
@@ -119,10 +117,7 @@ const AdminScoringForm: FC<AdminScoringFormProps> = ({ row }: AdminScoringFormPr
             />
           </Flex>
 
-          <Flex gap="1" align="center">
-            <label className="w-1/5" htmlFor="age18Score">
-              Score:
-            </label>
+          <LabelledFormField labelText="Score">
             <TextField.Root
               id="age18Score"
               name="age18Score"
@@ -135,12 +130,9 @@ const AdminScoringForm: FC<AdminScoringFormProps> = ({ row }: AdminScoringFormPr
               required={!!row?.age18ExamType}
               defaultValue={parseFloat(row?.age18Score?.toString() ?? '')}
             />
-          </Flex>
+          </LabelledFormField>
 
-          <Flex gap="2" direction="column">
-            <Heading asChild size="3">
-              <label htmlFor="motivationAssessments">Motivational Assessments</label>
-            </Heading>
+          <LabelledFormField labelText="Motivation Assessments">
             <TextField.Root
               id="motivationAssessments"
               name="motivationAssessments"
@@ -150,12 +142,9 @@ const AdminScoringForm: FC<AdminScoringFormProps> = ({ row }: AdminScoringFormPr
               step={0.1}
               defaultValue={parseFloat(imperialReview?.motivationAssessments?.toString() ?? '')}
             />
-          </Flex>
+          </LabelledFormField>
 
-          <Flex gap="2" direction="column">
-            <Heading asChild size="3">
-              <label htmlFor="extracurricularAssessments">Extracurricular Assessments</label>
-            </Heading>
+          <LabelledFormField labelText="Extracurricular Assessments">
             <TextField.Root
               id="extracurricularAssessments"
               name="extracurricularAssessments"
@@ -167,18 +156,15 @@ const AdminScoringForm: FC<AdminScoringFormProps> = ({ row }: AdminScoringFormPr
                 imperialReview?.extracurricularAssessments?.toString() ?? ''
               )}
             />
-          </Flex>
+          </LabelledFormField>
 
-          <Flex gap="2" direction="column">
-            <Heading asChild size="3">
-              <label htmlFor="examComments">Comments</label>
-            </Heading>
+          <LabelledFormField labelText="Exam Comments">
             <TextField.Root
               id="examComments"
               name="examComments"
               defaultValue={imperialReview?.examComments ?? undefined}
             />
-          </Flex>
+          </LabelledFormField>
 
           <Flex gap="3" mt="4" justify="end">
             <Dialog.Close>
