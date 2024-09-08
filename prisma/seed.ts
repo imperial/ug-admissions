@@ -43,12 +43,14 @@ const createApplication = (reviewer: User) => {
     tmuaPaper1Score: faker.number.float({ multipleOf: 0.1, min: 1.0, max: 9.0 }),
     tmuaPaper2Score: faker.number.float({ multipleOf: 0.1, min: 1.0, max: 9.0 }),
     tmuaOverallScore: faker.number.float({ multipleOf: 0.1, min: 1.0, max: 9.0 }),
-    age16ExamType: faker.helpers.arrayElement(Object.keys(GCSEQualification)) as GCSEQualification,
-    age16Score: faker.number.float({ multipleOf: 0.1, min: 0.0, max: 10.0 }),
-    age18ExamType: faker.helpers.arrayElement(
+    gcseQualification: faker.helpers.arrayElement(
+      Object.keys(GCSEQualification)
+    ) as GCSEQualification,
+    gcseQualificationScore: faker.number.float({ multipleOf: 0.1, min: 0.0, max: 10.0 }),
+    aLevelQualification: faker.helpers.arrayElement(
       Object.keys(AlevelQualification)
     ) as AlevelQualification,
-    age18Score: faker.number.float({ multipleOf: 0.1, min: 0.0, max: 10.0 }),
+    aLevelQualificationScore: faker.number.float({ multipleOf: 0.1, min: 0.0, max: 10.0 }),
     reviewer: {
       connect: {
         id: reviewer.id

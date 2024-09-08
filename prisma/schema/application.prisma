@@ -32,25 +32,25 @@ enum AlevelQualification {
 }
 
 model Application {
-  id                    Int                  @id @default(autoincrement())
-  applicant             Applicant            @relation(fields: [applicantId], references: [id])
-  applicantId           Int
-  admissionsCycle       Int
-  applicationDate       DateTime
-  wideningParticipation Boolean
-  hasDisability         Boolean
-  feeStatus             FeeStatus
-  tmuaPaper1Score       Decimal?             @db.Decimal(2, 1)
-  tmuaPaper2Score       Decimal?             @db.Decimal(2, 1)
-  tmuaOverallScore      Decimal?             @db.Decimal(2, 1)
-  age16ExamType         GCSEQualification?
-  age16Score            Decimal?             @db.Decimal(3, 1)
-  age18ExamType         AlevelQualification?
-  age18Score            Decimal?             @db.Decimal(3, 1)
-  imperialReview        ImperialReview?
-  nextAction            NextAction           @default(TMUA_CANDIDATE)
-  reviewer              User?                @relation(fields: [reviewerId], references: [id])
-  reviewerId            Int?
+  id                       Int                  @id @default(autoincrement())
+  applicant                Applicant            @relation(fields: [applicantId], references: [id])
+  applicantId              Int
+  admissionsCycle          Int
+  applicationDate          DateTime
+  wideningParticipation    Boolean
+  hasDisability            Boolean
+  feeStatus                FeeStatus
+  tmuaPaper1Score          Decimal?             @db.Decimal(2, 1)
+  tmuaPaper2Score          Decimal?             @db.Decimal(2, 1)
+  tmuaOverallScore         Decimal?             @db.Decimal(2, 1)
+  gcseQualification        GCSEQualification?
+  gcseQualificationScore   Decimal?             @db.Decimal(3, 1)
+  aLevelQualification      AlevelQualification?
+  aLevelQualificationScore Decimal?             @db.Decimal(3, 1)
+  imperialReview           ImperialReview?
+  nextAction               NextAction           @default(TMUA_CANDIDATE)
+  reviewer                 User?                @relation(fields: [reviewerId], references: [id])
+  reviewerId               Int?
 }
 
 model ImperialReview {

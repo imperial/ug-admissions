@@ -21,8 +21,10 @@ const AdminScoringForm: FC<AdminScoringFormProps> = ({ row }: AdminScoringFormPr
   const { applicant, imperialReview, reviewer } = row
   const [isDialogOpen, setIsDialogOpen] = useState(false)
   const [isLoading, setIsLoading] = useState(false)
-  const [age16ExamType, setAge16ExamType] = useState(row.age16ExamType?.toString())
-  const [age18ExamType, setAge18ExamType] = useState(row.age18ExamType?.toString())
+  const [gcseQualification, setGcseQualification] = useState(row.gcseQualification?.toString())
+  const [aLevelQualification, setALevelQualification] = useState(
+    row.aLevelQualification?.toString()
+  )
 
   const upsertAdminScoringWithId = (prevState: FormPassbackState, formData: FormData) =>
     upsertAdminScoring(NextActionEnum[row.nextAction], row.id, prevState, formData)
@@ -76,25 +78,29 @@ const AdminScoringForm: FC<AdminScoringFormProps> = ({ row }: AdminScoringFormPr
             <LabelledFormField labelText="Type">
               <Dropdown
                 values={Object.keys(GCSEQualification)}
-                currentValue={age16ExamType}
-                onValueChange={setAge16ExamType}
+                currentValue={gcseQualification}
+                onValueChange={setGcseQualification}
                 className="flex-grow"
               />
-              <input name="age16ExamType" type="hidden" value={row.age16ExamType?.toString()} />
+              <input
+                name="gcseQualification"
+                type="hidden"
+                value={row.gcseQualification?.toString()}
+              />
             </LabelledFormField>
 
             <LabelledFormField labelText="Score">
               <TextField.Root
-                id="age16Score"
-                name="age16Score"
+                id="gcseQualificationScore"
+                name="gcseQualificationScore"
                 type="number"
                 min={0.0}
                 max={10.0}
                 step={0.1}
                 className="flex-grow"
-                disabled={!row?.age16ExamType}
-                required={!!row?.age16ExamType}
-                defaultValue={parseFloat(row?.age16Score?.toString() ?? '')}
+                disabled={!row?.gcseQualification}
+                required={!!row?.gcseQualification}
+                defaultValue={parseFloat(row?.gcseQualificationScore?.toString() ?? '')}
               />
             </LabelledFormField>
           </Flex>
@@ -106,25 +112,29 @@ const AdminScoringForm: FC<AdminScoringFormProps> = ({ row }: AdminScoringFormPr
             <LabelledFormField labelText="Type">
               <Dropdown
                 values={Object.keys(AlevelQualification)}
-                currentValue={age18ExamType}
-                onValueChange={setAge18ExamType}
+                currentValue={aLevelQualification}
+                onValueChange={setALevelQualification}
                 className="flex-grow"
               />
-              <input name="age18ExamType" type="hidden" value={row.age18ExamType?.toString()} />
+              <input
+                name="aLevelQualification"
+                type="hidden"
+                value={row.aLevelQualification?.toString()}
+              />
             </LabelledFormField>
 
             <LabelledFormField labelText="Score">
               <TextField.Root
-                id="age18Score"
-                name="age18Score"
+                id="aLevelQualificationScore"
+                name="aLevelQualificationScore"
                 type="number"
                 min={0.0}
                 max={10.0}
                 step={0.1}
                 className="flex-grow"
-                disabled={!row?.age18ExamType}
-                required={!!row?.age18ExamType}
-                defaultValue={parseFloat(row?.age18Score?.toString() ?? '')}
+                disabled={!row?.aLevelQualification}
+                required={!!row?.aLevelQualification}
+                defaultValue={parseFloat(row?.aLevelQualificationScore?.toString() ?? '')}
               />
             </LabelledFormField>
           </Flex>

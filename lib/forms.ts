@@ -22,17 +22,18 @@ export const upsertAdminScoring = async (
   _: FormPassbackState,
   formData: FormData
 ): Promise<FormPassbackState> => {
-  const age16ExamType = (formData.get('age16ExamType') as GCSEQualification) || undefined
-  const age16Score = parseScore(formData.get('age16Score'))
-  const age18ExamType = (formData.get('age18ExamType') as AlevelQualification) || undefined
-  const age18Score = parseScore(formData.get('age18Score'))
+  const gcseQualification = (formData.get('gcseQualification') as GCSEQualification) || undefined
+  const gcseQualificationScore = parseScore(formData.get('gcseQualificationScore'))
+  const aLevelQualification =
+    (formData.get('aLevelQualification') as AlevelQualification) || undefined
+  const aLevelQualificationScore = parseScore(formData.get('aLevelQualificationScore'))
   const motivationAssessments = parseScore(formData.get('motivationAssessments'))
   const extracurricularAssessments = parseScore(formData.get('extracurricularAssessments'))
   const examComments = formData.get('examComments') as string
 
   if (
-    (age16ExamType && typeof age16Score === 'undefined') ||
-    (!age16ExamType && typeof age16Score === 'number')
+    (gcseQualification && typeof gcseQualificationScore === 'undefined') ||
+    (!gcseQualification && typeof gcseQualificationScore === 'number')
   ) {
     return {
       status: 'error',
@@ -41,8 +42,8 @@ export const upsertAdminScoring = async (
   }
 
   if (
-    (age18ExamType && typeof age18Score === 'undefined') ||
-    (!age18ExamType && typeof age18Score === 'number')
+    (aLevelQualification && typeof aLevelQualificationScore === 'undefined') ||
+    (!aLevelQualification && typeof aLevelQualificationScore === 'number')
   ) {
     return {
       status: 'error',
@@ -50,7 +51,12 @@ export const upsertAdminScoring = async (
     }
   }
 
-  ;[motivationAssessments, extracurricularAssessments, age16Score, age18Score].forEach((score) => {
+  ;[
+    motivationAssessments,
+    extracurricularAssessments,
+    gcseQualificationScore,
+    aLevelQualificationScore
+  ].forEach((score) => {
     if (score && (score < 0 || score > 10))
       return { status: 'error', message: 'Scores must be between 0.0 and 10.0.' }
   })
@@ -62,10 +68,10 @@ export const upsertAdminScoring = async (
   await prisma.application.update({
     where: { id: applicationId },
     data: {
-      age16ExamType,
-      age16Score,
-      age18ExamType,
-      age18Score,
+      gcseQualification,
+      gcseQualificationScore,
+      aLevelQualification,
+      aLevelQualificationScore,
       nextAction
     }
   })
