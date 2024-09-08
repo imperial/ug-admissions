@@ -1,7 +1,7 @@
 'use server'
 
 import prisma from '@/db'
-import { NextAction, QualificationType16, QualificationType18 } from '@prisma/client'
+import { AlevelQualification, GCSEQualification, NextAction } from '@prisma/client'
 import { revalidatePath } from 'next/cache'
 
 import { NextActionEnum } from './types'
@@ -22,9 +22,9 @@ export const upsertAdminScoring = async (
   _: FormPassbackState,
   formData: FormData
 ): Promise<FormPassbackState> => {
-  const age16ExamType = (formData.get('age16ExamType') as QualificationType16) || undefined
+  const age16ExamType = (formData.get('age16ExamType') as GCSEQualification) || undefined
   const age16Score = parseScore(formData.get('age16Score'))
-  const age18ExamType = (formData.get('age18ExamType') as QualificationType18) || undefined
+  const age18ExamType = (formData.get('age18ExamType') as AlevelQualification) || undefined
   const age18Score = parseScore(formData.get('age18Score'))
   const motivationAssessments = parseScore(formData.get('motivationAssessments'))
   const extracurricularAssessments = parseScore(formData.get('extracurricularAssessments'))

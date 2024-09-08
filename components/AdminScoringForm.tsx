@@ -3,7 +3,7 @@
 import Dropdown from '@/components/TanstackTable/Dropdown'
 import { FormPassbackState, upsertAdminScoring } from '@/lib/forms'
 import { NextActionEnum } from '@/lib/types'
-import { QualificationType16, QualificationType18 } from '@prisma/client'
+import { AlevelQualification, GCSEQualification } from '@prisma/client'
 import { CrossCircledIcon } from '@radix-ui/react-icons'
 import { Button, Callout, Dialog, Flex, Heading, Spinner, Text, TextField } from '@radix-ui/themes'
 import { format } from 'date-fns'
@@ -75,7 +75,7 @@ const AdminScoringForm: FC<AdminScoringFormProps> = ({ row }: AdminScoringFormPr
             </Heading>
             <LabelledFormField labelText="Type">
               <Dropdown
-                values={Object.keys(QualificationType16)}
+                values={Object.keys(GCSEQualification)}
                 currentValue={age16ExamType}
                 onValueChange={setAge16ExamType}
                 className="flex-grow"
@@ -105,7 +105,7 @@ const AdminScoringForm: FC<AdminScoringFormProps> = ({ row }: AdminScoringFormPr
             </Heading>
             <LabelledFormField labelText="Type">
               <Dropdown
-                values={Object.keys(QualificationType18)}
+                values={Object.keys(AlevelQualification)}
                 currentValue={age18ExamType}
                 onValueChange={setAge18ExamType}
                 className="flex-grow"

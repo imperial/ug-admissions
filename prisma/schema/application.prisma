@@ -14,7 +14,7 @@ enum NextAction {
   CANDIDATE_INFORMED
 }
 
-enum QualificationType16 {
+enum GCSEQualification {
   GCSE
   INDIAN_X
   MALAYSIAN
@@ -22,7 +22,7 @@ enum QualificationType16 {
   OTHER
 }
 
-enum QualificationType18 {
+enum AlevelQualification {
   A_LEVEL
   INDIAN_XII
   MALAYSIAN
@@ -43,9 +43,9 @@ model Application {
   tmuaPaper1Score       Decimal?             @db.Decimal(2, 1)
   tmuaPaper2Score       Decimal?             @db.Decimal(2, 1)
   tmuaOverallScore      Decimal?             @db.Decimal(2, 1)
-  age16ExamType         QualificationType16?
+  age16ExamType         GCSEQualification?
   age16Score            Decimal?             @db.Decimal(3, 1)
-  age18ExamType         QualificationType18?
+  age18ExamType         AlevelQualification?
   age18Score            Decimal?             @db.Decimal(3, 1)
   imperialReview        ImperialReview?
   nextAction            NextAction           @default(TMUA_CANDIDATE)
