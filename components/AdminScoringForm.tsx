@@ -17,7 +17,7 @@ interface AdminScoringFormProps {
   row: ApplicationRow
 }
 
-const AdminScoringForm: FC<AdminScoringFormProps> = ({ row }: AdminScoringFormProps) => {
+const AdminScoringForm: FC<AdminScoringFormProps> = ({ row }) => {
   const { applicant, internalReview } = row
   const [isDialogOpen, setIsDialogOpen] = useState(false)
   const [isLoading, setIsLoading] = useState(false)
