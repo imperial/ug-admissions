@@ -1,5 +1,6 @@
 'use client'
 
+import LabelText from '@/components/LabelText'
 import Dropdown from '@/components/TanstackTable/Dropdown'
 import { FormPassbackState, upsertAdminScoring } from '@/lib/forms'
 import { NextActionEnum } from '@/lib/types'
@@ -11,7 +12,6 @@ import React, { FC, useEffect, useState } from 'react'
 import { useFormState } from 'react-dom'
 
 import { ApplicationRow } from './ApplicationTable'
-import LabelledFormField from './LabelledFormField'
 
 interface AdminScoringFormProps {
   row: ApplicationRow
@@ -71,11 +71,11 @@ const AdminScoringForm: FC<AdminScoringFormProps> = ({ row }: AdminScoringFormPr
           action={formAction}
           onSubmit={() => setIsLoading(true)}
         >
-          <Flex direction="column" gap="1">
+          <Flex direction="column" gap="2">
             <Heading as="h3" size="2">
               Age 16 exam
             </Heading>
-            <LabelledFormField labelText="Type">
+            <LabelText label="Type" weight="regular">
               <Dropdown
                 values={Object.keys(GCSEQualification)}
                 currentValue={gcseQualification}
@@ -83,9 +83,9 @@ const AdminScoringForm: FC<AdminScoringFormProps> = ({ row }: AdminScoringFormPr
                 className="flex-grow"
               />
               <input name="gcseQualification" type="hidden" value={gcseQualification?.toString()} />
-            </LabelledFormField>
+            </LabelText>
 
-            <LabelledFormField labelText="Score">
+            <LabelText label="Score" weight="regular">
               <TextField.Root
                 id="gcseQualificationScore"
                 name="gcseQualificationScore"
@@ -98,14 +98,14 @@ const AdminScoringForm: FC<AdminScoringFormProps> = ({ row }: AdminScoringFormPr
                 required={!!gcseQualification}
                 defaultValue={parseFloat(row?.gcseQualificationScore?.toString() ?? '')}
               />
-            </LabelledFormField>
+            </LabelText>
           </Flex>
 
-          <Flex direction="column" gap="1">
+          <Flex direction="column" gap="2">
             <Heading as="h3" size="2">
               Age 18 exam
             </Heading>
-            <LabelledFormField labelText="Type">
+            <LabelText label="Type" weight="regular">
               <Dropdown
                 values={Object.keys(AlevelQualification)}
                 currentValue={aLevelQualification}
@@ -117,9 +117,9 @@ const AdminScoringForm: FC<AdminScoringFormProps> = ({ row }: AdminScoringFormPr
                 type="hidden"
                 value={aLevelQualification?.toString()}
               />
-            </LabelledFormField>
+            </LabelText>
 
-            <LabelledFormField labelText="Score">
+            <LabelText label="Score" weight="regular">
               <TextField.Root
                 id="aLevelQualificationScore"
                 name="aLevelQualificationScore"
@@ -132,10 +132,10 @@ const AdminScoringForm: FC<AdminScoringFormProps> = ({ row }: AdminScoringFormPr
                 required={!!aLevelQualification}
                 defaultValue={parseFloat(row?.aLevelQualificationScore?.toString() ?? '')}
               />
-            </LabelledFormField>
+            </LabelText>
           </Flex>
 
-          <LabelledFormField labelText="Motivation Assessments">
+          <LabelText label="Motivation Assessments">
             <TextField.Root
               id="motivationAdminScore"
               name="motivationAdminScore"
@@ -145,9 +145,9 @@ const AdminScoringForm: FC<AdminScoringFormProps> = ({ row }: AdminScoringFormPr
               step={0.1}
               defaultValue={parseFloat(internalReview?.motivationAdminScore?.toString() ?? '')}
             />
-          </LabelledFormField>
+          </LabelText>
 
-          <LabelledFormField labelText="Extracurricular Assessments">
+          <LabelText label="Extracurricular Assessments">
             <TextField.Root
               id="extracurricularAdminScore"
               name="extracurricularAdminScore"
@@ -157,15 +157,15 @@ const AdminScoringForm: FC<AdminScoringFormProps> = ({ row }: AdminScoringFormPr
               step={0.1}
               defaultValue={parseFloat(internalReview?.extracurricularAdminScore?.toString() ?? '')}
             />
-          </LabelledFormField>
+          </LabelText>
 
-          <LabelledFormField labelText="Exam Comments">
+          <LabelText label="Exam Comments">
             <TextField.Root
               id="examComments"
               name="examComments"
               defaultValue={internalReview?.examComments ?? undefined}
             />
-          </LabelledFormField>
+          </LabelText>
 
           <Flex gap="3" mt="4" justify="end">
             <Dialog.Close>
