@@ -7,3 +7,15 @@ export enum NextActionEnum {
   INFORM_CANDIDATE,
   CANDIDATE_INFORMED
 }
+
+export enum DataUploadEnum {
+  APPLICANT = 'APPLICANT',
+  COURSE = 'COURSE',
+  TMUA_GRADES = 'TMUA_GRADES',
+  USER_ROLES = 'USER_ROLES'
+}
+
+export interface FormPassbackState {
+  status: string
+  message: string
+}

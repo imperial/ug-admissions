@@ -5,12 +5,7 @@ import { AlevelQualification, GCSEQualification, NextAction } from '@prisma/clie
 import { revalidatePath } from 'next/cache'
 import { z } from 'zod'
 
-import { NextActionEnum } from './types'
-
-export interface FormPassbackState {
-  status: string
-  message: string
-}
+import { FormPassbackState, NextActionEnum } from './types'
 
 const parseScore = (entry: FormDataEntryValue | null): number | null => {
   const parsedScore = parseFloat(entry as string)

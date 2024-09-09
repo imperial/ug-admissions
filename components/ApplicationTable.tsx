@@ -3,11 +3,12 @@
 import AdminScoringDialog from '@/components/AdminScoringDialog'
 import type { Applicant, Application, InternalReview, User } from '@prisma/client'
 import { NextAction } from '@prisma/client'
-import { Card, Flex, Text } from '@radix-ui/themes'
+import { Button, Card, Flex, Text } from '@radix-ui/themes'
 import { ColumnFiltersState, createColumnHelper } from '@tanstack/react-table'
 import { usePathname, useRouter, useSearchParams } from 'next/navigation'
 import React, { FC, useEffect, useState } from 'react'
 
+import DataUpload from './DataUpload'
 import TanstackTable from './TanstackTable'
 import Dropdown from './TanstackTable/Dropdown'
 
@@ -112,23 +113,27 @@ const ApplicationTable: FC<ApplicationTableProps> = ({ applications, reviewerIds
   return (
     <>
       <Card>
-        <Flex gapX="5">
-          <Flex gapX="2" align="center">
-            <Text>Next Action: </Text>
-            <Dropdown
-              values={[ALL_DROPDOWN_OPTION, ...Object.keys(NextAction)]}
-              currentValue={nextActionFilterValue}
-              onValueChange={(value) => onFilterDropdownChange(SEARCH_PARAM_NEXT_ACTION, value)}
-            />
+        <Flex justify="between">
+          <Flex gapX="5">
+            <Flex gapX="2" align="center">
+              <Text>Next Action: </Text>
+              <Dropdown
+                values={[ALL_DROPDOWN_OPTION, ...Object.keys(NextAction)]}
+                currentValue={nextActionFilterValue}
+                onValueChange={(value) => onFilterDropdownChange(SEARCH_PARAM_NEXT_ACTION, value)}
+              />
+            </Flex>
+            <Flex gapX="2" align="center">
+              <Text>Reviewer: </Text>
+              <Dropdown
+                values={[ALL_DROPDOWN_OPTION, ...reviewerIds]}
+                currentValue={reviewerFilterValue}
+                onValueChange={(value) => onFilterDropdownChange(SEARCH_PARAM_REVIEWER, value)}
+              />
+            </Flex>
           </Flex>
-          <Flex gapX="2" align="center">
-            <Text>Reviewer: </Text>
-            <Dropdown
-              values={[ALL_DROPDOWN_OPTION, ...reviewerIds]}
-              currentValue={reviewerFilterValue}
-              onValueChange={(value) => onFilterDropdownChange(SEARCH_PARAM_REVIEWER, value)}
-            />
-          </Flex>
+          {/* eventually there are 4 uploads: applicant, course, TMUA grades, user roles */}
+          <DataUpload />
         </Flex>
       </Card>
       <TanstackTable
