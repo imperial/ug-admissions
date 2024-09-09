@@ -2,10 +2,12 @@
 
 import { DataUploadEnum } from '@/lib/types'
 import { insertUploadedData } from '@/lib/upload'
-import { Button, Dialog, Flex, Spinner, TextField } from '@radix-ui/themes'
+import { CheckCircledIcon, CrossCircledIcon } from '@radix-ui/react-icons'
+import { Button, Callout, Dialog, Flex, Spinner, TextField } from '@radix-ui/themes'
 import React, { useEffect, useState } from 'react'
 import { useFormState } from 'react-dom'
 
+import LabelledInput from './LabelText'
 import Dropdown from './TanstackTable/Dropdown'
 
 const DataUpload = () => {
@@ -16,7 +18,6 @@ const DataUpload = () => {
 
   useEffect(() => {
     setIsLoading(false)
-    if (state.status === 'success') setIsDialogOpen(false)
   }, [state, setIsDialogOpen, setIsLoading])
 
   return (
@@ -33,23 +34,39 @@ const DataUpload = () => {
           onSubmit={() => setIsLoading(true)}
         >
           <Flex direction="column" gap="3">
+            <LabelledInput label="Data regarding">
+              <Dropdown
+                values={Object.keys(DataUploadEnum)}
+                currentValue={dataUploadChoice}
+                onValueChange={(value) => setDataUploadChoice(value as DataUploadEnum)}
+              />
+            </LabelledInput>
             <input type="file" name="csv" />
-            <Dropdown
-              values={Object.keys(DataUploadEnum)}
-              currentValue={dataUploadChoice}
-              onValueChange={(value) => setDataUploadChoice(value as DataUploadEnum)}
-            />
+
+            {!!state.message && (
+              <Callout.Root
+                size="1"
+                color={state.status === 'success' ? 'green' : 'red'}
+                className="mb-3"
+              >
+                <Callout.Icon>
+                  {state.status === 'success' && <CheckCircledIcon />}
+                  {state.status === 'error' && <CrossCircledIcon />}
+                </Callout.Icon>
+                <Callout.Text>{state.message}</Callout.Text>
+              </Callout.Root>
+            )}
           </Flex>
 
-          <Flex gap="3" mt="4" justify="end">
+          <Flex gap="3" mt="4" justify="center">
+            <Button type="submit" disabled={isLoading}>
+              {isLoading ? <Spinner /> : 'Upload'}
+            </Button>
             <Dialog.Close>
               <Button variant="soft" color="gray">
                 Close
               </Button>
             </Dialog.Close>
-            <Button type="submit" disabled={isLoading}>
-              {isLoading ? <Spinner /> : 'Save'}
-            </Button>
           </Flex>
         </form>
       </Dialog.Content>
