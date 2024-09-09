@@ -13,7 +13,7 @@ export default async function Home() {
     },
     include: {
       applicant: true,
-      imperialReview: true,
+      internalReview: true,
       reviewer: true
     }
   })

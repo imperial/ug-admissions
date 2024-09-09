@@ -18,7 +18,7 @@ interface AdminScoringFormProps {
 }
 
 const AdminScoringForm: FC<AdminScoringFormProps> = ({ row }: AdminScoringFormProps) => {
-  const { applicant, imperialReview } = row
+  const { applicant, internalReview } = row
   const [isDialogOpen, setIsDialogOpen] = useState(false)
   const [isLoading, setIsLoading] = useState(false)
   const [gcseQualification, setGcseQualification] = useState(row.gcseQualification?.toString())
@@ -45,10 +45,10 @@ const AdminScoringForm: FC<AdminScoringFormProps> = ({ row }: AdminScoringFormPr
       <Dialog.Content maxWidth="450px">
         <Dialog.Title>Admin Scoring Form</Dialog.Title>
 
-        {imperialReview?.examRatingDone && imperialReview?.examRatingBy && (
+        {internalReview?.lastAdminEditOn && internalReview?.lastAdminEditBy && (
           <Text size="2" className="italic text-gray-500">
-            Last edited by {imperialReview?.examRatingBy} on{' '}
-            {format(imperialReview?.examRatingDone, "dd/MM/yy 'at' HH:mm")}
+            Last edited by {internalReview?.lastAdminEditBy} on{' '}
+            {format(internalReview?.lastAdminEditOn, "dd/MM/yy 'at' HH:mm")}
           </Text>
         )}
         <Callout.Root className="my-5">
@@ -137,27 +137,25 @@ const AdminScoringForm: FC<AdminScoringFormProps> = ({ row }: AdminScoringFormPr
 
           <LabelledFormField labelText="Motivation Assessments">
             <TextField.Root
-              id="motivationAssessments"
-              name="motivationAssessments"
+              id="motivationAdminScore"
+              name="motivationAdminScore"
               type="number"
               min={0.0}
               max={10.0}
               step={0.1}
-              defaultValue={parseFloat(imperialReview?.motivationAssessments?.toString() ?? '')}
+              defaultValue={parseFloat(internalReview?.motivationAdminScore?.toString() ?? '')}
             />
           </LabelledFormField>
 
           <LabelledFormField labelText="Extracurricular Assessments">
             <TextField.Root
-              id="extracurricularAssessments"
-              name="extracurricularAssessments"
+              id="extracurricularAdminScore"
+              name="extracurricularAdminScore"
               type="number"
               min={0.0}
               max={10.0}
               step={0.1}
-              defaultValue={parseFloat(
-                imperialReview?.extracurricularAssessments?.toString() ?? ''
-              )}
+              defaultValue={parseFloat(internalReview?.extracurricularAdminScore?.toString() ?? '')}
             />
           </LabelledFormField>
 
@@ -165,7 +163,7 @@ const AdminScoringForm: FC<AdminScoringFormProps> = ({ row }: AdminScoringFormPr
             <TextField.Root
               id="examComments"
               name="examComments"
-              defaultValue={imperialReview?.examComments ?? undefined}
+              defaultValue={internalReview?.examComments ?? undefined}
             />
           </LabelledFormField>
 

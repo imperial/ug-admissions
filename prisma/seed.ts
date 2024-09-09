@@ -61,10 +61,10 @@ const createApplication = (reviewer: User) => {
 
 const createReview = (application: Application) => {
   return {
-    motivationAssessments: faker.number.float({ multipleOf: 0.1, min: 0.0, max: 10.0 }),
-    extracurricularAssessments: faker.number.float({ multipleOf: 0.1, min: 0.0, max: 10.0 }),
+    motivationAdminScore: faker.number.float({ multipleOf: 0.1, min: 0.0, max: 10.0 }),
+    extracurricularAdminScore: faker.number.float({ multipleOf: 0.1, min: 0.0, max: 10.0 }),
     examComments: faker.person.bio(),
-    examRatingBy:
+    lastAdminEditBy:
       faker.string.alpha({ length: 2 }).toLowerCase() + faker.string.numeric({ length: 3 }),
     application: {
       connect: {
@@ -81,7 +81,7 @@ async function main() {
     for (let j = 0; j < 10; j++) {
       const application = await prisma.application.create({ data: createApplication(user) })
       if (j % 2 == 0) {
-        await prisma.imperialReview.create({ data: createReview(application) })
+        await prisma.internalReview.create({ data: createReview(application) })
       }
     }
   }

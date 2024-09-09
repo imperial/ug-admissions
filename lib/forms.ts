@@ -27,8 +27,8 @@ export const upsertAdminScoring = async (
   const aLevelQualification =
     (formData.get('aLevelQualification') as AlevelQualification) || undefined
   const aLevelQualificationScore = parseScore(formData.get('aLevelQualificationScore'))
-  const motivationAssessments = parseScore(formData.get('motivationAssessments'))
-  const extracurricularAssessments = parseScore(formData.get('extracurricularAssessments'))
+  const motivationAdminScore = parseScore(formData.get('motivationAdminScore'))
+  const extracurricularAdminScore = parseScore(formData.get('extracurricularAdminScore'))
   const examComments = formData.get('examComments') as string
 
   if (
@@ -52,8 +52,8 @@ export const upsertAdminScoring = async (
   }
 
   ;[
-    motivationAssessments,
-    extracurricularAssessments,
+    motivationAdminScore,
+    extracurricularAdminScore,
     gcseQualificationScore,
     aLevelQualificationScore
   ].forEach((score) => {
@@ -76,19 +76,19 @@ export const upsertAdminScoring = async (
     }
   })
 
-  await prisma.imperialReview.upsert({
+  await prisma.internalReview.upsert({
     where: {
       applicationId
     },
     create: {
       applicationId,
-      motivationAssessments,
-      extracurricularAssessments,
+      motivationAdminScore,
+      extracurricularAdminScore,
       examComments
     },
     update: {
-      motivationAssessments,
-      extracurricularAssessments,
+      motivationAdminScore,
+      extracurricularAdminScore,
       examComments
     }
   })

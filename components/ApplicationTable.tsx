@@ -1,7 +1,7 @@
 'use client'
 
 import AdminScoringForm from '@/components/AdminScoringForm'
-import type { Applicant, Application, ImperialReview, User } from '@prisma/client'
+import type { Applicant, Application, InternalReview, User } from '@prisma/client'
 import { NextAction } from '@prisma/client'
 import { Card, Flex, Text } from '@radix-ui/themes'
 import { ColumnFiltersState, createColumnHelper } from '@tanstack/react-table'
@@ -13,7 +13,7 @@ import Dropdown from './TanstackTable/Dropdown'
 
 export type ApplicationRow = Application & {
   applicant: Applicant
-  imperialReview: ImperialReview | null
+  internalReview: InternalReview | null
   reviewer: User | null
 }
 
