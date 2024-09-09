@@ -97,3 +97,12 @@ export const upsertAdminScoring = async (
   revalidatePath('/')
   return { status: 'success', message: 'Admin scoring form updated successfully.' }
 }
+
+function delay(time: number) {
+  return new Promise((resolve) => setTimeout(resolve, time))
+}
+
+export const testServerAction = async (_: FormPassbackState, formData: FormData) => {
+  await delay(2000)
+  return { status: 'success', message: `Hello, ${formData.get('name')} ${formData.get('surname')}` }
+}
