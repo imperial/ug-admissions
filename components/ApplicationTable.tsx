@@ -1,6 +1,6 @@
 'use client'
 
-import AdminScoringForm from '@/components/AdminScoringForm'
+import AdminScoringDialog from '@/components/AdminScoringDialog'
 import type { Applicant, Application, InternalReview, User } from '@prisma/client'
 import { NextAction } from '@prisma/client'
 import { Card, Flex, Text } from '@radix-ui/themes'
@@ -66,7 +66,7 @@ const columns = [
   }),
   columnHelper.display({
     id: 'adminFormButton',
-    cell: (info) => <AdminScoringForm row={info.row.original} />
+    cell: (info) => <AdminScoringDialog row={info.row.original} />
   })
 ]
 

@@ -1,5 +1,4 @@
 import ApplicationTable from '@/components/ApplicationTable'
-import { TestForm } from '@/components/TestForm'
 import prisma from '@/db'
 import { Role } from '@prisma/client'
 
@@ -33,5 +32,10 @@ export default async function Home() {
     })
   ).map((user) => user.login)
 
-  return <TestForm />
+  return (
+    <ApplicationTable
+      applications={JSON.parse(JSON.stringify(applications))}
+      reviewerIds={reviewerIds}
+    />
+  )
 }

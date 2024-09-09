@@ -22,12 +22,18 @@ const FormInDialog: React.FC<FormInDialogProps> = ({
   submitButtonText
 }) => {
   const [pending, setPending] = React.useState(false)
-  const wrappedAction = async (prevState: FormPassbackState, formData: FormData) => {
+  const wrappedAction = async (
+    prevState: FormPassbackState,
+    formData: FormData
+  ): Promise<FormPassbackState> => {
     const res = await action(prevState, formData)
     setPending(false)
-    if (res.status === 'success' && closeOnSuccess) close()
+    if (res.status === 'success' && closeOnSuccess) {
+      close()
+    }
     return res
   }
+
   const [state, formAction] = useFormState(wrappedAction, { status: '', message: '' })
   return (
     <>
