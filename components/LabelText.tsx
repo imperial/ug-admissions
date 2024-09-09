@@ -1,19 +1,19 @@
 import { Flex, Text, TextProps } from '@radix-ui/themes'
 import React, { FC } from 'react'
 
-type LabelTextProps = TextProps & { label: string }
+type LabelledInputProps = TextProps & { label: string }
 
-const LabelText: FC<LabelTextProps> = ({ label, children, ...props }) => {
+const LabelledInput: FC<LabelledInputProps> = ({ label, children, ...props }) => {
   return (
     <Flex asChild direction="column" gap="2">
-      <>
-        <Text as="label" size="2" weight="bold" {...props}>
+      <label>
+        <Text as="div" size="2" weight="bold" {...props}>
           {label}
         </Text>
         {children}
-      </>
+      </label>
     </Flex>
   )
 }
 
-export default LabelText
+export default LabelledInput

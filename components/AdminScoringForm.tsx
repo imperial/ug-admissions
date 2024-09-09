@@ -52,10 +52,10 @@ const AdminScoringForm: FC<AdminScoringFormProps> = ({ row }: AdminScoringFormPr
           </Text>
         )}
         <Callout.Root className="my-5">
-          <Callout.Text size="4">
+          <Callout.Text size="3">
             Applicant: {applicant.firstName} {applicant.surname}
           </Callout.Text>
-          <Callout.Text size="4">UCAS number: {applicant.ucasNumber}</Callout.Text>
+          <Callout.Text size="3">UCAS number: {applicant.ucasNumber}</Callout.Text>
         </Callout.Root>
 
         {state.status === 'error' && (
