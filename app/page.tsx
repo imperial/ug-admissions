@@ -32,5 +32,10 @@ export default async function Home() {
     })
   ).map((user) => user.login)
 
-  return <ApplicationTable applications={applications} reviewerIds={reviewerIds} />
+  return (
+    <ApplicationTable
+      applications={JSON.parse(JSON.stringify(applications))}
+      reviewerIds={reviewerIds}
+    />
+  )
 }

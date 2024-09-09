@@ -3,6 +3,7 @@
 import prisma from '@/db'
 import { AlevelQualification, GCSEQualification, NextAction } from '@prisma/client'
 import { revalidatePath } from 'next/cache'
+import { z } from 'zod'
 
 import { NextActionEnum } from './types'
 
@@ -16,50 +17,50 @@ const parseScore = (entry: FormDataEntryValue | null): number | null => {
   return isNaN(parsedScore) ? null : parsedScore
 }
 
+const gcseQualificationEnum = z.nativeEnum(GCSEQualification)
+const aLevelQualificationEnum = z.nativeEnum(AlevelQualification)
+
+const adminFormSchema = z
+  .object({
+    gcseQualification: gcseQualificationEnum,
+    gcseQualificationScore: z.coerce
+      .number()
+      .gte(0, { message: 'Age 16 exam score must be ≥ 0' })
+      .lte(10, { message: 'Age 16 exam score must be ≤ 10' }),
+    aLevelQualification: aLevelQualificationEnum,
+    aLevelQualificationScore: z.coerce
+      .number()
+      .gte(0, { message: 'Age 18 score must be ≥ 0' })
+      .lte(10, { message: 'Age 18 score must be ≤ 10' }),
+    motivationAdminScore: z.coerce
+      .number()
+      .gte(0, { message: 'Motivation assessment score must be ≥ 0' })
+      .lte(10, { message: 'Motivation assessment score must be ≤ 10' }),
+    extracurricularAdminScore: z.coerce
+      .number()
+      .gte(0, { message: 'Extracurricular assessment score must be ≥ 0' })
+      .lte(10, { message: 'Extracurricular assessment score must be ≤ 10' }),
+    examComments: z.string()
+  })
+  .partial()
+
 export const upsertAdminScoring = async (
   currentAction: NextActionEnum,
   applicationId: number,
   _: FormPassbackState,
   formData: FormData
 ): Promise<FormPassbackState> => {
-  const gcseQualification = (formData.get('gcseQualification') as GCSEQualification) || undefined
-  const gcseQualificationScore = parseScore(formData.get('gcseQualificationScore'))
-  const aLevelQualification =
-    (formData.get('aLevelQualification') as AlevelQualification) || undefined
-  const aLevelQualificationScore = parseScore(formData.get('aLevelQualificationScore'))
-  const motivationAdminScore = parseScore(formData.get('motivationAdminScore'))
-  const extracurricularAdminScore = parseScore(formData.get('extracurricularAdminScore'))
-  const examComments = formData.get('examComments') as string
-
-  if (
-    (gcseQualification && typeof gcseQualificationScore === 'undefined') ||
-    (!gcseQualification && typeof gcseQualificationScore === 'number')
-  ) {
-    return {
-      status: 'error',
-      message: 'Age 16 exam type and score must be both given or both not given.'
-    }
-  }
-
-  if (
-    (aLevelQualification && typeof aLevelQualificationScore === 'undefined') ||
-    (!aLevelQualification && typeof aLevelQualificationScore === 'number')
-  ) {
-    return {
-      status: 'error',
-      message: 'Age 18 exam type and score must be both given or both not given.'
-    }
-  }
-
-  ;[
+  const result = adminFormSchema.safeParse(Object.fromEntries(formData))
+  if (!result.success) return { status: 'error', message: result.error.issues[0].message }
+  const {
+    gcseQualification,
+    gcseQualificationScore,
+    aLevelQualification,
+    aLevelQualificationScore,
     motivationAdminScore,
     extracurricularAdminScore,
-    gcseQualificationScore,
-    aLevelQualificationScore
-  ].forEach((score) => {
-    if (score && (score < 0 || score > 10))
-      return { status: 'error', message: 'Scores must be between 0.0 and 10.0.' }
-  })
+    examComments
+  } = result.data
 
   // admin form can be updated at later stages so make sure to reset to the furthest stage
   const nextActionEnum = Math.max(currentAction, NextActionEnum.REVIEWER_SCORING)
