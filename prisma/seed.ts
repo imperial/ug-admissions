@@ -1,5 +1,12 @@
 import { faker } from '@faker-js/faker'
-import { Application, PrismaClient, Role, User } from '@prisma/client'
+import {
+  AlevelQualification,
+  Application,
+  GCSEQualification,
+  PrismaClient,
+  Role,
+  User
+} from '@prisma/client'
 import { FeeStatus, Gender, NextAction } from '@prisma/client'
 
 const prisma = new PrismaClient()
@@ -36,9 +43,32 @@ const createApplication = (reviewer: User) => {
     tmuaPaper1Score: faker.number.float({ multipleOf: 0.1, min: 1.0, max: 9.0 }),
     tmuaPaper2Score: faker.number.float({ multipleOf: 0.1, min: 1.0, max: 9.0 }),
     tmuaOverallScore: faker.number.float({ multipleOf: 0.1, min: 1.0, max: 9.0 }),
+    gcseQualification: faker.helpers.arrayElement(
+      Object.keys(GCSEQualification)
+    ) as GCSEQualification,
+    gcseQualificationScore: faker.number.float({ multipleOf: 0.1, min: 0.0, max: 10.0 }),
+    aLevelQualification: faker.helpers.arrayElement(
+      Object.keys(AlevelQualification)
+    ) as AlevelQualification,
+    aLevelQualificationScore: faker.number.float({ multipleOf: 0.1, min: 0.0, max: 10.0 }),
     reviewer: {
       connect: {
         id: reviewer.id
+      }
+    }
+  }
+}
+
+const createReview = (application: Application) => {
+  return {
+    motivationAdminScore: faker.number.float({ multipleOf: 0.1, min: 0.0, max: 10.0 }),
+    extracurricularAdminScore: faker.number.float({ multipleOf: 0.1, min: 0.0, max: 10.0 }),
+    examComments: faker.person.bio(),
+    lastAdminEditBy:
+      faker.string.alpha({ length: 2 }).toLowerCase() + faker.string.numeric({ length: 3 }),
+    application: {
+      connect: {
+        id: application.id
       }
     }
   }
@@ -49,7 +79,10 @@ async function main() {
     const user = await prisma.user.create({ data: createUser(Role.REVIEWER) })
 
     for (let j = 0; j < 10; j++) {
-      await prisma.application.create({ data: createApplication(user) })
+      const application = await prisma.application.create({ data: createApplication(user) })
+      if (j % 2 == 0) {
+        await prisma.internalReview.create({ data: createReview(application) })
+      }
     }
   }
 }

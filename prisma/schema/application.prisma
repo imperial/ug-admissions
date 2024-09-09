@@ -4,11 +4,6 @@ enum FeeStatus {
   UNKNOWN
 }
 
-enum QualificationType {
-  GCSE_COMPATIBLE
-  A_LEVELS_COMPATIBLE
-}
-
 enum NextAction {
   TMUA_CANDIDATE
   TMUA_RESULT
@@ -19,29 +14,57 @@ enum NextAction {
   CANDIDATE_INFORMED
 }
 
-model Application {
-  id                    Int             @id @default(autoincrement())
-  applicant             Applicant       @relation(fields: [applicantId], references: [id])
-  applicantId           Int
-  admissionsCycle       Int
-  applicationDate       DateTime
-  wideningParticipation Boolean
-  hasDisability         Boolean
-  feeStatus             FeeStatus
-  tmuaPaper1Score       Decimal         @db.Decimal(2, 1)
-  tmuaPaper2Score       Decimal         @db.Decimal(2, 1)
-  tmuaOverallScore      Decimal         @db.Decimal(2, 1)
-  qualifications        Qualification[]
-  nextAction            NextAction      @default(TMUA_CANDIDATE)
-  reviewer              User?           @relation(fields: [reviewerId], references: [id])
-  reviewerId            Int?
+enum GCSEQualification {
+  GCSE
+  INDIAN_X
+  MALAYSIAN
+  SINGAPORE
+  OTHER
 }
 
-model Qualification {
-  id            Int               @id @default(autoincrement())
-  type          QualificationType
-  title         String
-  score         Decimal           @db.Decimal(3, 1)
-  application   Application       @relation(fields: [applicationId], references: [id])
-  applicationId Int
+enum AlevelQualification {
+  A_LEVEL
+  INDIAN_XII
+  MALAYSIAN
+  SINGAPORE
+  ROMANIAN
+  OTHER
+}
+
+model Application {
+  id                       Int                  @id @default(autoincrement())
+  applicant                Applicant            @relation(fields: [applicantId], references: [id])
+  applicantId              Int
+  admissionsCycle          Int
+  applicationDate          DateTime
+  wideningParticipation    Boolean
+  hasDisability            Boolean
+  feeStatus                FeeStatus
+  tmuaPaper1Score          Decimal?             @db.Decimal(2, 1)
+  tmuaPaper2Score          Decimal?             @db.Decimal(2, 1)
+  tmuaOverallScore         Decimal?             @db.Decimal(2, 1)
+  /// gcseQualification is an enum that corresponds to age 16, GCSE-equivalent qualification type
+  gcseQualification        GCSEQualification?
+  gcseQualificationScore   Decimal?             @db.Decimal(3, 1)
+  /// aLevelQualification is an enum that corresponds to age 18, A-Level-equivalent qualification type
+  aLevelQualification      AlevelQualification?
+  aLevelQualificationScore Decimal?             @db.Decimal(3, 1)
+  /// internalReview contains all scores and comments from admins, reviewers and UG tutors
+  internalReview           InternalReview?
+  /// nextAction is an enum referring to the action pending completion for the application to progress
+  nextAction               NextAction           @default(TMUA_CANDIDATE)
+  reviewer                 User?                @relation(fields: [reviewerId], references: [id])
+  reviewerId               Int?
+}
+
+
+model InternalReview {
+  id                         Int         @id @default(autoincrement())
+  application                Application @relation(fields: [applicationId], references: [id])
+  applicationId              Int         @unique
+  motivationAdminScore       Decimal?    @db.Decimal(3, 1)
+  extracurricularAdminScore  Decimal?    @db.Decimal(3, 1)
+  examComments               String?
+  lastAdminEditBy            String?
+  lastAdminEditOn            DateTime    @updatedAt
 }

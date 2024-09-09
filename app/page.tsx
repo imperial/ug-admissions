@@ -6,23 +6,15 @@ export const dynamic = 'force-dynamic'
 
 export default async function Home() {
   const applications = await prisma.application.findMany({
-    select: {
+    orderBy: {
       applicant: {
-        select: {
-          cid: true,
-          ucasNumber: true,
-          firstName: true,
-          surname: true
-        }
-      },
-      feeStatus: true,
-      wideningParticipation: true,
-      nextAction: true,
-      reviewer: {
-        select: {
-          login: true
-        }
+        surname: 'asc'
       }
+    },
+    include: {
+      applicant: true,
+      internalReview: true,
+      reviewer: true
     }
   })
 
@@ -40,5 +32,10 @@ export default async function Home() {
     })
   ).map((user) => user.login)
 
-  return <ApplicationTable applications={applications} reviewerIds={reviewerIds} />
+  return (
+    <ApplicationTable
+      applications={JSON.parse(JSON.stringify(applications))}
+      reviewerIds={reviewerIds}
+    />
+  )
 }
