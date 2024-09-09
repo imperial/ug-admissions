@@ -43,15 +43,20 @@ model Application {
   tmuaPaper1Score          Decimal?             @db.Decimal(2, 1)
   tmuaPaper2Score          Decimal?             @db.Decimal(2, 1)
   tmuaOverallScore         Decimal?             @db.Decimal(2, 1)
+  /// gcseQualification is an enum that corresponds to age 16, GCSE-equivalent qualification type
   gcseQualification        GCSEQualification?
   gcseQualificationScore   Decimal?             @db.Decimal(3, 1)
+  /// aLevelQualification is an enum that corresponds to age 18, A-Level-equivalent qualification type
   aLevelQualification      AlevelQualification?
   aLevelQualificationScore Decimal?             @db.Decimal(3, 1)
+  /// internalReview contains all scores and comments from admins, reviewers and UG tutors
   internalReview           InternalReview?
+  /// nextAction is an enum referring to the action pending completion for the application to progress
   nextAction               NextAction           @default(TMUA_CANDIDATE)
   reviewer                 User?                @relation(fields: [reviewerId], references: [id])
   reviewerId               Int?
 }
+
 
 model InternalReview {
   id                         Int         @id @default(autoincrement())

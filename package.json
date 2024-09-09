@@ -41,6 +41,7 @@
   },
   "devDependencies": {
     "@faker-js/faker": "^8.4.1",
+    "@onozaty/prisma-db-comments-generator": "^1.0.1",
     "@types/node": "^20.16.2",
     "@types/react": "^18",
     "@types/react-dom": "^18",

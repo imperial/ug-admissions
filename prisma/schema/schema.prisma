@@ -9,6 +9,10 @@ generator client {
   previewFeatures = ["prismaSchemaFolder", "relationJoins"]
 }
 
+generator comments {
+  provider = "prisma-db-comments-generator"
+}
+
 datasource db {
   provider = "postgresql"
   url      = env("DATABASE_URL")

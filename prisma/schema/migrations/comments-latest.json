@@ -1,0 +1,214 @@
+{
+  "Applicant": {
+    "table": {
+      "tableName": "Applicant",
+      "comment": ""
+    },
+    "columns": [
+      {
+        "tableName": "Applicant",
+        "columnName": "id",
+        "comment": ""
+      },
+      {
+        "tableName": "Applicant",
+        "columnName": "cid",
+        "comment": ""
+      },
+      {
+        "tableName": "Applicant",
+        "columnName": "ucasNumber",
+        "comment": ""
+      },
+      {
+        "tableName": "Applicant",
+        "columnName": "gender",
+        "comment": ""
+      },
+      {
+        "tableName": "Applicant",
+        "columnName": "firstName",
+        "comment": ""
+      },
+      {
+        "tableName": "Applicant",
+        "columnName": "surname",
+        "comment": ""
+      },
+      {
+        "tableName": "Applicant",
+        "columnName": "email",
+        "comment": ""
+      },
+      {
+        "tableName": "Applicant",
+        "columnName": "primaryNationality",
+        "comment": ""
+      },
+      {
+        "tableName": "Applicant",
+        "columnName": "otherNationality",
+        "comment": ""
+      }
+    ]
+  },
+  "Application": {
+    "table": {
+      "tableName": "Application",
+      "comment": ""
+    },
+    "columns": [
+      {
+        "tableName": "Application",
+        "columnName": "id",
+        "comment": ""
+      },
+      {
+        "tableName": "Application",
+        "columnName": "applicantId",
+        "comment": ""
+      },
+      {
+        "tableName": "Application",
+        "columnName": "admissionsCycle",
+        "comment": ""
+      },
+      {
+        "tableName": "Application",
+        "columnName": "applicationDate",
+        "comment": ""
+      },
+      {
+        "tableName": "Application",
+        "columnName": "wideningParticipation",
+        "comment": ""
+      },
+      {
+        "tableName": "Application",
+        "columnName": "hasDisability",
+        "comment": ""
+      },
+      {
+        "tableName": "Application",
+        "columnName": "feeStatus",
+        "comment": ""
+      },
+      {
+        "tableName": "Application",
+        "columnName": "tmuaPaper1Score",
+        "comment": ""
+      },
+      {
+        "tableName": "Application",
+        "columnName": "tmuaPaper2Score",
+        "comment": ""
+      },
+      {
+        "tableName": "Application",
+        "columnName": "tmuaOverallScore",
+        "comment": ""
+      },
+      {
+        "tableName": "Application",
+        "columnName": "gcseQualification",
+        "comment": "gcseQualification is an enum that corresponds to age 16, GCSE-equivalent qualification type"
+      },
+      {
+        "tableName": "Application",
+        "columnName": "gcseQualificationScore",
+        "comment": ""
+      },
+      {
+        "tableName": "Application",
+        "columnName": "aLevelQualification",
+        "comment": "aLevelQualification is an enum that corresponds to age 18, A-Level-equivalent qualification type"
+      },
+      {
+        "tableName": "Application",
+        "columnName": "aLevelQualificationScore",
+        "comment": ""
+      },
+      {
+        "tableName": "Application",
+        "columnName": "nextAction",
+        "comment": "nextAction is an enum referring to the action pending completion for the application to progress"
+      },
+      {
+        "tableName": "Application",
+        "columnName": "reviewerId",
+        "comment": ""
+      }
+    ]
+  },
+  "InternalReview": {
+    "table": {
+      "tableName": "InternalReview",
+      "comment": ""
+    },
+    "columns": [
+      {
+        "tableName": "InternalReview",
+        "columnName": "id",
+        "comment": ""
+      },
+      {
+        "tableName": "InternalReview",
+        "columnName": "applicationId",
+        "comment": ""
+      },
+      {
+        "tableName": "InternalReview",
+        "columnName": "motivationAdminScore",
+        "comment": ""
+      },
+      {
+        "tableName": "InternalReview",
+        "columnName": "extracurricularAdminScore",
+        "comment": ""
+      },
+      {
+        "tableName": "InternalReview",
+        "columnName": "examComments",
+        "comment": ""
+      },
+      {
+        "tableName": "InternalReview",
+        "columnName": "lastAdminEditBy",
+        "comment": ""
+      },
+      {
+        "tableName": "InternalReview",
+        "columnName": "lastAdminEditOn",
+        "comment": ""
+      }
+    ]
+  },
+  "User": {
+    "table": {
+      "tableName": "User",
+      "comment": ""
+    },
+    "columns": [
+      {
+        "tableName": "User",
+        "columnName": "id",
+        "comment": ""
+      },
+      {
+        "tableName": "User",
+        "columnName": "admissionsCycle",
+        "comment": ""
+      },
+      {
+        "tableName": "User",
+        "columnName": "login",
+        "comment": ""
+      },
+      {
+        "tableName": "User",
+        "columnName": "role",
+        "comment": ""
+      }
+    ]
+  }
+}
