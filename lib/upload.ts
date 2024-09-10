@@ -34,7 +34,18 @@ const schemaMap: Record<DataUploadEnum, z.ZodObject<any>> = {
   [DataUploadEnum.USER_ROLES]: userInsertSchema
 }
 
-async function upsertUsers(users: User[]) {
+function parseWithSchema(
+  objects: unknown[],
+  validationSchema: z.ZodObject<any>
+): { data: any[]; noErrors: number } {
+  const parsedObjects = objects
+    .map((o) => validationSchema.safeParse(o))
+    .filter((o) => o.success)
+    .map((o) => o.data)
+  return { data: parsedObjects, noErrors: objects.length - parsedObjects.length }
+}
+
+async function upsertUsers(users: Omit<User, 'id'>[]) {
   const userUpserts = users.map((u) => {
     return prisma.user.upsert({
       where: {
@@ -79,18 +90,10 @@ export const insertUploadedData = async (
   }
 
   let validationSchema: z.ZodObject<any> = schemaMap[dataUploadType]
-
-  let noParsingErrors = 0
-  const parsedObjects = objects
-    .map((o) => {
-      const parsedObject = validationSchema.safeParse(o)
-      if (!parsedObject.success) {
-        noParsingErrors++
-        return undefined
-      }
-      return parsedObject.data
-    })
-    .filter((object) => !!object)
+  const { data: parsedObjects, noErrors: noParsingErrors } = parseWithSchema(
+    objects,
+    validationSchema
+  )
 
   switch (dataUploadType) {
     case DataUploadEnum.APPLICANT:
