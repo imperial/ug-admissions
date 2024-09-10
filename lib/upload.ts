@@ -21,6 +21,10 @@ const applicantInsertSchema = z.object({
   gender: GenderEnum,
   firstName: z.string(),
   surname: z.string(),
+  preferredName: z
+    .string()
+    .optional()
+    .transform((value) => (!!value ? value : null)),
   email: z.string().email(),
   primaryNationality: z.string(),
   otherNationality: z
