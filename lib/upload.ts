@@ -1,22 +1,32 @@
 'use server'
 
 import prisma from '@/db'
-import { Role, type User } from '@prisma/client'
+import { Applicant, Gender, Role, type User } from '@prisma/client'
 import { CsvError, parse } from 'csv-parse/sync'
 import { z } from 'zod'
 
 import { DataUploadEnum, FormPassbackState } from './types'
 
 const RoleEnum = z.nativeEnum(Role)
-
 const userInsertSchema = z.object({
   admissionsCycle: z.coerce.number().int().positive(),
   login: z.string(),
   role: RoleEnum
 })
 
+const GenderEnum = z.nativeEnum(Gender)
 const applicantInsertSchema = z.object({
-  cid: z.number().int().positive()
+  cid: z.string().length(8, { message: 'CID must be exactly 8 characters' }),
+  ucasNumber: z.string().length(10, { message: 'UCAS number must be exactly 10 digits' }),
+  gender: GenderEnum,
+  firstName: z.string(),
+  surname: z.string(),
+  email: z.string().email(),
+  primaryNationality: z.string(),
+  otherNationality: z
+    .string()
+    .optional()
+    .transform((value) => (!!value ? value : null))
 })
 
 const courseInsertSchema = z.object({
@@ -65,7 +75,17 @@ function upsertUsers(users: Omit<User, 'id'>[]): Promise<User>[] {
   })
 }
 
-async function upsertApplicants(applicants: any) {}
+function upsertApplicants(applicants: Omit<Applicant, 'id'>[]): Promise<Applicant>[] {
+  return applicants.map((a) => {
+    return prisma.applicant.upsert({
+      where: {
+        cid: a.cid
+      },
+      update: a,
+      create: a
+    })
+  })
+}
 
 async function upsertCourses(courses: any) {}
 
@@ -92,7 +112,6 @@ export const insertUploadedData = async (
     }
     return { message: 'Unexpected parsing error occurred.', status: 'error' }
   }
-
   const { data: parsedObjects, noErrors: noParsingErrors } = parseWithSchema(
     objects,
     schemaMap[dataUploadType]
@@ -101,7 +120,7 @@ export const insertUploadedData = async (
   let upsertPromises
   switch (dataUploadType) {
     case DataUploadEnum.APPLICANT:
-      upsertPromises = upsertApplicants(parsedObjects)
+      upsertPromises = upsertApplicants(parsedObjects as Applicant[])
       break
     case DataUploadEnum.COURSE:
       upsertPromises = upsertCourses(parsedObjects)
