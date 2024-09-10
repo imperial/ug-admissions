@@ -1,7 +1,7 @@
 'use server'
 
 import prisma from '@/db'
-import { Applicant, Gender, Role, type User } from '@prisma/client'
+import { Applicant, Application, FeeStatus, Gender, Role, type User } from '@prisma/client'
 import { CsvError, parse } from 'csv-parse/sync'
 import { z } from 'zod'
 
@@ -39,7 +39,15 @@ const courseInsertSchema = z.object({
 
 // used to insert TMUA grades
 const applicationInsertSchema = z.object({
-  overallGrade: z.number()
+  cid: z.string().length(8, { message: 'CID must be exactly 8 characters' }),
+  admissionsCycle: z.coerce.number().int().positive(),
+  applicationDate: z.coerce.date(),
+  wideningParticipation: z.coerce.boolean(),
+  hasDisability: z.coerce.boolean(),
+  feeStatus: z.nativeEnum(FeeStatus),
+  tmuaPaper1Score: z.coerce.number().min(1).max(9).optional(),
+  tmuaPaper2Score: z.coerce.number().min(1).max(9).optional(),
+  tmuaOverallScore: z.coerce.number().min(1).max(9).optional()
 })
 
 const schemaMap: Record<DataUploadEnum, z.ZodObject<any>> = {
@@ -65,6 +73,45 @@ async function executeUpsertPromises(upserts: Promise<any>[]): Promise<number> {
   return results.map((r) => r.status).filter((s) => s === 'rejected').length
 }
 
+function upsertApplicants(applicants: Omit<Applicant, 'id'>[]): Promise<Applicant>[] {
+  return applicants.map((a) => {
+    return prisma.applicant.upsert({
+      where: {
+        cid: a.cid
+      },
+      update: a,
+      create: a
+    })
+  })
+}
+
+function upsertCourses(courses: any) {}
+
+function upsertApplications(
+  applications: z.infer<typeof applicationInsertSchema>[]
+): Promise<Application>[] {
+  return applications.map((a) => {
+    const { cid, ...applicationWithoutCID } = a
+    return prisma.application.upsert({
+      where: {
+        admissionsCycle_cid: {
+          admissionsCycle: a.admissionsCycle,
+          cid: a.cid
+        }
+      },
+      update: applicationWithoutCID,
+      create: {
+        ...applicationWithoutCID,
+        applicant: {
+          connect: {
+            cid: cid
+          }
+        }
+      }
+    })
+  })
+}
+
 function upsertUsers(users: Omit<User, 'id'>[]): Promise<User>[] {
   return users.map((u) => {
     return prisma.user.upsert({
@@ -79,22 +126,6 @@ function upsertUsers(users: Omit<User, 'id'>[]): Promise<User>[] {
     })
   })
 }
-
-function upsertApplicants(applicants: Omit<Applicant, 'id'>[]): Promise<Applicant>[] {
-  return applicants.map((a) => {
-    return prisma.applicant.upsert({
-      where: {
-        cid: a.cid
-      },
-      update: a,
-      create: a
-    })
-  })
-}
-
-async function upsertCourses(courses: any) {}
-
-async function upsertTmuaGrades(tmuaGrades: any) {}
 
 export const insertUploadedData = async (
   dataUploadType: DataUploadEnum,
@@ -131,7 +162,7 @@ export const insertUploadedData = async (
       upsertPromises = upsertCourses(parsedObjects)
       break
     case DataUploadEnum.APPLICATION:
-      upsertPromises = upsertTmuaGrades(parsedObjects)
+      upsertPromises = upsertApplications(parsedObjects)
       break
     case DataUploadEnum.USER_ROLES:
       upsertPromises = upsertUsers(parsedObjects as User[])
@@ -144,7 +175,7 @@ export const insertUploadedData = async (
 
   if (totalErrors === 0) {
     return {
-      message: `${noSuccesses}/${objects.length} users updated or inserted successfully`,
+      message: `${noSuccesses}/${objects.length} updates or inserts succeeded`,
       status: 'success'
     }
   }
