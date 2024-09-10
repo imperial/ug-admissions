@@ -6,6 +6,8 @@ import { Button, Callout, Flex, Spinner } from '@radix-ui/themes'
 import React from 'react'
 import { useFormState } from 'react-dom'
 
+const DEFAULT_SUBMIT_BTN_TEXT = 'Save'
+
 interface FormInDialogProps {
   children: React.ReactNode
   action: (prevState: FormPassbackState, formData: FormData) => Promise<FormPassbackState>
@@ -57,7 +59,7 @@ const FormInDialog: React.FC<FormInDialogProps> = ({
             Cancel
           </Button>
           <Button type="submit" disabled={pending}>
-            {pending ? <Spinner /> : (submitButtonText ?? 'Save')}{' '}
+            {pending ? <Spinner /> : (submitButtonText ?? DEFAULT_SUBMIT_BTN_TEXT)}
           </Button>
         </Flex>
       </form>
