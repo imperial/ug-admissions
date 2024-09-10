@@ -37,14 +37,15 @@ const courseInsertSchema = z.object({
   degreeCode: z.string()
 })
 
-const tmuaGradesInsertSchema = z.object({
+// used to insert TMUA grades
+const applicationInsertSchema = z.object({
   overallGrade: z.number()
 })
 
 const schemaMap: Record<DataUploadEnum, z.ZodObject<any>> = {
   [DataUploadEnum.APPLICANT]: applicantInsertSchema,
   [DataUploadEnum.COURSE]: courseInsertSchema,
-  [DataUploadEnum.TMUA_GRADES]: tmuaGradesInsertSchema,
+  [DataUploadEnum.APPLICATION]: applicationInsertSchema,
   [DataUploadEnum.USER_ROLES]: userInsertSchema
 }
 
@@ -129,7 +130,7 @@ export const insertUploadedData = async (
     case DataUploadEnum.COURSE:
       upsertPromises = upsertCourses(parsedObjects)
       break
-    case DataUploadEnum.TMUA_GRADES:
+    case DataUploadEnum.APPLICATION:
       upsertPromises = upsertTmuaGrades(parsedObjects)
       break
     case DataUploadEnum.USER_ROLES:

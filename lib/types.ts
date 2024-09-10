@@ -11,7 +11,7 @@ export enum NextActionEnum {
 export enum DataUploadEnum {
   APPLICANT = 'APPLICANT',
   COURSE = 'COURSE',
-  TMUA_GRADES = 'TMUA_GRADES',
+  APPLICATION = 'APPLICATION',
   USER_ROLES = 'USER_ROLES'
 }
 
