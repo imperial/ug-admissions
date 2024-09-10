@@ -52,8 +52,15 @@ async function executeUpsertPromises(upserts: Promise<any>[]): Promise<number> {
 
 function upsertUsers(users: Omit<User, 'id'>[]): Promise<User>[] {
   return users.map((u) => {
-    return prisma.user.create({
-      data: u
+    return prisma.user.upsert({
+      where: {
+        admissionsCycle_login: {
+          admissionsCycle: u.admissionsCycle,
+          login: u.login
+        }
+      },
+      update: u,
+      create: u
     })
   })
 }
@@ -86,10 +93,9 @@ export const insertUploadedData = async (
     return { message: 'Unexpected parsing error occurred.', status: 'error' }
   }
 
-  let validationSchema: z.ZodObject<any> = schemaMap[dataUploadType]
   const { data: parsedObjects, noErrors: noParsingErrors } = parseWithSchema(
     objects,
-    validationSchema
+    schemaMap[dataUploadType]
   )
 
   let upsertPromises
