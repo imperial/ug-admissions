@@ -45,20 +45,17 @@ function parseWithSchema(
   return { data: parsedObjects, noErrors: objects.length - parsedObjects.length }
 }
 
-async function upsertUsers(users: Omit<User, 'id'>[]) {
-  const userUpserts = users.map((u) => {
-    return prisma.user.upsert({
-      where: {
-        admissionsCycle_login: {
-          admissionsCycle: u.admissionsCycle,
-          login: u.login
-        }
-      },
-      update: u,
-      create: u
+async function executeUpsertPromises(upserts: Promise<any>[]): Promise<number> {
+  const results = await Promise.allSettled(upserts)
+  return results.map((r) => r.status).filter((s) => s === 'rejected').length
+}
+
+function upsertUsers(users: Omit<User, 'id'>[]): Promise<User>[] {
+  return users.map((u) => {
+    return prisma.user.create({
+      data: u
     })
   })
-  await Promise.all(userUpserts)
 }
 
 async function upsertApplicants(applicants: any) {}
@@ -95,30 +92,34 @@ export const insertUploadedData = async (
     validationSchema
   )
 
+  let upsertPromises
   switch (dataUploadType) {
     case DataUploadEnum.APPLICANT:
-      await upsertApplicants(parsedObjects)
+      upsertPromises = upsertApplicants(parsedObjects)
       break
     case DataUploadEnum.COURSE:
-      await upsertCourses(parsedObjects)
+      upsertPromises = upsertCourses(parsedObjects)
       break
     case DataUploadEnum.TMUA_GRADES:
-      await upsertTmuaGrades(parsedObjects)
+      upsertPromises = upsertTmuaGrades(parsedObjects)
       break
     case DataUploadEnum.USER_ROLES:
-      await upsertUsers(parsedObjects as User[])
+      upsertPromises = upsertUsers(parsedObjects as User[])
       break
   }
 
-  const noSuccesses = objects.length - noParsingErrors
-  if (noParsingErrors === 0) {
+  const noPrismaErrors = await executeUpsertPromises(upsertPromises as Promise<any>[])
+  const totalErrors = noParsingErrors + noPrismaErrors
+  const noSuccesses = objects.length - totalErrors
+
+  if (totalErrors === 0) {
     return {
       message: `${noSuccesses}/${objects.length} users updated or inserted successfully`,
       status: 'success'
     }
   }
   return {
-    message: `${noParsingErrors}/${objects.length} updates or inserts failed`,
+    message: `${totalErrors}/${objects.length} updates or inserts failed`,
     status: 'error'
   }
 }
