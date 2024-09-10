@@ -3,7 +3,7 @@
 import { DataUploadEnum } from '@/lib/types'
 import { insertUploadedData } from '@/lib/upload'
 import { CheckCircledIcon, CrossCircledIcon } from '@radix-ui/react-icons'
-import { Button, Callout, Dialog, Flex, Spinner, TextField } from '@radix-ui/themes'
+import { Button, Callout, Dialog, Flex, Spinner } from '@radix-ui/themes'
 import React, { useEffect, useState } from 'react'
 import { useFormState } from 'react-dom'
 
@@ -12,7 +12,8 @@ import Dropdown from './TanstackTable/Dropdown'
 
 const DataUpload = () => {
   const [dataUploadChoice, setDataUploadChoice] = useState(DataUploadEnum.APPLICANT)
-  const [state, formAction] = useFormState(insertUploadedData, { status: '', message: '' })
+  const insertUploadedDataWithType = insertUploadedData.bind(null, dataUploadChoice)
+  const [state, formAction] = useFormState(insertUploadedDataWithType, { status: '', message: '' })
   const [isDialogOpen, setIsDialogOpen] = useState(false)
   const [isLoading, setIsLoading] = useState(false)
 
