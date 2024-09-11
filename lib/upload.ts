@@ -1,11 +1,13 @@
 'use server'
 
 import prisma from '@/db'
-import { FeeStatus, Gender, Role, type User } from '@prisma/client'
+import { FeeStatus, Gender, Prisma, Role, type User } from '@prisma/client'
 import { CsvError, parse } from 'csv-parse/sync'
 import { z } from 'zod'
 
 import { DataUploadEnum, FormPassbackState } from './types'
+
+import PrismaClientKnownRequestError = Prisma.PrismaClientKnownRequestError
 
 const userInsertSchema = z.object({
   admissionsCycle: z.coerce.number().int().positive(),
@@ -59,15 +61,37 @@ function parseWithSchema(
   objects: unknown[],
   validationSchema: z.ZodObject<any>
 ): { data: any[]; noErrors: number } {
-  const parsedObjects = objects
-    .map((o) => validationSchema.safeParse(o))
-    .filter((o) => o.success)
-    .map((o) => o.data)
-  return { data: parsedObjects, noErrors: objects.length - parsedObjects.length }
+  const parsedObjects = objects.map((o) => validationSchema.safeParse(o))
+  parsedObjects.forEach((o, i) => {
+    if (!o.success)
+      console.error(
+        `Parsing error on row ${i + 1}: ${o.error.issues.map((issue) => issue.message).join('; ')}`
+      )
+  })
+  const validObjects = parsedObjects.filter((o) => o.success).map((o) => o.data)
+  return {
+    data: validObjects,
+    noErrors: objects.length - validObjects.length
+  }
 }
 
 async function executeUpsertPromises(upserts: Promise<any>[]): Promise<number> {
   const results = await Promise.allSettled(upserts)
+  results.forEach((result) => {
+    if (result.status === 'rejected') {
+      if (result.reason instanceof PrismaClientKnownRequestError) {
+        console.error(
+          `${result.reason.code}: ${result.reason.message
+            .trimStart()
+            .split('\n')
+            .filter((line) => !!line)
+            .join('\n')}`
+        )
+      } else {
+        console.error('Unknown prisma error')
+      }
+    }
+  })
   return results.map((r) => r.status).filter((s) => s === 'rejected').length
 }
 
