@@ -1,21 +1,27 @@
 'use client'
 
-import { DataUploadEnum } from '@/lib/types'
+import { DataUploadEnum, FormPassbackState } from '@/lib/types'
 import { insertUploadedData } from '@/lib/upload'
 import { CheckCircledIcon, CrossCircledIcon } from '@radix-ui/react-icons'
 import { Button, Callout, Dialog, Flex, Spinner } from '@radix-ui/themes'
 import React, { useEffect, useState } from 'react'
 import { useFormState } from 'react-dom'
+import Dropzone from 'react-dropzone'
 
 import LabelledInput from './LabelText'
 import Dropdown from './TanstackTable/Dropdown'
 
 const DataUpload = () => {
   const [dataUploadChoice, setDataUploadChoice] = useState(DataUploadEnum.APPLICANT)
-  const insertUploadedDataWithType = insertUploadedData.bind(null, dataUploadChoice)
-  const [state, formAction] = useFormState(insertUploadedDataWithType, { status: '', message: '' })
+
   const [isDialogOpen, setIsDialogOpen] = useState(false)
   const [isLoading, setIsLoading] = useState(false)
+  const [file, setFile] = useState<File | null>(null)
+  const insertUploadedDataWithType = async (prevState: FormPassbackState, formData: FormData) => {
+    formData.append('csv', file!)
+    return await insertUploadedData(dataUploadChoice, prevState, formData)
+  }
+  const [state, formAction] = useFormState(insertUploadedDataWithType, { status: '', message: '' })
 
   useEffect(() => {
     setIsLoading(false)
@@ -42,8 +48,17 @@ const DataUpload = () => {
                 onValueChange={(value) => setDataUploadChoice(value as DataUploadEnum)}
               />
             </LabelledInput>
-            <input type="file" name="csv" />
 
+            <Dropzone onDrop={(acceptedFiles) => setFile(acceptedFiles[0])}>
+              {({ getRootProps, getInputProps }) => (
+                <section>
+                  <div {...getRootProps()}>
+                    <input {...getInputProps()} />
+                    <p>Drag and drop some files here, or click to select files</p>
+                  </div>
+                </section>
+              )}
+            </Dropzone>
             {!!state.message && (
               <Callout.Root
                 size="1"
@@ -60,7 +75,7 @@ const DataUpload = () => {
           </Flex>
 
           <Flex gap="3" mt="4" justify="center">
-            <Button type="submit" disabled={isLoading}>
+            <Button type="submit" disabled={isLoading || !file}>
               {isLoading ? <Spinner /> : 'Upload'}
             </Button>
             <Dialog.Close>
