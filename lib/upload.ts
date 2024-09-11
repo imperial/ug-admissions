@@ -1,50 +1,49 @@
 'use server'
 
 import prisma from '@/db'
-import { Applicant, Application, FeeStatus, Gender, Role, type User } from '@prisma/client'
+import { FeeStatus, Gender, Role, type User } from '@prisma/client'
 import { CsvError, parse } from 'csv-parse/sync'
 import { z } from 'zod'
 
 import { DataUploadEnum, FormPassbackState } from './types'
 
-const RoleEnum = z.nativeEnum(Role)
 const userInsertSchema = z.object({
   admissionsCycle: z.coerce.number().int().positive(),
   login: z.string(),
-  role: RoleEnum
+  role: z.nativeEnum(Role)
 })
 
-const GenderEnum = z.nativeEnum(Gender)
+// nested schema for upserting an applicant and creating a new application
 const applicantInsertSchema = z.object({
-  cid: z.string().length(8, { message: 'CID must be exactly 8 characters' }),
-  ucasNumber: z.string().length(10, { message: 'UCAS number must be exactly 10 digits' }),
-  gender: GenderEnum,
-  firstName: z.string(),
-  surname: z.string(),
-  preferredName: z
-    .string()
-    .optional()
-    .transform((value) => (!!value ? value : null)),
-  email: z.string().email(),
-  primaryNationality: z.string(),
-  otherNationality: z
-    .string()
-    .optional()
-    .transform((value) => (!!value ? value : null))
-})
-
-const courseInsertSchema = z.object({
-  degreeCode: z.string()
+  applicant: z.object({
+    cid: z.string().length(8, { message: 'CID must be exactly 8 characters' }),
+    ucasNumber: z.string().length(10, { message: 'UCAS number must be exactly 10 digits' }),
+    gender: z.nativeEnum(Gender),
+    firstName: z.string(),
+    surname: z.string(),
+    preferredName: z
+      .string()
+      .optional()
+      .transform((value) => (!!value ? value : null)),
+    email: z.string().email(),
+    primaryNationality: z.string(),
+    otherNationality: z
+      .string()
+      .optional()
+      .transform((value) => (!!value ? value : null))
+  }),
+  application: z.object({
+    hasDisability: z.boolean().optional().default(false),
+    admissionsCycle: z.coerce.number().int().positive(),
+    feeStatus: z.nativeEnum(FeeStatus).optional().default(FeeStatus.UNKNOWN),
+    wideningParticipation: z.boolean().optional().default(false),
+    applicationDate: z.string().date()
+  })
 })
 
 // used to insert TMUA grades
-const applicationInsertSchema = z.object({
+const tmuaInsertSchema = z.object({
   cid: z.string().length(8, { message: 'CID must be exactly 8 characters' }),
-  admissionsCycle: z.coerce.number().int().positive(),
-  applicationDate: z.coerce.date(),
-  wideningParticipation: z.coerce.boolean(),
-  hasDisability: z.coerce.boolean(),
-  feeStatus: z.nativeEnum(FeeStatus),
   tmuaPaper1Score: z.coerce.number().min(1).max(9).optional(),
   tmuaPaper2Score: z.coerce.number().min(1).max(9).optional(),
   tmuaOverallScore: z.coerce.number().min(1).max(9).optional()
@@ -52,8 +51,7 @@ const applicationInsertSchema = z.object({
 
 const schemaMap: Record<DataUploadEnum, z.ZodObject<any>> = {
   [DataUploadEnum.APPLICANT]: applicantInsertSchema,
-  [DataUploadEnum.COURSE]: courseInsertSchema,
-  [DataUploadEnum.APPLICATION]: applicationInsertSchema,
+  [DataUploadEnum.TMUA_SCORES]: tmuaInsertSchema,
   [DataUploadEnum.USER_ROLES]: userInsertSchema
 }
 
@@ -73,44 +71,44 @@ async function executeUpsertPromises(upserts: Promise<any>[]): Promise<number> {
   return results.map((r) => r.status).filter((s) => s === 'rejected').length
 }
 
-function upsertApplicants(applicants: Omit<Applicant, 'id'>[]): Promise<Applicant>[] {
-  return applicants.map((a) => {
+/**
+ * If the applicant does not exist, create a new applicant and application.
+ * If the applicant exists and the application is for the same admissions cycle, update both the applicant and application.
+ * If the applicant exists and the application is for a different admissions cycle, update the applicant and create a new application.
+ * @param applications - an array of schema objects with a nested applicant and application object
+ */
+function upsertApplicantWithNewApplication(applications: z.infer<typeof applicantInsertSchema>[]) {
+  return applications.map((a) => {
     return prisma.applicant.upsert({
       where: {
-        cid: a.cid
+        cid: a.applicant.cid
       },
-      update: a,
-      create: a
-    })
-  })
-}
-
-function upsertCourses(courses: any) {}
-
-function upsertApplications(
-  applications: z.infer<typeof applicationInsertSchema>[]
-): Promise<Application>[] {
-  return applications.map((a) => {
-    const { cid, ...applicationWithoutCID } = a
-    return prisma.application.upsert({
-      where: {
-        admissionsCycle_cid: {
-          admissionsCycle: a.admissionsCycle,
-          cid: a.cid
+      create: {
+        ...a.applicant,
+        applications: {
+          create: a.application
         }
       },
-      update: applicationWithoutCID,
-      create: {
-        ...applicationWithoutCID,
-        applicant: {
-          connect: {
-            cid: cid
+      update: {
+        ...a.applicant,
+        applications: {
+          upsert: {
+            where: {
+              admissionsCycle_cid: {
+                admissionsCycle: a.application.admissionsCycle,
+                cid: a.applicant.cid
+              }
+            },
+            update: a.application,
+            create: a.application
           }
         }
       }
     })
   })
 }
+
+function upsertTmuaScores(scores: any[]) {}
 
 function upsertUsers(users: Omit<User, 'id'>[]): Promise<User>[] {
   return users.map((u) => {
@@ -156,13 +154,12 @@ export const insertUploadedData = async (
   let upsertPromises
   switch (dataUploadType) {
     case DataUploadEnum.APPLICANT:
-      upsertPromises = upsertApplicants(parsedObjects as Applicant[])
+      upsertPromises = upsertApplicantWithNewApplication(
+        parsedObjects as z.infer<typeof applicantInsertSchema>[]
+      )
       break
-    case DataUploadEnum.COURSE:
-      upsertPromises = upsertCourses(parsedObjects)
-      break
-    case DataUploadEnum.APPLICATION:
-      upsertPromises = upsertApplications(parsedObjects)
+    case DataUploadEnum.TMUA_SCORES:
+      upsertPromises = upsertTmuaScores(parsedObjects)
       break
     case DataUploadEnum.USER_ROLES:
       upsertPromises = upsertUsers(parsedObjects as User[])
