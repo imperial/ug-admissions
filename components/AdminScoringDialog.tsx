@@ -1,7 +1,7 @@
 'use client'
 
-import FormInDialog from '@/components/FormInDialog'
-import GenericFormDialog from '@/components/GenericFormDialog'
+import FormWrapper from '@/components/FormWrapper'
+import GenericDialog from '@/components/GenericDialog'
 import LabelText from '@/components/LabelText'
 import Dropdown from '@/components/TanstackTable/Dropdown'
 import { FormPassbackState, upsertAdminScoring } from '@/lib/forms'
@@ -14,26 +14,22 @@ import React, { FC, useState } from 'react'
 import { ApplicationRow } from './ApplicationTable'
 
 interface AdminScoringDialogProps {
-  row: ApplicationRow
+  data: ApplicationRow
 }
 
 interface AdminScoringFormProps {
-  close: () => void
-  row: ApplicationRow
+  data: ApplicationRow
 }
 
-const AdminScoringForm: FC<AdminScoringFormProps> = ({ close, row }) => {
-  const { applicant, internalReview } = row
-  const [gcseQualification, setGcseQualification] = useState(row.gcseQualification?.toString())
+const AdminScoringForm: FC<AdminScoringFormProps> = ({ data }) => {
+  const { applicant, internalReview } = data
+  const [gcseQualification, setGcseQualification] = useState(data.gcseQualification?.toString())
   const [aLevelQualification, setALevelQualification] = useState(
-    row.aLevelQualification?.toString()
+    data.aLevelQualification?.toString()
   )
 
-  const upsertAdminScoringWithId = (prevState: FormPassbackState, formData: FormData) =>
-    upsertAdminScoring(NextActionEnum[row.nextAction], row.id, prevState, formData)
-
   return (
-    <FormInDialog action={upsertAdminScoringWithId} close={close} closeOnSuccess>
+    <>
       {internalReview?.lastAdminEditOn && internalReview?.lastAdminEditBy && (
         <Text size="2" className="italic text-gray-500">
           Last edited by {internalReview?.lastAdminEditBy} on{' '}
@@ -72,7 +68,7 @@ const AdminScoringForm: FC<AdminScoringFormProps> = ({ close, row }) => {
             className="flex-grow"
             disabled={!gcseQualification}
             required={!!gcseQualification}
-            defaultValue={parseFloat(row?.gcseQualificationScore?.toString() ?? '')}
+            defaultValue={parseFloat(data?.gcseQualificationScore?.toString() ?? '')}
           />
         </LabelText>
       </Flex>
@@ -102,7 +98,7 @@ const AdminScoringForm: FC<AdminScoringFormProps> = ({ close, row }) => {
             className="flex-grow"
             disabled={!aLevelQualification}
             required={!!aLevelQualification}
-            defaultValue={parseFloat(row?.aLevelQualificationScore?.toString() ?? '')}
+            defaultValue={parseFloat(data?.aLevelQualificationScore?.toString() ?? '')}
           />
         </LabelText>
       </Flex>
@@ -138,19 +134,33 @@ const AdminScoringForm: FC<AdminScoringFormProps> = ({ close, row }) => {
           defaultValue={internalReview?.examComments ?? undefined}
         />
       </LabelText>
-    </FormInDialog>
+    </>
   )
 }
 
-const AdminScoringDialog: FC<AdminScoringDialogProps> = ({ row }) => {
-  const formRenderer = ({ close }: { close: () => void }) => (
-    <AdminScoringForm close={close} row={row} />
-  )
+const AdminScoringDialog: FC<AdminScoringDialogProps> = ({ data }) => {
+  const [isOpen, setIsOpen] = useState(false)
+
+  const handleFormSuccess = () => setIsOpen(false)
+
+  const upsertAdminScoringWithId = (prevState: FormPassbackState, formData: FormData) =>
+    upsertAdminScoring(NextActionEnum[data.nextAction], data.id, prevState, formData)
 
   return (
-    <GenericFormDialog title="Admin Scoring Form" form={formRenderer}>
-      <Button>Admin Scoring Form</Button>
-    </GenericFormDialog>
+    <GenericDialog
+      title="Admin Scoring Form"
+      isOpen={isOpen}
+      setIsOpen={setIsOpen}
+      trigger={
+        <Button disabled={NextActionEnum[data.nextAction] < NextActionEnum.ADMIN_SCORING}>
+          Admin Scoring Form
+        </Button>
+      }
+    >
+      <FormWrapper action={upsertAdminScoringWithId} onSuccess={handleFormSuccess}>
+        <AdminScoringForm data={data} />
+      </FormWrapper>
+    </GenericDialog>
   )
 }
 

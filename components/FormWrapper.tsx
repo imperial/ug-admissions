@@ -3,35 +3,28 @@
 import { FormPassbackState } from '@/lib/forms'
 import { CheckCircledIcon, CrossCircledIcon } from '@radix-ui/react-icons'
 import { Button, Callout, Flex, Spinner } from '@radix-ui/themes'
-import React from 'react'
+import React, { FC, ReactNode, useState } from 'react'
 import { useFormState } from 'react-dom'
 
 const DEFAULT_SUBMIT_BTN_TEXT = 'Save'
 
 interface FormInDialogProps {
-  children: React.ReactNode
+  children: ReactNode
   action: (prevState: FormPassbackState, formData: FormData) => Promise<FormPassbackState>
-  close: () => void
-  closeOnSuccess?: boolean
+  onSuccess?: () => void
   submitButtonText?: string
 }
 
-const FormInDialog: React.FC<FormInDialogProps> = ({
-  children,
-  action,
-  close,
-  closeOnSuccess,
-  submitButtonText
-}) => {
-  const [pending, setPending] = React.useState(false)
+const FormWrapper: FC<FormInDialogProps> = ({ children, action, onSuccess, submitButtonText }) => {
+  const [pending, setPending] = useState(false)
   const wrappedAction = async (
     prevState: FormPassbackState,
     formData: FormData
   ): Promise<FormPassbackState> => {
     const res = await action(prevState, formData)
     setPending(false)
-    if (res.status === 'success' && closeOnSuccess) {
-      close()
+    if (res.status === 'success') {
+      onSuccess?.()
     }
     return res
   }
@@ -55,9 +48,6 @@ const FormInDialog: React.FC<FormInDialogProps> = ({
       <form action={formAction} onSubmit={() => setPending(true)}>
         {children}
         <Flex justify="end" gap="2" mt="4">
-          <Button type="button" variant="soft" color="gray" onClick={close}>
-            Cancel
-          </Button>
           <Button type="submit" disabled={pending}>
             {pending ? <Spinner /> : (submitButtonText ?? DEFAULT_SUBMIT_BTN_TEXT)}
           </Button>
@@ -67,4 +57,4 @@ const FormInDialog: React.FC<FormInDialogProps> = ({
   )
 }
 
-export default FormInDialog
+export default FormWrapper

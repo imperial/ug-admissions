@@ -66,7 +66,7 @@ const columns = [
   }),
   columnHelper.display({
     id: 'adminFormButton',
-    cell: (info) => <AdminScoringDialog row={info.row.original} />
+    cell: (info) => <AdminScoringDialog data={info.row.original} />
   })
 ]
 
