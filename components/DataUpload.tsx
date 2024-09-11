@@ -2,8 +2,8 @@
 
 import { DataUploadEnum, FormPassbackState } from '@/lib/types'
 import { insertUploadedData } from '@/lib/upload'
-import { CheckCircledIcon, CrossCircledIcon } from '@radix-ui/react-icons'
-import { Button, Callout, Dialog, Flex, Spinner } from '@radix-ui/themes'
+import { CheckCircledIcon, CrossCircledIcon, FilePlusIcon } from '@radix-ui/react-icons'
+import { Button, Callout, Dialog, Flex, Spinner, Text } from '@radix-ui/themes'
 import React, { useEffect, useState } from 'react'
 import { useFormState } from 'react-dom'
 import Dropzone from 'react-dropzone'
@@ -18,7 +18,8 @@ const DataUpload = () => {
   const [isLoading, setIsLoading] = useState(false)
   const [file, setFile] = useState<File | null>(null)
   const insertUploadedDataWithType = async (prevState: FormPassbackState, formData: FormData) => {
-    formData.append('csv', file!)
+    if (file === null) return { message: 'No CSV file uploaded', status: 'error' }
+    formData.append('csv', file)
     return await insertUploadedData(dataUploadChoice, prevState, formData)
   }
   const [state, formAction] = useFormState(insertUploadedDataWithType, { status: '', message: '' })
@@ -49,13 +50,25 @@ const DataUpload = () => {
               />
             </LabelledInput>
 
-            <Dropzone onDrop={(acceptedFiles) => setFile(acceptedFiles[0])}>
+            <Dropzone onDrop={(acceptedFiles) => setFile(acceptedFiles[0])} maxFiles={1}>
               {({ getRootProps, getInputProps }) => (
                 <section>
-                  <div {...getRootProps()}>
+                  <Flex
+                    {...getRootProps()}
+                    justify="center"
+                    align="center"
+                    className="bg-gray-200 mb-2 h-40 border-dashed border-2 border-gray-400 rounded-sm"
+                  >
                     <input {...getInputProps()} />
-                    <p>Drag and drop some files here, or click to select files</p>
-                  </div>
+                    <Flex direction="column" justify="center" align="center">
+                      <FilePlusIcon className="w-16 h-16 mb-2" />
+                      <Text className="text-gray-700">
+                        {' '}
+                        <strong> Click to upload a CSV file</strong> or drag one here
+                      </Text>
+                    </Flex>
+                  </Flex>
+                  {file?.name && <p>Uploaded file: {file.name}</p>}
                 </section>
               )}
             </Dropzone>
