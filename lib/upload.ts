@@ -1,8 +1,11 @@
 'use server'
 
 import prisma from '@/db'
+import { processApplicantData } from '@/lib/dataProcessing'
 import { FeeStatus, Gender, Prisma, Role, type User } from '@prisma/client'
+import { PrismaClientValidationError } from '@prisma/client/runtime/binary'
 import { CsvError, parse } from 'csv-parse/sync'
+import { formatISO, parse as parseDate } from 'date-fns'
 import { ZodSchema, z } from 'zod'
 
 import { DataUploadEnum, FormPassbackState } from './types'
@@ -23,23 +26,22 @@ const schemaApplication = z.object({
     gender: z.nativeEnum(Gender),
     firstName: z.string(),
     surname: z.string(),
-    preferredName: z
-      .string()
-      .optional()
-      .transform((value) => (!!value ? value : null)),
+    preferredName: z.string().nullable(),
     email: z.string().email(),
     primaryNationality: z.string(),
-    otherNationality: z
-      .string()
-      .optional()
-      .transform((value) => (!!value ? value : null))
+    otherNationality: z.string().nullable()
   }),
   application: z.object({
-    hasDisability: z.boolean().optional().default(false),
+    hasDisability: z.preprocess((value) => String(value).toLowerCase() === 'true', z.boolean()),
     admissionsCycle: z.coerce.number().int().positive(),
     feeStatus: z.nativeEnum(FeeStatus).optional().default(FeeStatus.UNKNOWN),
-    wideningParticipation: z.boolean().optional().default(false),
-    applicationDate: z.string().date()
+    wideningParticipation: z.preprocess(
+      (value) => String(value).toLowerCase() === 'true',
+      z.boolean()
+    ),
+    applicationDate: z
+      .string()
+      .transform((value) => formatISO(parseDate(value, 'dd/MM/yyyy HH:mm', new Date())))
   })
 })
 
@@ -81,8 +83,10 @@ async function executePromises(promises: Promise<unknown>[]): Promise<number> {
             .filter((line) => !!line)
             .join('\n')}`
         )
+      } else if (result.reason instanceof PrismaClientValidationError) {
+        console.error(result.reason.message)
       } else {
-        console.error('Unknown prisma error')
+        console.error(result.reason?.message)
       }
     }
   })
@@ -171,6 +175,7 @@ export const processCsvUpload = async (
   let noParsingErrors = 0
   switch (dataUploadType) {
     case DataUploadEnum.APPLICANT: {
+      objects = processApplicantData(objects)
       const parseResult = parseWithSchema(objects, schemaApplication)
       noParsingErrors = parseResult.noErrors
       upsertPromises = upsertApplication(parseResult.data)

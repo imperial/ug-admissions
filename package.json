@@ -29,6 +29,7 @@
     "conventional-changelog-conventionalcommits": "^8.0.0",
     "csv-parse": "^5.5.6",
     "d": "^1.0.2",
+    "dataframe-js": "^1.4.4",
     "date-fns": "^3.6.0",
     "husky": "^9.1.5",
     "lint-staged": "^15.2.9",
