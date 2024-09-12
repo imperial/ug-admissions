@@ -3,20 +3,20 @@
 import prisma from '@/db'
 import { FeeStatus, Gender, Prisma, Role, type User } from '@prisma/client'
 import { CsvError, parse } from 'csv-parse/sync'
-import { z } from 'zod'
+import { ZodSchema, z } from 'zod'
 
 import { DataUploadEnum, FormPassbackState } from './types'
 
 import PrismaClientKnownRequestError = Prisma.PrismaClientKnownRequestError
 
-const userInsertSchema = z.object({
+const schemaUser = z.object({
   admissionsCycle: z.coerce.number().int().positive(),
   login: z.string(),
   role: z.nativeEnum(Role)
 })
 
 // nested schema for upserting an applicant and creating a new application
-const applicantInsertSchema = z.object({
+const schemaApplication = z.object({
   applicant: z.object({
     cid: z.string().length(8, { message: 'CID must be exactly 8 characters' }),
     ucasNumber: z.string().length(10, { message: 'UCAS number must be exactly 10 digits' }),
@@ -44,23 +44,17 @@ const applicantInsertSchema = z.object({
 })
 
 // used to insert TMUA grades
-const tmuaInsertSchema = z.object({
+const schemaTMUAScores = z.object({
   cid: z.string().length(8, { message: 'CID must be exactly 8 characters' }),
   tmuaPaper1Score: z.coerce.number().min(1).max(9).optional(),
   tmuaPaper2Score: z.coerce.number().min(1).max(9).optional(),
   tmuaOverallScore: z.coerce.number().min(1).max(9).optional()
 })
 
-const schemaMap: Record<DataUploadEnum, z.ZodObject<any>> = {
-  [DataUploadEnum.APPLICANT]: applicantInsertSchema,
-  [DataUploadEnum.TMUA_SCORES]: tmuaInsertSchema,
-  [DataUploadEnum.USER_ROLES]: userInsertSchema
-}
-
-function parseWithSchema(
+function parseWithSchema<T extends ZodSchema>(
   objects: unknown[],
-  validationSchema: z.ZodObject<any>
-): { data: any[]; noErrors: number } {
+  validationSchema: T
+): { data: z.infer<T>[]; noErrors: number } {
   const parsedObjects = objects.map((o) => validationSchema.safeParse(o))
   parsedObjects.forEach((o, i) => {
     if (!o.success)
@@ -75,8 +69,8 @@ function parseWithSchema(
   }
 }
 
-async function executeUpsertPromises(upserts: Promise<any>[]): Promise<number> {
-  const results = await Promise.allSettled(upserts)
+async function executePromises(promises: Promise<unknown>[]): Promise<number> {
+  const results = await Promise.allSettled(promises)
   results.forEach((result) => {
     if (result.status === 'rejected') {
       if (result.reason instanceof PrismaClientKnownRequestError) {
@@ -101,7 +95,7 @@ async function executeUpsertPromises(upserts: Promise<any>[]): Promise<number> {
  * If the applicant exists and the application is for a different admissions cycle, update the applicant and create a new application.
  * @param applications - an array of schema objects with a nested applicant and application object
  */
-function upsertApplicantWithNewApplication(applications: z.infer<typeof applicantInsertSchema>[]) {
+function upsertApplication(applications: z.infer<typeof schemaApplication>[]) {
   return applications.map((a) => {
     return prisma.applicant.upsert({
       where: {
@@ -132,9 +126,11 @@ function upsertApplicantWithNewApplication(applications: z.infer<typeof applican
   })
 }
 
-function upsertTmuaScores(scores: any[]) {}
+function upsertTMUAScores(scores: any[]) {
+  return [new Promise((resolve, reject) => {})]
+}
 
-function upsertUsers(users: Omit<User, 'id'>[]): Promise<User>[] {
+function upsertUsers(users: z.infer<typeof schemaUser>[]): Promise<User>[] {
   return users.map((u) => {
     return prisma.user.upsert({
       where: {
@@ -149,7 +145,7 @@ function upsertUsers(users: Omit<User, 'id'>[]): Promise<User>[] {
   })
 }
 
-export const insertUploadedData = async (
+export const processCsvUpload = async (
   dataUploadType: DataUploadEnum,
   _: FormPassbackState,
   formData: FormData
@@ -158,7 +154,7 @@ export const insertUploadedData = async (
   if (csv.name.split('.').pop() !== 'csv') return { message: 'File must be a CSV', status: 'error' }
   const lines = await csv.text()
 
-  let objects: Omit<any, 'id'>[]
+  let objects: unknown[]
   try {
     objects = parse(lines, {
       columns: true,
@@ -170,27 +166,31 @@ export const insertUploadedData = async (
     }
     return { message: 'Unexpected parsing error occurred.', status: 'error' }
   }
-  const { data: parsedObjects, noErrors: noParsingErrors } = parseWithSchema(
-    objects,
-    schemaMap[dataUploadType]
-  )
 
-  let upsertPromises
+  let upsertPromises: Promise<unknown>[]
+  let noParsingErrors = 0
   switch (dataUploadType) {
-    case DataUploadEnum.APPLICANT:
-      upsertPromises = upsertApplicantWithNewApplication(
-        parsedObjects as z.infer<typeof applicantInsertSchema>[]
-      )
+    case DataUploadEnum.APPLICANT: {
+      const parseResult = parseWithSchema(objects, schemaApplication)
+      noParsingErrors = parseResult.noErrors
+      upsertPromises = upsertApplication(parseResult.data)
       break
-    case DataUploadEnum.TMUA_SCORES:
-      upsertPromises = upsertTmuaScores(parsedObjects)
+    }
+    case DataUploadEnum.TMUA_SCORES: {
+      const parseResult = parseWithSchema(objects, schemaTMUAScores)
+      noParsingErrors = parseResult.noErrors
+      upsertPromises = upsertTMUAScores(parseResult.data)
       break
-    case DataUploadEnum.USER_ROLES:
-      upsertPromises = upsertUsers(parsedObjects as User[])
+    }
+    case DataUploadEnum.USER_ROLES: {
+      const parseResult = parseWithSchema(objects, schemaUser)
+      noParsingErrors = parseResult.noErrors
+      upsertPromises = upsertUsers(parseResult.data)
       break
+    }
   }
 
-  const noPrismaErrors = await executeUpsertPromises(upsertPromises as Promise<any>[])
+  const noPrismaErrors = await executePromises(upsertPromises)
   const totalErrors = noParsingErrors + noPrismaErrors
   const noSuccesses = objects.length - totalErrors
 

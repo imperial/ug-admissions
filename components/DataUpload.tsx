@@ -1,7 +1,7 @@
 'use client'
 
 import { DataUploadEnum } from '@/lib/types'
-import { insertUploadedData } from '@/lib/upload'
+import { processCsvUpload } from '@/lib/upload'
 import { CheckCircledIcon, CrossCircledIcon } from '@radix-ui/react-icons'
 import { Button, Callout, Dialog, Flex, Spinner } from '@radix-ui/themes'
 import React, { useEffect, useState } from 'react'
@@ -12,7 +12,7 @@ import Dropdown from './TanstackTable/Dropdown'
 
 const DataUpload = () => {
   const [dataUploadChoice, setDataUploadChoice] = useState(DataUploadEnum.APPLICANT)
-  const insertUploadedDataWithType = insertUploadedData.bind(null, dataUploadChoice)
+  const insertUploadedDataWithType = processCsvUpload.bind(null, dataUploadChoice)
   const [state, formAction] = useFormState(insertUploadedDataWithType, { status: '', message: '' })
   const [isDialogOpen, setIsDialogOpen] = useState(false)
   const [isLoading, setIsLoading] = useState(false)
