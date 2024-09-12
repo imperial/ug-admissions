@@ -17,6 +17,7 @@ export function processApplicantData(objects: unknown[]): unknown[] {
     ['Nationality (Applicant) (Contact)', 'primaryNationality'],
     ['Primary email address (Applicant) (Contact)', 'email'],
     ['Gender (Applicant) (Contact)', 'gender'],
+    ['Date of birth (Applicant) (Contact)', 'dateOfBirth'],
     ['Preferred first name', 'preferredName'],
     ['Disability flag', 'hasDisability'], // TODO, we do not have a column in the CSV for this as of now
     ['Entry term', 'admissionsCycle'],
@@ -55,6 +56,7 @@ export function processApplicantData(objects: unknown[]): unknown[] {
     'firstName',
     'surname',
     'preferredName',
+    'dateOfBirth',
     'email',
     'primaryNationality',
     'otherNationality'

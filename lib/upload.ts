@@ -27,6 +27,9 @@ const schemaApplication = z.object({
     firstName: z.string(),
     surname: z.string(),
     preferredName: z.string().nullable(),
+    dateOfBirth: z
+      .string()
+      .transform((value) => formatISO(parseDate(value, 'dd/MM/yyyy', new Date()))),
     email: z.string().email(),
     primaryNationality: z.string(),
     otherNationality: z.string().nullable()

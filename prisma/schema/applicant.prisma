@@ -11,6 +11,7 @@ model Applicant {
   firstName          String
   surname            String
   preferredName      String?
+  dateOfBirth        DateTime
   email              String
   primaryNationality String
   otherNationality   String?
