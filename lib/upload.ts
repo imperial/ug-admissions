@@ -153,10 +153,16 @@ function upsertUsers(users: z.infer<typeof schemaUser>[]): Promise<User>[] {
 }
 
 export const processCsvUpload = async (
-  dataUploadType: DataUploadEnum,
   _: FormPassbackState,
   formData: FormData
 ): Promise<FormPassbackState> => {
+  const dataUploadTypeParseResult = z
+    .nativeEnum(DataUploadEnum)
+    .safeParse(formData.get('dataUploadType'))
+  if (!dataUploadTypeParseResult.success) {
+    return { status: 'error', message: 'Invalid dataUploadType.' }
+  }
+  const dataUploadType = dataUploadTypeParseResult.data
   const csv = formData.get('csv') as File
   if (csv.name.split('.').pop() !== 'csv') return { message: 'File must be a CSV', status: 'error' }
   const lines = await csv.text()
