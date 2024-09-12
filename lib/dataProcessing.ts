@@ -29,18 +29,19 @@ export function processApplicantData(objects: unknown[]): unknown[] {
   })
 
   // transform admissionsCycle column to a number
-  df = df.withColumn('admissionsCycle', (row: any) => {
-    // format is 'Autumn 2024-2025' so extract 2024
-    return row.get('admissionsCycle').split(' ')[1].split('-')[0]
-  })
-
+  // because the types do not match the documentation or implementation
+  // @ts-ignore
+  df = df.withColumn(
+    'admissionsCycle',
+    (row: any) =>
+      // format is 'Autumn 2024-2025' so extract 2024
+      row.get('admissionsCycle').split(' ')[1].split('-')[0]
+  )
   // capitalise enums so they validate
-  df = df.withColumn('gender', (row: any) => {
-    return row.get('gender').toUpperCase()
-  })
-  df = df.withColumn('feeStatus', (row: any) => {
-    return row.get('feeStatus')?.toUpperCase() ?? undefined
-  })
+  // @ts-ignore
+  df = df.withColumn('gender', (row: any) => row.get('gender').toUpperCase())
+  // @ts-ignore
+  df = df.withColumn('feeStatus', (row: any) => row.get('feeStatus')?.toUpperCase() ?? undefined)
 
   // outcomes table does not exist yet, should create an outcome for each application
   // const outcomeColumnsToRename = {
