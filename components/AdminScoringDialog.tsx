@@ -140,9 +140,7 @@ const AdminScoringForm: FC<AdminScoringFormProps> = ({ data }) => {
 
 const AdminScoringDialog: FC<AdminScoringDialogProps> = ({ data }) => {
   const [isOpen, setIsOpen] = useState(false)
-
   const handleFormSuccess = () => setIsOpen(false)
-
   const upsertAdminScoringWithId = (prevState: FormPassbackState, formData: FormData) =>
     upsertAdminScoring(NextActionEnum[data.nextAction], data.id, prevState, formData)
 

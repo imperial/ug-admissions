@@ -11,11 +11,16 @@ const DEFAULT_SUBMIT_BTN_TEXT = 'Save'
 interface FormInDialogProps {
   children: ReactNode
   action: (prevState: FormPassbackState, formData: FormData) => Promise<FormPassbackState>
-  onSuccess?: () => void
   submitButtonText?: string
+  onSuccess?: () => void
 }
 
-const FormWrapper: FC<FormInDialogProps> = ({ children, action, onSuccess, submitButtonText }) => {
+const FormWrapper: FC<FormInDialogProps> = ({
+  children,
+  action,
+  submitButtonText,
+  onSuccess = () => {}
+}) => {
   const [pending, setPending] = useState(false)
   const wrappedAction = async (
     prevState: FormPassbackState,
@@ -23,9 +28,7 @@ const FormWrapper: FC<FormInDialogProps> = ({ children, action, onSuccess, submi
   ): Promise<FormPassbackState> => {
     const res = await action(prevState, formData)
     setPending(false)
-    if (res.status === 'success') {
-      onSuccess?.()
-    }
+    if (res.status === 'success') onSuccess()
     return res
   }
 
