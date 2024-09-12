@@ -29,10 +29,10 @@ export function processApplicantData(objects: unknown[]): unknown[] {
   })
 
   // transform admissionsCycle column to a number
-  // because the types do not match the documentation or implementation
-  // @ts-ignore
+  // ts-ignore is used because the types do not match the documentation or implementation
   df = df.withColumn(
     'admissionsCycle',
+    // @ts-ignore
     (row: any) =>
       // format is 'Autumn 2024-2025' so extract 2024
       row.get('admissionsCycle').split(' ')[1].split('-')[0]
