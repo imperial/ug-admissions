@@ -7,11 +7,6 @@ import { z } from 'zod'
 
 import { FormPassbackState, NextActionEnum } from './types'
 
-const parseScore = (entry: FormDataEntryValue | null): number | null => {
-  const parsedScore = parseFloat(entry as string)
-  return isNaN(parsedScore) ? null : parsedScore
-}
-
 const gcseQualificationEnum = z.nativeEnum(GCSEQualification)
 const aLevelQualificationEnum = z.nativeEnum(AlevelQualification)
 
