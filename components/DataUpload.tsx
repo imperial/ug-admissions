@@ -1,8 +1,5 @@
 'use client'
 
-import { DataUploadEnum } from '@/lib/types'
-import { insertUploadedData } from '@/lib/upload'
-import { Button, Dialog, Flex, Spinner, TextField } from '@radix-ui/themes'
 import { DataUploadEnum, FormPassbackState } from '@/lib/types'
 import { insertUploadedData } from '@/lib/upload'
 import { CheckCircledIcon, CrossCircledIcon, FilePlusIcon } from '@radix-ui/react-icons'
@@ -16,7 +13,6 @@ import Dropdown from './TanstackTable/Dropdown'
 
 const DataUpload = () => {
   const [dataUploadChoice, setDataUploadChoice] = useState(DataUploadEnum.APPLICANT)
-  const [state, formAction] = useFormState(insertUploadedData, { status: '', message: '' })
 
   const [isDialogOpen, setIsDialogOpen] = useState(false)
   const [isLoading, setIsLoading] = useState(false)
