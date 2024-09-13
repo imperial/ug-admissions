@@ -1,11 +1,52 @@
+import { DataUploadEnum } from '@/lib/types'
+import { CsvError, parse } from 'csv-parse/sync'
 import DataFrame from 'dataframe-js'
 
+const uploadTypeProcessFunctionMap = {
+  [DataUploadEnum.APPLICANT]: processApplicantData,
+  [DataUploadEnum.TMUA_SCORES]: processTMUAData,
+  [DataUploadEnum.USER_ROLES]: processUserData
+}
+
 /**
- * Process the data from the College-given CSV file: rename, transform and select columns
+ * Parses a CSV and runs processing function according to the upload type
+ * @param file - the CSV file to process
+ * @param uploadType - the type of data being uploaded
+ * @returns flag to indicate success with data if true and errorMessage if false
+ */
+export async function preprocessCsvData(
+  file: File,
+  uploadType: DataUploadEnum
+): Promise<{ success: true; data: unknown[] } | { success: false; errorMessage: string }> {
+  if (file.name.split('.').pop() !== 'csv')
+    return { success: false, errorMessage: 'File must be a CSV' }
+  const lines = await file.text()
+
+  let objects: unknown[]
+  try {
+    objects = parse(lines, {
+      columns: true,
+      skip_empty_lines: true
+    })
+  } catch (e: any) {
+    if (e instanceof CsvError) {
+      return { success: false, errorMessage: `Error reading CSV: ${e.message}` }
+    }
+    return { success: false, errorMessage: 'Unexpected parsing error occurred.' }
+  }
+
+  objects = uploadTypeProcessFunctionMap[uploadType](objects)
+
+  return { success: true, data: objects }
+}
+
+/**
+ * Process the data from the College-given applicant CSV file.
+ * Renames, transforms and select columns as appropriate.
  * @param objects
  * @returns an array of objects with nested applicant and application objects
  */
-export function processApplicantData(objects: unknown[]): unknown[] {
+function processApplicantData(objects: unknown[]): unknown[] {
   let df = new DataFrame(objects)
   df = df.replace('', null)
 
@@ -36,13 +77,13 @@ export function processApplicantData(objects: unknown[]): unknown[] {
     // @ts-ignore
     (row: any) =>
       // format is 'Autumn 2024-2025' so extract 2024
-      row.get('admissionsCycle').split(' ')[1].split('-')[0]
+      row.get('admissionsCycle')?.split(' ').at(1)?.split('-')[0]
   )
   // capitalise enums so they validate
   // @ts-ignore
-  df = df.withColumn('gender', (row: any) => row.get('gender').toUpperCase())
+  df = df.withColumn('gender', (row: any) => row.get('gender')?.toUpperCase())
   // @ts-ignore
-  df = df.withColumn('feeStatus', (row: any) => row.get('feeStatus')?.toUpperCase() ?? undefined)
+  df = df.withColumn('feeStatus', (row: any) => row.get('feeStatus')?.toUpperCase())
 
   // outcomes table does not exist yet, should create an outcome for each application
   // const outcomeColumnsToRename = {
@@ -79,4 +120,12 @@ export function processApplicantData(objects: unknown[]): unknown[] {
     applicant: applicant,
     application: applicationObjects[i]
   }))
+}
+
+function processTMUAData(objects: unknown[]): unknown[] {
+  return objects
+}
+
+function processUserData(objects: unknown[]): unknown[] {
+  return objects
 }

@@ -2,8 +2,8 @@
 
 import FormWrapper from '@/components/FormWrapper'
 import GenericDialog from '@/components/GenericDialog'
+import { processCsvUpload } from '@/lib/csvProcessing/upload'
 import { DataUploadEnum, FormPassbackState } from '@/lib/types'
-import { processCsvUpload } from '@/lib/upload'
 import { FilePlusIcon } from '@radix-ui/react-icons'
 import { Button, Flex, Text } from '@radix-ui/themes'
 import React, { FC, useState } from 'react'
