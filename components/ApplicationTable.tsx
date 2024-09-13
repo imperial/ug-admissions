@@ -3,12 +3,12 @@
 import AdminScoringDialog from '@/components/AdminScoringDialog'
 import type { Applicant, Application, InternalReview, User } from '@prisma/client'
 import { NextAction } from '@prisma/client'
-import { Button, Card, Flex, Text } from '@radix-ui/themes'
+import { Card, Flex, Text } from '@radix-ui/themes'
 import { ColumnFiltersState, createColumnHelper } from '@tanstack/react-table'
 import { usePathname, useRouter, useSearchParams } from 'next/navigation'
 import React, { FC, useEffect, useState } from 'react'
 
-import DataUpload from './DataUpload'
+import DataUploadDialog from './DataUploadDialog'
 import TanstackTable from './TanstackTable'
 import Dropdown from './TanstackTable/Dropdown'
 
@@ -133,7 +133,7 @@ const ApplicationTable: FC<ApplicationTableProps> = ({ applications, reviewerIds
             </Flex>
           </Flex>
           {/* eventually there are 4 uploads: applicant, course, TMUA grades, user roles */}
-          <DataUpload />
+          <DataUploadDialog />
         </Flex>
       </Card>
       <TanstackTable

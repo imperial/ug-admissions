@@ -48,9 +48,8 @@ const DataUploadForm: FC<DataUploadFormProps> = ({ updateExtraFormData }) => {
               <input {...getInputProps()} />
               <Flex direction="column" justify="center" align="center">
                 <FilePlusIcon className="w-16 h-16 mb-2" />
-                <Text className="text-gray-700">
-                  {' '}
-                  <strong> Click to upload a CSV file</strong> or drag one here
+                <Text className="text-gray-700" weight="medium">
+                  Click to upload a CSV file or drag one here
                 </Text>
               </Flex>
             </Flex>
@@ -62,14 +61,12 @@ const DataUploadForm: FC<DataUploadFormProps> = ({ updateExtraFormData }) => {
   )
 }
 
-const DataUpload = () => {
+const DataUploadDialog: FC = () => {
   const [isDialogOpen, setIsDialogOpen] = useState(false)
   const [extraFormData, setExtraFormData] = useState(new FormData())
   const updateExtraFormData = (name: string, value: string | Blob) => {
     const updatedFormData = new FormData()
-    extraFormData.forEach((val, key) => {
-      updatedFormData.append(key, val)
-    })
+    extraFormData.forEach((val, key) => updatedFormData.append(key, val))
     updatedFormData.set(name, value)
     setExtraFormData(updatedFormData)
   }
@@ -99,4 +96,4 @@ const DataUpload = () => {
   )
 }
 
-export default DataUpload
+export default DataUploadDialog

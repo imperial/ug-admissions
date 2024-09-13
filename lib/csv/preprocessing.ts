@@ -18,8 +18,7 @@ export async function preprocessCsvData(
   file: File,
   uploadType: DataUploadEnum
 ): Promise<{ success: true; data: unknown[] } | { success: false; errorMessage: string }> {
-  if (file.name.split('.').pop() !== 'csv')
-    return { success: false, errorMessage: 'File must be a CSV' }
+  if (file.type !== 'text/csv') return { success: false, errorMessage: 'File must be a CSV' }
   const lines = await file.text()
 
   let objects: unknown[]
@@ -80,7 +79,7 @@ function processApplicantData(objects: unknown[]): unknown[] {
   })
 
   // transform admissionsCycle column to a number
-  // ts-ignore is used because the types do not match the documentation or implementation
+  // ts-ignore is used because the type of DataFrame.withColumn() does not match the docs or implementation
   df = df.withColumn(
     'admissionsCycle',
     // @ts-ignore
@@ -93,11 +92,6 @@ function processApplicantData(objects: unknown[]): unknown[] {
   df = df.withColumn('gender', (row: any) => row.get('gender')?.toUpperCase())
   // @ts-ignore
   df = df.withColumn('feeStatus', (row: any) => row.get('feeStatus')?.toUpperCase())
-
-  // outcomes table does not exist yet, should create an outcome for each application
-  // const outcomeColumnsToRename = {
-  //   'Programme code (Programme) (Programme)', 'degreeCode'
-  // }
 
   const applicantColumns = [
     'cid',
