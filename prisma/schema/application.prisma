@@ -33,8 +33,8 @@ enum AlevelQualification {
 
 model Application {
   id                       Int                  @id @default(autoincrement())
-  applicant                Applicant            @relation(fields: [applicantId], references: [id])
-  applicantId              Int
+  applicant                Applicant            @relation(fields: [applicantCid], references: [cid])
+  applicantCid             String
   admissionsCycle          Int
   applicationDate          DateTime
   wideningParticipation    Boolean
@@ -57,14 +57,13 @@ model Application {
   reviewerId               Int?
 }
 
-
 model InternalReview {
-  id                         Int         @id @default(autoincrement())
-  application                Application @relation(fields: [applicationId], references: [id])
-  applicationId              Int         @unique
-  motivationAdminScore       Decimal?    @db.Decimal(3, 1)
-  extracurricularAdminScore  Decimal?    @db.Decimal(3, 1)
-  examComments               String?
-  lastAdminEditBy            String?
-  lastAdminEditOn            DateTime    @updatedAt
+  id                        Int         @id @default(autoincrement())
+  application               Application @relation(fields: [applicationId], references: [id])
+  applicationId             Int         @unique
+  motivationAdminScore      Decimal?    @db.Decimal(3, 1)
+  extracurricularAdminScore Decimal?    @db.Decimal(3, 1)
+  examComments              String?
+  lastAdminEditBy           String?
+  lastAdminEditOn           DateTime    @updatedAt
 }
