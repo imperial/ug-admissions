@@ -51,9 +51,9 @@ function upsertApplication(applications: z.infer<typeof schemaApplication>[]) {
         applications: {
           upsert: {
             where: {
-              admissionsCycle_cid: {
+              admissionsCycle_applicantCid: {
                 admissionsCycle: a.application.admissionsCycle,
-                cid: a.applicant.cid
+                applicantCid: a.applicant.cid
               }
             },
             update: a.application,
