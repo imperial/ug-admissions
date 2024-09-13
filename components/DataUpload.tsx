@@ -86,7 +86,11 @@ const DataUpload = () => {
       title={'Data Upload'}
       trigger={<Button>Data Upload</Button>}
       isOpen={isDialogOpen}
-      setIsOpen={setIsDialogOpen}
+      onOpenChange={(isOpen) => {
+        // clear everything that's in the extraFormData
+        if (!isOpen) setExtraFormData(new FormData())
+        setIsDialogOpen(isOpen)
+      }}
     >
       <FormWrapper action={processCsvUploadWrapped} submitButtonText="Upload">
         <DataUploadForm updateExtraFormData={updateExtraFormData} />

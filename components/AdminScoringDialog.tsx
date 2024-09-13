@@ -148,7 +148,7 @@ const AdminScoringDialog: FC<AdminScoringDialogProps> = ({ data }) => {
     <GenericDialog
       title="Admin Scoring Form"
       isOpen={isOpen}
-      setIsOpen={setIsOpen}
+      onOpenChange={setIsOpen}
       trigger={
         <Button disabled={NextActionEnum[data.nextAction] < NextActionEnum.ADMIN_SCORING}>
           Admin Scoring Form
