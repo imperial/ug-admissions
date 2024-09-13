@@ -5,8 +5,7 @@ enum Gender {
 }
 
 model Applicant {
-  id                 Int           @id @default(autoincrement())
-  cid                String        @unique
+  cid                String        @id
   ucasNumber         String        @unique
   gender             Gender
   firstName          String
