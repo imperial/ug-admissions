@@ -1,13 +1,8 @@
 'use server'
 
 import prisma from '@/db'
-import { preprocessCsvData } from '@/lib/csvProcessing/csvDataProcessing'
-import {
-  parseWithSchema,
-  schemaApplication,
-  schemaTMUAScores,
-  schemaUser
-} from '@/lib/csvProcessing/schema'
+import { preprocessCsvData } from '@/lib/csv/preprocessing'
+import { parseWithSchema, schemaApplication, schemaTMUAScores, schemaUser } from '@/lib/csv/schema'
 import { Prisma, type User } from '@prisma/client'
 import { z } from 'zod'
 
