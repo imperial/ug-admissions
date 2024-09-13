@@ -7,7 +7,8 @@ import Dropdown from '@/components/TanstackTable/Dropdown'
 import { FormPassbackState, upsertAdminScoring } from '@/lib/forms'
 import { NextActionEnum } from '@/lib/types'
 import { AlevelQualification, GCSEQualification } from '@prisma/client'
-import { Button, Callout, Flex, Heading, Text, TextField } from '@radix-ui/themes'
+import { ChatBubbleIcon } from '@radix-ui/react-icons'
+import { Button, Callout, Flex, Heading, Popover, Text, TextField } from '@radix-ui/themes'
 import { format } from 'date-fns'
 import React, { FC, useState } from 'react'
 
@@ -36,7 +37,7 @@ const AdminScoringForm: FC<AdminScoringFormProps> = ({ data }) => {
           {format(internalReview?.lastAdminEditOn, "dd/MM/yy 'at' HH:mm")}
         </Text>
       )}
-      <Callout.Root className="my-5">
+      <Callout.Root className="my-2">
         <Callout.Text size="3">
           Applicant: {applicant.firstName} {applicant.surname}
         </Callout.Text>
@@ -44,6 +45,20 @@ const AdminScoringForm: FC<AdminScoringFormProps> = ({ data }) => {
       </Callout.Root>
 
       <Flex direction="column" gap="2">
+        {data.extenuatingCircumstances && (
+          <Popover.Root>
+            <Popover.Trigger>
+              <Button type="button" variant="soft" color="yellow">
+                <ChatBubbleIcon width="16" height="16" />
+                Extenuating circumstances
+              </Button>
+            </Popover.Trigger>
+            <Popover.Content className="bg-yellow-50">
+              <Text>{data.extenuatingCircumstances}</Text>
+            </Popover.Content>
+          </Popover.Root>
+        )}
+
         <Heading as="h3" size="2">
           Age 16 exam
         </Heading>
