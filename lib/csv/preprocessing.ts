@@ -35,7 +35,16 @@ export async function preprocessCsvData(
     return { success: false, errorMessage: 'Unexpected parsing error occurred.' }
   }
 
-  objects = uploadTypeProcessFunctionMap[uploadType](objects)
+  try {
+    objects = uploadTypeProcessFunctionMap[uploadType](objects)
+  } catch (e: any) {
+    console.error(`error in CSV preprocessing: ${e.message}`)
+    return {
+      success: false,
+      errorMessage:
+        'Failure processing CSV: check the correct upload type has been selected and that all columns are named properly'
+    }
+  }
 
   return { success: true, data: objects }
 }
