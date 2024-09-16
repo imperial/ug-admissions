@@ -7,10 +7,10 @@ import Dropdown from '@/components/TanstackTable/Dropdown'
 import { upsertAdminScoring } from '@/lib/forms'
 import { FormPassbackState, NextActionEnum } from '@/lib/types'
 import { AlevelQualification, GCSEQualification } from '@prisma/client'
-import { ChatBubbleIcon } from '@radix-ui/react-icons'
 import { Button, Callout, Flex, Heading, Popover, Text, TextField } from '@radix-ui/themes'
 import { format } from 'date-fns'
 import React, { FC, useState } from 'react'
+import { BsBook, BsClipboardMinus } from 'react-icons/bs'
 
 import { ApplicationRow } from './ApplicationTable'
 
@@ -45,110 +45,134 @@ const AdminScoringForm: FC<AdminScoringFormProps> = ({ data }) => {
       </Callout.Root>
 
       <Flex direction="column" gap="2">
-        {data.extenuatingCircumstances && (
-          <Popover.Root>
-            <Popover.Trigger>
-              <Button type="button" variant="soft" color="yellow">
-                <ChatBubbleIcon width="16" height="16" />
-                Extenuating circumstances
-              </Button>
-            </Popover.Trigger>
-            <Popover.Content className="bg-yellow-50">
-              <Text>{data.extenuatingCircumstances}</Text>
-            </Popover.Content>
-          </Popover.Root>
-        )}
+        <Flex direction="column" gap="2">
+          {data.extenuatingCircumstances && (
+            <Popover.Root>
+              <Popover.Trigger>
+                <Button type="button" variant="soft" color="yellow">
+                  <BsClipboardMinus width="16" height="16" />
+                  Extenuating circumstances
+                </Button>
+              </Popover.Trigger>
+              <Popover.Content className="bg-yellow-50">
+                <Text>{data.extenuatingCircumstances}</Text>
+              </Popover.Content>
+            </Popover.Root>
+          )}
+        </Flex>
 
-        <Heading as="h3" size="2">
-          Age 16 exam
-        </Heading>
-        <LabelText label="Type" weight="regular">
-          <Dropdown
-            values={Object.keys(GCSEQualification)}
-            currentValue={gcseQualification}
-            onValueChange={setGcseQualification}
-            className="flex-grow"
-          />
-          <input name="gcseQualification" type="hidden" value={gcseQualification?.toString()} />
-        </LabelText>
+        <Flex direction="column" gap="2">
+          {data.academicEligibilityNotes && (
+            <Popover.Root>
+              <Popover.Trigger>
+                <Button type="button" variant="soft" color="yellow">
+                  <BsBook width="16" height="16" />
+                  Academic eligibility notes
+                </Button>
+              </Popover.Trigger>
+              <Popover.Content className="bg-yellow-50">
+                <Text>{data.academicEligibilityNotes}</Text>
+              </Popover.Content>
+            </Popover.Root>
+          )}
+        </Flex>
 
-        <LabelText label="Score" weight="regular">
+        <Flex direction="column" gap="2">
+          <Heading as="h3" size="2">
+            Age 16 exam
+          </Heading>
+          <LabelText label="Type" weight="regular">
+            <Dropdown
+              values={Object.keys(GCSEQualification)}
+              currentValue={gcseQualification}
+              onValueChange={setGcseQualification}
+              className="flex-grow"
+            />
+            <input name="gcseQualification" type="hidden" value={gcseQualification?.toString()} />
+          </LabelText>
+
+          <LabelText label="Score" weight="regular">
+            <TextField.Root
+              id="gcseQualificationScore"
+              name="gcseQualificationScore"
+              type="number"
+              min={0.0}
+              max={10.0}
+              step={0.1}
+              className="flex-grow"
+              disabled={!gcseQualification}
+              required={!!gcseQualification}
+              defaultValue={parseFloat(data?.gcseQualificationScore?.toString() ?? '')}
+            />
+          </LabelText>
+        </Flex>
+
+        <Flex direction="column" gap="2">
+          <Heading as="h3" size="2">
+            Age 18 exam
+          </Heading>
+          <LabelText label="Type" weight="regular">
+            <Dropdown
+              values={Object.keys(AlevelQualification)}
+              currentValue={aLevelQualification}
+              onValueChange={setALevelQualification}
+              className="flex-grow"
+            />
+            <input
+              name="aLevelQualification"
+              type="hidden"
+              value={aLevelQualification?.toString()}
+            />
+          </LabelText>
+
+          <LabelText label="Score" weight="regular">
+            <TextField.Root
+              id="aLevelQualificationScore"
+              name="aLevelQualificationScore"
+              type="number"
+              min={0.0}
+              max={10.0}
+              step={0.1}
+              className="flex-grow"
+              disabled={!aLevelQualification}
+              required={!!aLevelQualification}
+              defaultValue={parseFloat(data?.aLevelQualificationScore?.toString() ?? '')}
+            />
+          </LabelText>
+        </Flex>
+
+        <LabelText label="Motivation Assessments">
           <TextField.Root
-            id="gcseQualificationScore"
-            name="gcseQualificationScore"
+            id="motivationAdminScore"
+            name="motivationAdminScore"
             type="number"
             min={0.0}
             max={10.0}
             step={0.1}
-            className="flex-grow"
-            disabled={!gcseQualification}
-            required={!!gcseQualification}
-            defaultValue={parseFloat(data?.gcseQualificationScore?.toString() ?? '')}
+            defaultValue={parseFloat(internalReview?.motivationAdminScore?.toString() ?? '')}
           />
         </LabelText>
-      </Flex>
 
-      <Flex direction="column" gap="2">
-        <Heading as="h3" size="2">
-          Age 18 exam
-        </Heading>
-        <LabelText label="Type" weight="regular">
-          <Dropdown
-            values={Object.keys(AlevelQualification)}
-            currentValue={aLevelQualification}
-            onValueChange={setALevelQualification}
-            className="flex-grow"
-          />
-          <input name="aLevelQualification" type="hidden" value={aLevelQualification?.toString()} />
-        </LabelText>
-
-        <LabelText label="Score" weight="regular">
+        <LabelText label="Extracurricular Assessments">
           <TextField.Root
-            id="aLevelQualificationScore"
-            name="aLevelQualificationScore"
+            id="extracurricularAdminScore"
+            name="extracurricularAdminScore"
             type="number"
             min={0.0}
             max={10.0}
             step={0.1}
-            className="flex-grow"
-            disabled={!aLevelQualification}
-            required={!!aLevelQualification}
-            defaultValue={parseFloat(data?.aLevelQualificationScore?.toString() ?? '')}
+            defaultValue={parseFloat(internalReview?.extracurricularAdminScore?.toString() ?? '')}
+          />
+        </LabelText>
+
+        <LabelText label="Exam Comments">
+          <TextField.Root
+            id="examComments"
+            name="examComments"
+            defaultValue={internalReview?.examComments ?? undefined}
           />
         </LabelText>
       </Flex>
-
-      <LabelText label="Motivation Assessments">
-        <TextField.Root
-          id="motivationAdminScore"
-          name="motivationAdminScore"
-          type="number"
-          min={0.0}
-          max={10.0}
-          step={0.1}
-          defaultValue={parseFloat(internalReview?.motivationAdminScore?.toString() ?? '')}
-        />
-      </LabelText>
-
-      <LabelText label="Extracurricular Assessments">
-        <TextField.Root
-          id="extracurricularAdminScore"
-          name="extracurricularAdminScore"
-          type="number"
-          min={0.0}
-          max={10.0}
-          step={0.1}
-          defaultValue={parseFloat(internalReview?.extracurricularAdminScore?.toString() ?? '')}
-        />
-      </LabelText>
-
-      <LabelText label="Exam Comments">
-        <TextField.Root
-          id="examComments"
-          name="examComments"
-          defaultValue={internalReview?.examComments ?? undefined}
-        />
-      </LabelText>
     </>
   )
 }
