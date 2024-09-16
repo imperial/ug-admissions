@@ -7,10 +7,10 @@ import Dropdown from '@/components/TanstackTable/Dropdown'
 import { upsertAdminScoring } from '@/lib/forms'
 import { FormPassbackState, NextActionEnum } from '@/lib/types'
 import { AlevelQualification, GCSEQualification } from '@prisma/client'
+import { FileTextIcon, IdCardIcon } from '@radix-ui/react-icons'
 import { Button, Callout, Flex, Heading, Popover, Text, TextField } from '@radix-ui/themes'
 import { format } from 'date-fns'
 import React, { FC, useState } from 'react'
-import { BsBook, BsClipboardMinus } from 'react-icons/bs'
 
 import { ApplicationRow } from './ApplicationTable'
 
@@ -50,7 +50,7 @@ const AdminScoringForm: FC<AdminScoringFormProps> = ({ data }) => {
             <Popover.Root>
               <Popover.Trigger>
                 <Button type="button" variant="soft" color="yellow">
-                  <BsClipboardMinus width="16" height="16" />
+                  <IdCardIcon width={16} height={16} />
                   Extenuating circumstances
                 </Button>
               </Popover.Trigger>
@@ -66,7 +66,7 @@ const AdminScoringForm: FC<AdminScoringFormProps> = ({ data }) => {
             <Popover.Root>
               <Popover.Trigger>
                 <Button type="button" variant="soft" color="yellow">
-                  <BsBook width="16" height="16" />
+                  <FileTextIcon width={16} height={16} />
                   Academic eligibility notes
                 </Button>
               </Popover.Trigger>
