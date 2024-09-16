@@ -69,9 +69,10 @@ model InternalReview {
   extracurricularAdminScore    Decimal?    @db.Decimal(3, 1)
   examComments                 String?
   lastAdminEditBy              String?
-  lastAdminEditOn              DateTime    @updatedAt
+  lastAdminEditOn              DateTime?
   motivationReviewerScore      Decimal?    @db.Decimal(3, 1)
   extracurricularReviewerScore Decimal?    @db.Decimal(3, 1)
   referenceReviewerScore       Decimal?    @db.Decimal(3, 1)
   academicComments             String?
+  lastReviewerEditOn           DateTime?
 }

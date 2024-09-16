@@ -75,12 +75,16 @@ export const upsertAdminScoring = async (
       applicationId,
       motivationAdminScore,
       extracurricularAdminScore,
-      examComments
+      examComments,
+      lastAdminEditBy: 'admin', // TODO: get the actual admin user
+      lastAdminEditOn: new Date()
     },
     update: {
       motivationAdminScore,
       extracurricularAdminScore,
-      examComments
+      examComments,
+      lastAdminEditBy: 'admin', // TODO: get the actual admin user
+      lastAdminEditOn: new Date()
     }
   })
 
@@ -131,7 +135,8 @@ export const upsertReviewerScoring = async (
       motivationReviewerScore,
       extracurricularReviewerScore,
       referenceReviewerScore,
-      academicComments
+      academicComments,
+      lastReviewerEditOn: new Date()
     }
   })
 
