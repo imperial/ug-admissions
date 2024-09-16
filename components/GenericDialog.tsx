@@ -10,7 +10,7 @@ interface GenericFormDialogProps {
   description?: string
   trigger: ReactNode
   isOpen: boolean
-  setIsOpen: (isOpen: boolean) => void
+  onOpenChange: (isOpen: boolean) => void
 }
 
 const GenericDialog: FC<GenericFormDialogProps> = ({
@@ -19,16 +19,16 @@ const GenericDialog: FC<GenericFormDialogProps> = ({
   description,
   trigger,
   isOpen,
-  setIsOpen
+  onOpenChange
 }) => {
   return (
-    <Dialog.Root open={isOpen} onOpenChange={setIsOpen}>
+    <Dialog.Root open={isOpen} onOpenChange={onOpenChange}>
       <Dialog.Trigger>{trigger}</Dialog.Trigger>
       <Dialog.Content>
         <Cross2Icon
           color="gray"
           className="w-6 h-6 absolute top-2 right-2 "
-          onClick={() => setIsOpen(false)}
+          onClick={() => onOpenChange(false)}
         />
         <Dialog.Title>{title}</Dialog.Title>
         {description && <Dialog.Description>{description}</Dialog.Description>}
