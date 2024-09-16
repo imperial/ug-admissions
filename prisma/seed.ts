@@ -26,6 +26,7 @@ const createApplicant = () => {
     gender: faker.helpers.arrayElement(Object.keys(Gender)) as Gender,
     firstName: faker.person.firstName(),
     surname: faker.person.lastName(),
+    dateOfBirth: faker.date.birthdate(),
     email: faker.internet.email(),
     primaryNationality: faker.location.country()
   }

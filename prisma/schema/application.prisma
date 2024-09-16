@@ -55,6 +55,8 @@ model Application {
   nextAction               NextAction           @default(TMUA_CANDIDATE)
   reviewer                 User?                @relation(fields: [reviewerId], references: [id])
   reviewerId               Int?
+
+  @@unique([admissionsCycle, applicantCid])
 }
 
 model InternalReview {

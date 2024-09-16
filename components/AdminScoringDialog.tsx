@@ -4,8 +4,8 @@ import FormWrapper from '@/components/FormWrapper'
 import GenericDialog from '@/components/GenericDialog'
 import LabelText from '@/components/LabelText'
 import Dropdown from '@/components/TanstackTable/Dropdown'
-import { FormPassbackState, upsertAdminScoring } from '@/lib/forms'
-import { NextActionEnum } from '@/lib/types'
+import { upsertAdminScoring } from '@/lib/forms'
+import { FormPassbackState, NextActionEnum } from '@/lib/types'
 import { AlevelQualification, GCSEQualification } from '@prisma/client'
 import { Button, Callout, DataList, Flex, Heading, Text, TextField } from '@radix-ui/themes'
 import { format } from 'date-fns'
@@ -156,7 +156,7 @@ const AdminScoringDialog: FC<AdminScoringDialogProps> = ({ data }) => {
     <GenericDialog
       title="Admin Scoring Form"
       isOpen={isOpen}
-      setIsOpen={setIsOpen}
+      onOpenChange={setIsOpen}
       trigger={
         <Button disabled={NextActionEnum[data.nextAction] < NextActionEnum.ADMIN_SCORING}>
           Admin Scoring Form

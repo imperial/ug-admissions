@@ -5,17 +5,7 @@ import { AlevelQualification, GCSEQualification, NextAction } from '@prisma/clie
 import { revalidatePath } from 'next/cache'
 import { z } from 'zod'
 
-import { NextActionEnum } from './types'
-
-export interface FormPassbackState {
-  status: string
-  message: string
-}
-
-const parseScore = (entry: FormDataEntryValue | null): number | null => {
-  const parsedScore = parseFloat(entry as string)
-  return isNaN(parsedScore) ? null : parsedScore
-}
+import { FormPassbackState, NextActionEnum } from './types'
 
 const gcseQualificationEnum = z.nativeEnum(GCSEQualification)
 const aLevelQualificationEnum = z.nativeEnum(AlevelQualification)
