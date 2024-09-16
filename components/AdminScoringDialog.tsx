@@ -7,7 +7,7 @@ import Dropdown from '@/components/TanstackTable/Dropdown'
 import { FormPassbackState, upsertAdminScoring } from '@/lib/forms'
 import { NextActionEnum } from '@/lib/types'
 import { AlevelQualification, GCSEQualification } from '@prisma/client'
-import { Button, Callout, Flex, Heading, Text, TextField } from '@radix-ui/themes'
+import { Button, Callout, DataList, Flex, Heading, Text, TextField } from '@radix-ui/themes'
 import { format } from 'date-fns'
 import React, { FC, useState } from 'react'
 
@@ -37,10 +37,18 @@ const AdminScoringForm: FC<AdminScoringFormProps> = ({ data }) => {
         </Text>
       )}
       <Callout.Root className="my-5">
-        <Callout.Text size="3">
-          Applicant: {applicant.firstName} {applicant.surname}
-        </Callout.Text>
-        <Callout.Text size="3">UCAS number: {applicant.ucasNumber}</Callout.Text>
+        <DataList.Root>
+          <DataList.Item align="center">
+            <DataList.Label>Applicant:</DataList.Label>
+            <DataList.Value className="font-bold">
+              {applicant.firstName} {applicant.surname}
+            </DataList.Value>
+          </DataList.Item>
+          <DataList.Item align="center">
+            <DataList.Label>UCAS number:</DataList.Label>
+            <DataList.Value className="font-bold">{applicant.ucasNumber}</DataList.Value>
+          </DataList.Item>
+        </DataList.Root>
       </Callout.Root>
 
       <Flex direction="column" gap="2">
