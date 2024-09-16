@@ -40,13 +40,13 @@ const ReviewerScoringForm: FC<ReviewerScoringFormProps> = ({ data }) => {
           <DataList.Item align="center">
             <DataList.Label color="amber">Admin Motivation Assessment:</DataList.Label>
             <DataList.Value className="font-bold">
-              {String(internalReview?.motivationAdminScore)}
+              {String(internalReview?.motivationAdminScore ?? 'Missing')}
             </DataList.Value>
           </DataList.Item>
           <DataList.Item align="center">
             <DataList.Label color="mint">Admin Extracurricular Assessment:</DataList.Label>
             <DataList.Value className="font-bold">
-              {String(internalReview?.extracurricularAdminScore)}
+              {String(internalReview?.extracurricularAdminScore ?? 'Missing')}
             </DataList.Value>
           </DataList.Item>
         </DataList.Root>
