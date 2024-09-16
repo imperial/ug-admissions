@@ -7,10 +7,10 @@ import Dropdown from '@/components/TanstackTable/Dropdown'
 import { FormPassbackState, upsertAdminScoring } from '@/lib/forms'
 import { NextActionEnum } from '@/lib/types'
 import { AlevelQualification, GCSEQualification } from '@prisma/client'
-import { ChatBubbleIcon } from '@radix-ui/react-icons'
 import { Button, Callout, Flex, Heading, Popover, Text, TextField } from '@radix-ui/themes'
 import { format } from 'date-fns'
 import React, { FC, useState } from 'react'
+import { BsBook, BsClipboardMinus } from 'react-icons/bs'
 
 import { ApplicationRow } from './ApplicationTable'
 
@@ -50,12 +50,28 @@ const AdminScoringForm: FC<AdminScoringFormProps> = ({ data }) => {
             <Popover.Root>
               <Popover.Trigger>
                 <Button type="button" variant="soft" color="yellow">
-                  <ChatBubbleIcon width="16" height="16" />
+                  <BsClipboardMinus width="16" height="16" />
                   Extenuating circumstances
                 </Button>
               </Popover.Trigger>
               <Popover.Content className="bg-yellow-50">
                 <Text>{data.extenuatingCircumstances}</Text>
+              </Popover.Content>
+            </Popover.Root>
+          )}
+        </Flex>
+
+        <Flex direction="column" gap="2">
+          {data.academicEligibilityNotes && (
+            <Popover.Root>
+              <Popover.Trigger>
+                <Button type="button" variant="soft" color="yellow">
+                  <BsBook width="16" height="16" />
+                  Academic eligibility notes
+                </Button>
+              </Popover.Trigger>
+              <Popover.Content className="bg-yellow-50">
+                <Text>{data.academicEligibilityNotes}</Text>
               </Popover.Content>
             </Popover.Root>
           )}
