@@ -62,6 +62,7 @@ const ReviewerScoringForm: FC<ReviewerScoringFormProps> = ({ data }) => {
             max={10.0}
             step={0.1}
             defaultValue={parseFloat(internalReview?.motivationReviewerScore?.toString() ?? '')}
+            required
           />
         </LabelText>
 
@@ -77,6 +78,7 @@ const ReviewerScoringForm: FC<ReviewerScoringFormProps> = ({ data }) => {
             defaultValue={parseFloat(
               internalReview?.extracurricularReviewerScore?.toString() ?? ''
             )}
+            required
           />
         </LabelText>
 
@@ -89,6 +91,7 @@ const ReviewerScoringForm: FC<ReviewerScoringFormProps> = ({ data }) => {
             max={10.0}
             step={0.1}
             defaultValue={parseFloat(internalReview?.referenceReviewerScore?.toString() ?? '')}
+            required
           />
         </LabelText>
 
@@ -109,7 +112,7 @@ const ReviewerScoringDialog: FC<ReviewerScoringDialogProps> = ({ data }) => {
   const handleFormSuccess = () => setIsOpen(false)
 
   const upsertReviewerScoringWithId = (prevState: FormPassbackState, formData: FormData) =>
-    upsertReviewerScoring(NextActionEnum[data.nextAction], data.id, prevState, formData)
+    upsertReviewerScoring(data.id, prevState, formData)
 
   return (
     <GenericDialog
