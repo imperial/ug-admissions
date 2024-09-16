@@ -5,7 +5,8 @@ import GenericDialog from '@/components/GenericDialog'
 import LabelText from '@/components/LabelText'
 import { FormPassbackState, upsertReviewerScoring } from '@/lib/forms'
 import { NextActionEnum } from '@/lib/types'
-import { Button, Callout, DataList, Flex, TextField } from '@radix-ui/themes'
+import { Button, Callout, DataList, Flex, Text, TextField } from '@radix-ui/themes'
+import { format } from 'date-fns'
 import React, { FC, useState } from 'react'
 
 import { ApplicationRow } from './ApplicationTable'
@@ -23,7 +24,12 @@ const ReviewerScoringForm: FC<ReviewerScoringFormProps> = ({ data }) => {
 
   return (
     <Flex direction="column" gap="3">
-      {/*TODO: add last edited for reviewer time*/}
+      {internalReview?.lastReviewerEditOn && (
+        <Text size="2" className="italic text-gray-500">
+          Last edited on {format(internalReview.lastReviewerEditOn, "dd/MM/yy 'at' HH:mm")}
+        </Text>
+      )}
+
       <Callout.Root>
         <DataList.Root>
           <DataList.Item align="center">

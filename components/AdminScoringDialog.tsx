@@ -32,8 +32,8 @@ const AdminScoringForm: FC<AdminScoringFormProps> = ({ data }) => {
     <>
       {internalReview?.lastAdminEditOn && internalReview?.lastAdminEditBy && (
         <Text size="2" className="italic text-gray-500">
-          Last edited by {internalReview?.lastAdminEditBy} on{' '}
-          {format(internalReview?.lastAdminEditOn, "dd/MM/yy 'at' HH:mm")}
+          Last edited by {internalReview.lastAdminEditBy} on{' '}
+          {format(internalReview.lastAdminEditOn, "dd/MM/yy 'at' HH:mm")}
         </Text>
       )}
       <Callout.Root className="my-5">
