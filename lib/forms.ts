@@ -98,12 +98,53 @@ export const upsertAdminScoring = async (
   return { status: 'success', message: 'Admin scoring form updated successfully.' }
 }
 
+const reviewerFormSchema = z.object({
+  motivationReviewerScore: z.coerce
+    .number()
+    .gte(0, { message: 'Motivation score must be ≥ 0' })
+    .lte(10, { message: 'Motivation score must be ≤ 10' }),
+  extracurricularReviewerScore: z.coerce
+    .number()
+    .gte(0, { message: 'Extracurricular score must be ≥ 0' })
+    .lte(10, { message: 'Extracurricular score must be ≤ 10' }),
+  referenceReviewerScore: z.coerce
+    .number()
+    .gte(0, { message: 'Reference score must be ≥ 0' })
+    .lte(10, { message: 'Reference score must be ≤ 10' }),
+  academicComments: z.string()
+})
+
 export const upsertReviewerScoring = async (
-  currentAction: NextActionEnum,
   applicationId: number,
   _: FormPassbackState,
   formData: FormData
 ): Promise<FormPassbackState> => {
+  const result = reviewerFormSchema.safeParse(Object.fromEntries(formData))
+  if (!result.success) return { status: 'error', message: result.error.issues[0].message }
+  const {
+    motivationReviewerScore,
+    extracurricularReviewerScore,
+    referenceReviewerScore,
+    academicComments
+  } = result.data
+
+  await prisma.application.update({
+    where: { id: applicationId },
+    data: {
+      nextAction: NextAction.UG_TUTOR_REVIEW
+    }
+  })
+
+  await prisma.internalReview.update({
+    where: { applicationId },
+    data: {
+      motivationReviewerScore,
+      extracurricularReviewerScore,
+      referenceReviewerScore,
+      academicComments
+    }
+  })
+
   revalidatePath('/')
   return { status: 'success', message: 'Reviewer scoring form updated successfully.' }
 }
