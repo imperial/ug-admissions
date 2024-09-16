@@ -97,3 +97,13 @@ export const upsertAdminScoring = async (
   revalidatePath('/')
   return { status: 'success', message: 'Admin scoring form updated successfully.' }
 }
+
+export const upsertReviewerScoring = async (
+  currentAction: NextActionEnum,
+  applicationId: number,
+  _: FormPassbackState,
+  formData: FormData
+): Promise<FormPassbackState> => {
+  revalidatePath('/')
+  return { status: 'success', message: 'Reviewer scoring form updated successfully.' }
+}
