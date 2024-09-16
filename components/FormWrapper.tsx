@@ -1,6 +1,6 @@
 'use client'
 
-import { FormPassbackState } from '@/lib/forms'
+import { FormPassbackState } from '@/lib/types'
 import { CheckCircledIcon, CrossCircledIcon } from '@radix-ui/react-icons'
 import { Button, Callout, Flex, Spinner } from '@radix-ui/themes'
 import React, { FC, ReactNode, useState } from 'react'
