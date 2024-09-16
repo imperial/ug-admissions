@@ -13,12 +13,12 @@ import LabelledInput from './LabelText'
 import Dropdown from './TanstackTable/Dropdown'
 
 interface DataUploadFormProps {
-  updateExtraFormData: (name: string, value: string | Blob) => void
+  file: File | null
+  setFile: (file: File | null) => void
 }
 
-const DataUploadForm: FC<DataUploadFormProps> = ({ updateExtraFormData }) => {
+const DataUploadForm: FC<DataUploadFormProps> = ({ file, setFile }) => {
   const [dataUploadChoice, setDataUploadChoice] = useState(DataUploadEnum.APPLICANT)
-  const [file, setFile] = useState<File | null>(null)
   return (
     <Flex direction="column" gap="3">
       <LabelledInput label="Data regarding">
@@ -33,7 +33,6 @@ const DataUploadForm: FC<DataUploadFormProps> = ({ updateExtraFormData }) => {
       <Dropzone
         onDrop={(acceptedFiles) => {
           setFile(acceptedFiles[0])
-          updateExtraFormData('csv', acceptedFiles[0])
         }}
         maxFiles={1}
       >
@@ -63,18 +62,11 @@ const DataUploadForm: FC<DataUploadFormProps> = ({ updateExtraFormData }) => {
 
 const DataUploadDialog: FC = () => {
   const [isDialogOpen, setIsDialogOpen] = useState(false)
-  const [extraFormData, setExtraFormData] = useState(new FormData())
-  const updateExtraFormData = (name: string, value: string | Blob) => {
-    const updatedFormData = new FormData()
-    extraFormData.forEach((val, key) => updatedFormData.append(key, val))
-    updatedFormData.set(name, value)
-    setExtraFormData(updatedFormData)
-  }
+  const [file, setFile] = useState<File | null>(null)
+
   const processCsvUploadWrapped = async (prevState: FormPassbackState, formData: FormData) => {
-    if (!extraFormData.has('csv')) return { message: 'No CSV file uploaded', status: 'error' }
-    extraFormData.forEach((val, key) => {
-      formData.set(key, val)
-    })
+    if (!file) return { message: 'No CSV file uploaded', status: 'error' }
+    formData.append('csv', file)
     return await processCsvUpload(prevState, formData)
   }
 
@@ -84,13 +76,12 @@ const DataUploadDialog: FC = () => {
       trigger={<Button>Data Upload</Button>}
       isOpen={isDialogOpen}
       onOpenChange={(isOpen) => {
-        // clear everything that's in the extraFormData
-        if (!isOpen) setExtraFormData(new FormData())
+        if (!isOpen) setFile(null)
         setIsDialogOpen(isOpen)
       }}
     >
       <FormWrapper action={processCsvUploadWrapped} submitButtonText="Upload">
-        <DataUploadForm updateExtraFormData={updateExtraFormData} />
+        <DataUploadForm file={file} setFile={setFile} />
       </FormWrapper>
     </GenericDialog>
   )
