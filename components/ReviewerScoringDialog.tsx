@@ -3,8 +3,8 @@
 import FormWrapper from '@/components/FormWrapper'
 import GenericDialog from '@/components/GenericDialog'
 import LabelText from '@/components/LabelText'
-import { FormPassbackState, upsertReviewerScoring } from '@/lib/forms'
-import { NextActionEnum } from '@/lib/types'
+import { upsertReviewerScoring } from '@/lib/forms'
+import { FormPassbackState, NextActionEnum } from '@/lib/types'
 import { Button, Callout, DataList, Flex, Text, TextField } from '@radix-ui/themes'
 import { format } from 'date-fns'
 import React, { FC, useState } from 'react'
@@ -124,7 +124,7 @@ const ReviewerScoringDialog: FC<ReviewerScoringDialogProps> = ({ data }) => {
     <GenericDialog
       title="Reviewer Scoring Form"
       isOpen={isOpen}
-      setIsOpen={setIsOpen}
+      onOpenChange={setIsOpen}
       trigger={
         <Button disabled={NextActionEnum[data.nextAction] < NextActionEnum.REVIEWER_SCORING}>
           Reviewer Scoring Form
