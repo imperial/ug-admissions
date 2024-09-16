@@ -22,14 +22,22 @@ const adminFormSchema = z
       .number()
       .gte(0, { message: 'Age 18 score must be ≥ 0' })
       .lte(10, { message: 'Age 18 score must be ≤ 10' }),
-    motivationAdminScore: z.coerce
-      .number()
-      .gte(0, { message: 'Motivation assessment score must be ≥ 0' })
-      .lte(10, { message: 'Motivation assessment score must be ≤ 10' }),
-    extracurricularAdminScore: z.coerce
-      .number()
-      .gte(0, { message: 'Extracurricular assessment score must be ≥ 0' })
-      .lte(10, { message: 'Extracurricular assessment score must be ≤ 10' }),
+    motivationAdminScore: z.preprocess(
+      (val) => (val === '' ? null : Number(val)),
+      z
+        .number()
+        .gte(0, { message: 'Motivation assessment score must be ≥ 0' })
+        .lte(10, { message: 'Motivation assessment score must be ≤ 10' })
+        .nullable()
+    ),
+    extracurricularAdminScore: z.preprocess(
+      (val) => (val === '' ? null : Number(val)),
+      z
+        .number()
+        .gte(0, { message: 'Extracurricular assessment score must be ≥ 0' })
+        .lte(10, { message: 'Extracurricular assessment score must be ≤ 10' })
+        .nullable()
+    ),
     examComments: z.string()
   })
   .partial()
