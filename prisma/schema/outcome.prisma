@@ -1,0 +1,17 @@
+enum Decision {
+  PENDING
+  REJECT
+  OFFER
+}
+
+model Outcome {
+  id              Int      @id @default(autoincrement())
+  cid             String
+  admissionsCycle Int
+  degreeCode      String
+  decision        Decision @default(PENDING)
+  offerCode       String?
+  offerText       String?
+
+  @@unique(fields: [cid, admissionsCycle, degreeCode], name: "cid_cycle_degree")
+}

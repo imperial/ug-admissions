@@ -87,3 +87,13 @@ export const upsertAdminScoring = async (
   revalidatePath('/')
   return { status: 'success', message: 'Admin scoring form updated successfully.' }
 }
+
+export const upsertUgTutor = async (
+  currentAction: NextActionEnum,
+  applicationId: number,
+  _: FormPassbackState,
+  formData: FormData
+): Promise<FormPassbackState> => {
+  revalidatePath('/')
+  return { status: 'success', message: 'UG tutor form updated successfully.' }
+}
