@@ -4,12 +4,28 @@ enum Decision {
   OFFER
 }
 
+enum DegreeCode {
+  // Computing
+  G400
+  G401
+  G700
+  GG47
+  G402
+  G501
+  G600
+  G610
+  // JMC
+  GG14
+  GG41
+}
+
 model Outcome {
-  id              Int      @id @default(autoincrement())
+  id              Int         @id @default(autoincrement())
+  application     Application @relation(fields: [cid, admissionsCycle], references: [applicantCid, admissionsCycle])
   cid             String
   admissionsCycle Int
-  degreeCode      String
-  decision        Decision @default(PENDING)
+  degreeCode      DegreeCode
+  decision        Decision    @default(PENDING)
   offerCode       String?
   offerText       String?
 

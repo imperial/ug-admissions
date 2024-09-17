@@ -30,34 +30,69 @@ async function executePromises(promises: Promise<unknown>[]): Promise<number> {
 
 /**
  * If the applicant does not exist, create a new applicant and application.
- * If the applicant exists and the application is for the same admissions cycle, update both the applicant and application.
- * If the applicant exists and the application is for a different admissions cycle, update the applicant and create a new application.
+ * If the applicant exists and the application is for the same admissions cycle, update the applicant, application and outcome
+ * If the applicant exists and the application is for a different admissions cycle, update the applicant, create a new application and create a new outcome.
  * @param applications - an array of schema objects with a nested applicant and application object
  */
 function upsertApplication(applications: z.infer<typeof schemaApplication>[]) {
-  return applications.map((a) => {
+  return applications.map(({ applicant, application, outcome }) => {
     return prisma.applicant.upsert({
       where: {
-        cid: a.applicant.cid
+        cid: applicant.cid
       },
       create: {
-        ...a.applicant,
+        ...applicant,
         applications: {
-          create: a.application
+          create: {
+            ...application,
+            outcomes: {
+              create: [
+                {
+                  degreeCode: outcome.degreeCode
+                }
+              ]
+            }
+          }
         }
       },
       update: {
-        ...a.applicant,
+        ...applicant,
         applications: {
           upsert: {
             where: {
               admissionsCycle_applicantCid: {
-                admissionsCycle: a.application.admissionsCycle,
-                applicantCid: a.applicant.cid
+                admissionsCycle: application.admissionsCycle,
+                applicantCid: applicant.cid
               }
             },
-            update: a.application,
-            create: a.application
+            update: {
+              ...application,
+              outcomes: {
+                upsert: {
+                  where: {
+                    cid_cycle_degree: {
+                      cid: applicant.cid,
+                      admissionsCycle: application.admissionsCycle,
+                      degreeCode: outcome.degreeCode
+                    }
+                  },
+                  update: {
+                    degreeCode: outcome.degreeCode
+                  },
+                  create: {
+                    degreeCode: outcome.degreeCode
+                  }
+                }
+              }
+            },
+            create: {
+              ...application,
+              outcomes: {
+                create: {
+                  degreeCode: outcome.degreeCode
+                }
+              }
+            }
           }
         }
       }
