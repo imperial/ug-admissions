@@ -7,7 +7,17 @@ import Dropdown from '@/components/TanstackTable/Dropdown'
 import { upsertAdminScoring } from '@/lib/forms'
 import { FormPassbackState, NextActionEnum } from '@/lib/types'
 import { AlevelQualification, GCSEQualification } from '@prisma/client'
-import { Button, Callout, DataList, Flex, Heading, Text, TextField } from '@radix-ui/themes'
+import { FileTextIcon, IdCardIcon } from '@radix-ui/react-icons'
+import {
+  Button,
+  Callout,
+  DataList,
+  Flex,
+  Heading,
+  Popover,
+  Text,
+  TextField
+} from '@radix-ui/themes'
 import { format } from 'date-fns'
 import React, { FC, useState } from 'react'
 
