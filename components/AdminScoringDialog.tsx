@@ -31,6 +31,8 @@ interface AdminScoringFormProps {
   data: ApplicationRow
 }
 
+const ICON_SIZE = 16
+
 const AdminScoringForm: FC<AdminScoringFormProps> = ({ data }) => {
   const { applicant, internalReview } = data
   const [gcseQualification, setGcseQualification] = useState(data.gcseQualification?.toString())
@@ -39,7 +41,7 @@ const AdminScoringForm: FC<AdminScoringFormProps> = ({ data }) => {
   )
 
   return (
-    <Flex direction="column" gap="2">
+    <Flex direction="column" gap="3">
       {internalReview?.lastAdminEditOn && internalReview?.lastAdminEditBy && (
         <Text size="2" className="italic text-gray-500">
           Last edited by {internalReview.lastAdminEditBy} on{' '}
@@ -67,7 +69,7 @@ const AdminScoringForm: FC<AdminScoringFormProps> = ({ data }) => {
             <Popover.Root>
               <Popover.Trigger>
                 <Button type="button" variant="soft" color="yellow">
-                  <IdCardIcon width={16} height={16} />
+                  <IdCardIcon width={ICON_SIZE} height={ICON_SIZE} />
                   Extenuating circumstances
                 </Button>
               </Popover.Trigger>
@@ -83,7 +85,7 @@ const AdminScoringForm: FC<AdminScoringFormProps> = ({ data }) => {
             <Popover.Root>
               <Popover.Trigger>
                 <Button type="button" variant="soft" color="yellow">
-                  <FileTextIcon width={16} height={16} />
+                  <FileTextIcon width={ICON_SIZE} height={ICON_SIZE} />
                   Academic eligibility notes
                 </Button>
               </Popover.Trigger>

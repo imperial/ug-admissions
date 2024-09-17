@@ -93,18 +93,9 @@ export const upsertAdminScoring = async (
 }
 
 const reviewerFormSchema = z.object({
-  motivationReviewerScore: z.coerce
-    .number()
-    .gte(0, { message: 'Motivation score must be ≥ 0' })
-    .lte(10, { message: 'Motivation score must be ≤ 10' }),
-  extracurricularReviewerScore: z.coerce
-    .number()
-    .gte(0, { message: 'Extracurricular score must be ≥ 0' })
-    .lte(10, { message: 'Extracurricular score must be ≤ 10' }),
-  referenceReviewerScore: z.coerce
-    .number()
-    .gte(0, { message: 'Reference score must be ≥ 0' })
-    .lte(10, { message: 'Reference score must be ≤ 10' }),
+  motivationReviewerScore: numberSchema(0, 10, 'Motivation Score'),
+  extracurricularReviewerScore: numberSchema(0, 10, 'Extracurricular Score'),
+  referenceReviewerScore: numberSchema(0, 10, 'Reference Score'),
   academicComments: z.string()
 })
 
