@@ -1,6 +1,7 @@
 'use client'
 
 import AdminScoringDialog from '@/components/AdminScoringDialog'
+import ReviewerScoringDialog from '@/components/ReviewerScoringDialog'
 import UgTutorDialog from '@/components/UgTutorDialog'
 import type { Applicant, Application, InternalReview, User } from '@prisma/client'
 import { NextAction } from '@prisma/client'
@@ -69,6 +70,10 @@ const columns = [
   columnHelper.display({
     id: 'adminFormButton',
     cell: (info) => <AdminScoringDialog data={info.row.original} />
+  }),
+  columnHelper.display({
+    id: 'reviewerFormButton',
+    cell: (info) => <ReviewerScoringDialog data={info.row.original} />
   }),
   columnHelper.display({
     id: 'ugTutorFormButton',

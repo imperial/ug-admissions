@@ -10,26 +10,26 @@ import { FormPassbackState, NextActionEnum } from './types'
 const gcseQualificationEnum = z.nativeEnum(GCSEQualification)
 const aLevelQualificationEnum = z.nativeEnum(AlevelQualification)
 
+function numberSchema(from: number, to: number, fieldName: string, isNullable: boolean = false) {
+  let schema = z
+    .number()
+    .gte(from, { message: `${fieldName} must be ≥ ${from}` })
+    .lte(to, { message: `${fieldName} must be ≤ ${to}` })
+
+  return z.preprocess(
+    (val) => (val === '' ? null : Number(val)),
+    isNullable ? schema.nullable() : schema
+  )
+}
+
 const adminFormSchema = z
   .object({
     gcseQualification: gcseQualificationEnum,
-    gcseQualificationScore: z.coerce
-      .number()
-      .gte(0, { message: 'Age 16 exam score must be ≥ 0' })
-      .lte(10, { message: 'Age 16 exam score must be ≤ 10' }),
+    gcseQualificationScore: numberSchema(0, 10, 'Age 16 exam score'),
     aLevelQualification: aLevelQualificationEnum,
-    aLevelQualificationScore: z.coerce
-      .number()
-      .gte(0, { message: 'Age 18 score must be ≥ 0' })
-      .lte(10, { message: 'Age 18 score must be ≤ 10' }),
-    motivationAdminScore: z.coerce
-      .number()
-      .gte(0, { message: 'Motivation assessment score must be ≥ 0' })
-      .lte(10, { message: 'Motivation assessment score must be ≤ 10' }),
-    extracurricularAdminScore: z.coerce
-      .number()
-      .gte(0, { message: 'Extracurricular assessment score must be ≥ 0' })
-      .lte(10, { message: 'Extracurricular assessment score must be ≤ 10' }),
+    aLevelQualificationScore: numberSchema(0, 10, 'Age 18 exam score'),
+    motivationAdminScore: numberSchema(0, 10, 'Motivation Assessments', true),
+    extracurricularAdminScore: numberSchema(0, 10, 'Extracurricular Assessments', true),
     examComments: z.string()
   })
   .partial()
@@ -75,17 +75,65 @@ export const upsertAdminScoring = async (
       applicationId,
       motivationAdminScore,
       extracurricularAdminScore,
-      examComments
+      examComments,
+      lastAdminEditBy: 'admin', // TODO: get the actual admin user
+      lastAdminEditOn: new Date()
     },
     update: {
       motivationAdminScore,
       extracurricularAdminScore,
-      examComments
+      examComments,
+      lastAdminEditBy: 'admin', // TODO: get the actual admin user
+      lastAdminEditOn: new Date()
     }
   })
 
   revalidatePath('/')
   return { status: 'success', message: 'Admin scoring form updated successfully.' }
+}
+
+const reviewerFormSchema = z.object({
+  motivationReviewerScore: numberSchema(0, 10, 'Motivation Score'),
+  extracurricularReviewerScore: numberSchema(0, 10, 'Extracurricular Score'),
+  referenceReviewerScore: numberSchema(0, 10, 'Reference Score'),
+  academicComments: z.string()
+})
+
+export const upsertReviewerScoring = async (
+  applicationId: number,
+  _: FormPassbackState,
+  formData: FormData
+): Promise<FormPassbackState> => {
+  const result = reviewerFormSchema.safeParse(Object.fromEntries(formData))
+  if (!result.success) return { status: 'error', message: result.error.issues[0].message }
+  const {
+    motivationReviewerScore,
+    extracurricularReviewerScore,
+    referenceReviewerScore,
+    academicComments
+  } = result.data
+
+  // move the application to the next stage: UG_TUTOR_REVIEW
+  await prisma.application.update({
+    where: { id: applicationId },
+    data: {
+      nextAction: NextAction.UG_TUTOR_REVIEW
+    }
+  })
+
+  await prisma.internalReview.update({
+    where: { applicationId },
+    data: {
+      motivationReviewerScore,
+      extracurricularReviewerScore,
+      referenceReviewerScore,
+      academicComments,
+      lastReviewerEditOn: new Date()
+    }
+  })
+
+  revalidatePath('/')
+  return { status: 'success', message: 'Reviewer scoring form updated successfully.' }
 }
 
 export const upsertUgTutor = async (

@@ -29,7 +29,9 @@ export const schemaApplication = z.object({
     ),
     applicationDate: z
       .string()
-      .transform((value) => formatISO(parseDate(value, 'dd/MM/yyyy HH:mm', new Date())))
+      .transform((value) => formatISO(parseDate(value, 'dd/MM/yyyy HH:mm', new Date()))),
+    extenuatingCircumstances: z.string().nullable(),
+    academicEligibilityNotes: z.string().nullable()
   })
 })
 

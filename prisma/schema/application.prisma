@@ -49,6 +49,8 @@ model Application {
   /// aLevelQualification is an enum that corresponds to age 18, A-Level-equivalent qualification type
   aLevelQualification      AlevelQualification?
   aLevelQualificationScore Decimal?             @db.Decimal(3, 1)
+  extenuatingCircumstances String?
+  academicEligibilityNotes String?
   /// internalReview contains all scores and comments from admins, reviewers and UG tutors
   internalReview           InternalReview?
   /// nextAction is an enum referring to the action pending completion for the application to progress
@@ -60,12 +62,17 @@ model Application {
 }
 
 model InternalReview {
-  id                        Int         @id @default(autoincrement())
-  application               Application @relation(fields: [applicationId], references: [id])
-  applicationId             Int         @unique
-  motivationAdminScore      Decimal?    @db.Decimal(3, 1)
-  extracurricularAdminScore Decimal?    @db.Decimal(3, 1)
-  examComments              String?
-  lastAdminEditBy           String?
-  lastAdminEditOn           DateTime    @updatedAt
+  id                           Int         @id @default(autoincrement())
+  application                  Application @relation(fields: [applicationId], references: [id])
+  applicationId                Int         @unique
+  motivationAdminScore         Decimal?    @db.Decimal(3, 1)
+  extracurricularAdminScore    Decimal?    @db.Decimal(3, 1)
+  examComments                 String?
+  lastAdminEditBy              String?
+  lastAdminEditOn              DateTime?
+  motivationReviewerScore      Decimal?    @db.Decimal(3, 1)
+  extracurricularReviewerScore Decimal?    @db.Decimal(3, 1)
+  referenceReviewerScore       Decimal?    @db.Decimal(3, 1)
+  academicComments             String?
+  lastReviewerEditOn           DateTime?
 }

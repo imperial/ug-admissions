@@ -72,7 +72,9 @@ function processApplicantData(objects: unknown[]): unknown[] {
     ['Entry term', 'admissionsCycle'],
     ['Fee status', 'feeStatus'],
     ['WP flag', 'wideningParticipation'],
-    ['Sent to department', 'applicationDate']
+    ['Sent to department', 'applicationDate'],
+    ['Extenuating circumstances notes', 'extenuatingCircumstances'],
+    ['Academic eligibility notes', 'academicEligibilityNotes']
   ]
   columnsToRename.forEach(([oldName, newName]) => {
     df = df.rename(oldName, newName)
@@ -113,7 +115,9 @@ function processApplicantData(objects: unknown[]): unknown[] {
     'admissionsCycle',
     'feeStatus',
     'wideningParticipation',
-    'applicationDate'
+    'applicationDate',
+    'extenuatingCircumstances',
+    'academicEligibilityNotes'
   ]
   const applicationDf = df.select(...applicationColumns)
   const applicationObjects = applicationDf.toCollection()
