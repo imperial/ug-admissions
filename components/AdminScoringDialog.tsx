@@ -46,7 +46,7 @@ const AdminScoringForm: FC<AdminScoringFormProps> = ({ data }) => {
           {format(internalReview.lastAdminEditOn, "dd/MM/yy 'at' HH:mm")}
         </Text>
       )}
-      <Callout.Root className="my-5">
+      <Callout.Root>
         <DataList.Root>
           <DataList.Item align="center">
             <DataList.Label>Applicant:</DataList.Label>
