@@ -52,6 +52,8 @@ const createApplication = (reviewer: User) => {
       Object.keys(AlevelQualification)
     ) as AlevelQualification,
     aLevelQualificationScore: faker.number.float({ multipleOf: 0.1, min: 0.0, max: 10.0 }),
+    extenuatingCircumstances: faker.lorem.text(),
+    academicEligibilityNotes: faker.lorem.text(),
     reviewer: {
       connect: {
         id: reviewer.id

@@ -49,6 +49,8 @@ model Application {
   /// aLevelQualification is an enum that corresponds to age 18, A-Level-equivalent qualification type
   aLevelQualification      AlevelQualification?
   aLevelQualificationScore Decimal?             @db.Decimal(3, 1)
+  extenuatingCircumstances String?
+  academicEligibilityNotes String?
   /// internalReview contains all scores and comments from admins, reviewers and UG tutors
   internalReview           InternalReview?
   /// nextAction is an enum referring to the action pending completion for the application to progress

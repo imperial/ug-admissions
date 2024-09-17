@@ -10,26 +10,26 @@ import { FormPassbackState, NextActionEnum } from './types'
 const gcseQualificationEnum = z.nativeEnum(GCSEQualification)
 const aLevelQualificationEnum = z.nativeEnum(AlevelQualification)
 
+function numberSchema(from: number, to: number, fieldName: string, isNullable: boolean = false) {
+  let schema = z
+    .number()
+    .gte(from, { message: `${fieldName} must be ≥ ${from}` })
+    .lte(to, { message: `${fieldName} must be ≤ ${to}` })
+
+  return z.preprocess(
+    (val) => (val === '' ? null : Number(val)),
+    isNullable ? schema.nullable() : schema
+  )
+}
+
 const adminFormSchema = z
   .object({
     gcseQualification: gcseQualificationEnum,
-    gcseQualificationScore: z.coerce
-      .number()
-      .gte(0, { message: 'Age 16 exam score must be ≥ 0' })
-      .lte(10, { message: 'Age 16 exam score must be ≤ 10' }),
+    gcseQualificationScore: numberSchema(0, 10, 'Age 16 exam score'),
     aLevelQualification: aLevelQualificationEnum,
-    aLevelQualificationScore: z.coerce
-      .number()
-      .gte(0, { message: 'Age 18 score must be ≥ 0' })
-      .lte(10, { message: 'Age 18 score must be ≤ 10' }),
-    motivationAdminScore: z.coerce
-      .number()
-      .gte(0, { message: 'Motivation assessment score must be ≥ 0' })
-      .lte(10, { message: 'Motivation assessment score must be ≤ 10' }),
-    extracurricularAdminScore: z.coerce
-      .number()
-      .gte(0, { message: 'Extracurricular assessment score must be ≥ 0' })
-      .lte(10, { message: 'Extracurricular assessment score must be ≤ 10' }),
+    aLevelQualificationScore: numberSchema(0, 10, 'Age 18 exam score'),
+    motivationAdminScore: numberSchema(0, 10, 'Motivation Assessments', true),
+    extracurricularAdminScore: numberSchema(0, 10, 'Extracurricular Assessments', true),
     examComments: z.string()
   })
   .partial()
