@@ -28,6 +28,12 @@ interface UgTutorFormProps {
   data: ApplicationRow
 }
 
+const decisionColourMap = {
+  [Decision.OFFER]: 'bg-green-500',
+  [Decision.REJECT]: 'bg-red-300',
+  [Decision.PENDING]: 'bg-amber-200'
+}
+
 const UgTutorForm: FC<UgTutorFormProps> = ({ data }) => {
   const { applicant } = data
   const [outcomes, setOutcomes] = useState(data.outcomes)
@@ -58,7 +64,12 @@ const UgTutorForm: FC<UgTutorFormProps> = ({ data }) => {
         <Box pt="3">
           <Tabs.Content value="outcomes">
             {outcomes.map((outcome, i) => (
-              <Card key={outcome.id} className="my-2 bg-gray-200" variant="classic" size={'2'}>
+              <Card
+                key={outcome.id}
+                className={`my-2 ${decisionColourMap[outcome.decision]}`}
+                variant="classic"
+                size={'2'}
+              >
                 <Heading size={'3'}>{outcome.degreeCode}</Heading>
                 <Separator className="w-full my-1" />
                 <Flex direction="column" gap="3">
