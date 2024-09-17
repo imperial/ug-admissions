@@ -14,7 +14,8 @@ export default async function Home() {
     include: {
       applicant: true,
       internalReview: true,
-      reviewer: true
+      reviewer: true,
+      outcomes: true
     }
   })
 

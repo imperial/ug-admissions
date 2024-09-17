@@ -6,7 +6,7 @@ import Dropdown from '@/components/TanstackTable/Dropdown'
 import { upsertUgTutor } from '@/lib/forms'
 import { FormPassbackState, NextActionEnum } from '@/lib/types'
 import { Decision } from '@prisma/client'
-import { Button, Callout, DataList, Flex, TextField } from '@radix-ui/themes'
+import { Box, Button, Callout, DataList, Flex, Tabs, TextField } from '@radix-ui/themes'
 import React, { FC, useState } from 'react'
 
 interface UgTutorDialogProps {
@@ -18,7 +18,7 @@ interface UgTutorFormProps {
 }
 
 const UgTutorForm: FC<UgTutorFormProps> = ({ data }) => {
-  const { applicant, internalReview } = data
+  const { applicant, outcomes } = data
   const [decision, setDecision] = useState(Decision.PENDING.toString())
 
   return (
@@ -38,23 +38,39 @@ const UgTutorForm: FC<UgTutorFormProps> = ({ data }) => {
         </DataList.Root>
       </Callout.Root>
 
-      <Flex direction="column" gap="3">
-        <LabelText label="Offer Code">
-          <TextField.Root id="offerCode" name="offerCode" />
-        </LabelText>
-        <LabelText label="Offer Text">
-          <TextField.Root id="offerText" name="offerText" />
-        </LabelText>
-        <LabelText label="Decision" weight="bold">
-          <Dropdown
-            values={Object.keys(Decision)}
-            currentValue={decision}
-            onValueChange={setDecision}
-            className="flex-grow"
-          />
-          <input name="decision" type="hidden" value={decision?.toString()} />
-        </LabelText>
-      </Flex>
+      <Tabs.Root defaultValue={outcomes[0].degreeCode}>
+        <Tabs.List>
+          {outcomes.map((outcome) => (
+            <Tabs.Trigger key={outcome.id} value={outcome.degreeCode}>
+              {outcome.degreeCode}
+            </Tabs.Trigger>
+          ))}
+        </Tabs.List>
+
+        <Box pt="3">
+          {outcomes.map((outcome) => (
+            <Tabs.Content key={outcome.id} value={outcome.degreeCode}>
+              <Flex direction="column" gap="3">
+                <LabelText label="Offer Code">
+                  <TextField.Root id="offerCode" name="offerCode" />
+                </LabelText>
+                <LabelText label="Offer Text">
+                  <TextField.Root id="offerText" name="offerText" />
+                </LabelText>
+                <LabelText label="Decision" weight="bold">
+                  <Dropdown
+                    values={Object.keys(Decision)}
+                    currentValue={decision}
+                    onValueChange={setDecision}
+                    className="flex-grow"
+                  />
+                  <input name="decision" type="hidden" value={decision?.toString()} />
+                </LabelText>
+              </Flex>
+            </Tabs.Content>
+          ))}
+        </Box>
+      </Tabs.Root>
     </Flex>
   )
 }

@@ -2,6 +2,7 @@ import { faker } from '@faker-js/faker'
 import {
   AlevelQualification,
   Application,
+  DegreeCode,
   GCSEQualification,
   PrismaClient,
   Role,
@@ -75,6 +76,14 @@ const createReview = (application: Application) => {
   }
 }
 
+const createOutcome = (application: Application) => {
+  return {
+    cid: application.applicantCid,
+    admissionsCycle: application.admissionsCycle,
+    degreeCode: faker.helpers.arrayElement(Object.keys(DegreeCode)) as DegreeCode
+  }
+}
+
 async function main() {
   for (let i = 0; i < 5; i++) {
     const user = await prisma.user.create({ data: createUser(Role.REVIEWER) })
@@ -82,6 +91,7 @@ async function main() {
     for (let j = 0; j < 10; j++) {
       const application = await prisma.application.create({ data: createApplication(user) })
       await prisma.internalReview.create({ data: createReview(application) })
+      await prisma.outcome.create({ data: createOutcome(application) })
     }
   }
 }

@@ -3,7 +3,7 @@
 import AdminScoringDialog from '@/components/AdminScoringDialog'
 import ReviewerScoringDialog from '@/components/ReviewerScoringDialog'
 import UgTutorDialog from '@/components/UgTutorDialog'
-import type { Applicant, Application, InternalReview, User } from '@prisma/client'
+import type { Applicant, Application, InternalReview, Outcome, User } from '@prisma/client'
 import { NextAction } from '@prisma/client'
 import { Card, Flex, Text } from '@radix-ui/themes'
 import { ColumnFiltersState, createColumnHelper } from '@tanstack/react-table'
@@ -18,6 +18,7 @@ export type ApplicationRow = Application & {
   applicant: Applicant
   internalReview: InternalReview | null
   reviewer: User | null
+  outcomes: Outcome[]
 }
 
 const ALL_DROPDOWN_OPTION = 'All'
