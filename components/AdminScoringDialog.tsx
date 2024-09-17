@@ -30,14 +30,14 @@ const AdminScoringForm: FC<AdminScoringFormProps> = ({ data }) => {
   )
 
   return (
-    <>
+    <Flex direction="column" gap="2">
       {internalReview?.lastAdminEditOn && internalReview?.lastAdminEditBy && (
         <Text size="2" className="italic text-gray-500">
           Last edited by {internalReview?.lastAdminEditBy} on{' '}
           {format(internalReview?.lastAdminEditOn, "dd/MM/yy 'at' HH:mm")}
         </Text>
       )}
-      <Callout.Root className="my-2">
+      <Callout.Root>
         <Callout.Text size="3">
           Applicant: {applicant.firstName} {applicant.surname}
         </Callout.Text>
@@ -88,7 +88,7 @@ const AdminScoringForm: FC<AdminScoringFormProps> = ({ data }) => {
               onValueChange={setGcseQualification}
               className="flex-grow"
             />
-            <input name="gcseQualification" type="hidden" value={gcseQualification?.toString()} />
+            <input name="gcseQualification" type="hidden" value={gcseQualification} />
           </LabelText>
 
           <LabelText label="Score" weight="regular">
@@ -118,11 +118,7 @@ const AdminScoringForm: FC<AdminScoringFormProps> = ({ data }) => {
               onValueChange={setALevelQualification}
               className="flex-grow"
             />
-            <input
-              name="aLevelQualification"
-              type="hidden"
-              value={aLevelQualification?.toString()}
-            />
+            <input name="aLevelQualification" type="hidden" value={aLevelQualification} />
           </LabelText>
 
           <LabelText label="Score" weight="regular">
@@ -173,7 +169,7 @@ const AdminScoringForm: FC<AdminScoringFormProps> = ({ data }) => {
           />
         </LabelText>
       </Flex>
-    </>
+    </Flex>
   )
 }
 
