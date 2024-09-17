@@ -3,7 +3,7 @@ import FormWrapper from '@/components/FormWrapper'
 import GenericDialog from '@/components/GenericDialog'
 import LabelText from '@/components/LabelText'
 import Dropdown from '@/components/TanstackTable/Dropdown'
-import { upsertUgTutor } from '@/lib/forms'
+import { upsertOutcome } from '@/lib/forms'
 import { FormPassbackState, NextActionEnum } from '@/lib/types'
 import { Decision } from '@prisma/client'
 import {
@@ -29,8 +29,8 @@ interface UgTutorFormProps {
 }
 
 const UgTutorForm: FC<UgTutorFormProps> = ({ data }) => {
-  const { applicant, outcomes } = data
-  const [decision, setDecision] = useState(Decision.PENDING.toString())
+  const { applicant } = data
+  const [outcomes, setOutcomes] = useState(data.outcomes)
 
   return (
     <Flex direction="column" gap="3">
@@ -63,19 +63,35 @@ const UgTutorForm: FC<UgTutorFormProps> = ({ data }) => {
                 <Separator className="w-full my-1" />
                 <Flex direction="column" gap="3">
                   <LabelText label="Offer Code" weight="medium">
-                    <TextField.Root id="offerCode" name="offerCode" />
+                    <TextField.Root
+                      name={'offerCode'.concat('-', outcome.degreeCode)}
+                      defaultValue={outcome.offerCode ?? ''}
+                    />
                   </LabelText>
                   <LabelText label="Offer Text" weight="medium">
-                    <TextField.Root id="offerText" name="offerText" />
+                    <TextField.Root
+                      name={'offerText'.concat('-', outcome.degreeCode)}
+                      defaultValue={outcome.offerText ?? ''}
+                    />
                   </LabelText>
                   <LabelText label="Decision" weight="medium">
                     <Dropdown
                       values={Object.keys(Decision)}
-                      currentValue={decision}
-                      onValueChange={setDecision}
+                      currentValue={outcome.decision}
+                      onValueChange={(newDecision) => {
+                        setOutcomes((prevOutcomes) => {
+                          const newOutcomes = [...prevOutcomes]
+                          newOutcomes[i].decision = newDecision as Decision
+                          return newOutcomes
+                        })
+                      }}
                       className="flex-grow"
                     />
-                    <input name="decision" type="hidden" value={decision?.toString()} />
+                    <input
+                      name={'decision'.concat('-', outcome.degreeCode)}
+                      type="hidden"
+                      value={outcome.decision.toString()}
+                    />
                   </LabelText>
                 </Flex>
               </Card>
@@ -91,8 +107,17 @@ const UgTutorForm: FC<UgTutorFormProps> = ({ data }) => {
 const UgTutorDialog: FC<UgTutorDialogProps> = ({ data }) => {
   const [isOpen, setIsOpen] = useState(false)
   const handleFormSuccess = () => setIsOpen(false)
-  const upsertUgTutorWithId = (prevState: FormPassbackState, formData: FormData) =>
-    upsertUgTutor(NextActionEnum[data.nextAction], data.id, prevState, formData)
+  const upsertOutcomeWithId = async (prevState: FormPassbackState, formData: FormData) => {
+    return await upsertOutcome(
+      NextActionEnum[data.nextAction],
+      prevState,
+      formData,
+      data.outcomes.map((o) => ({
+        id: o.id,
+        degreeCode: o.degreeCode
+      }))
+    )
+  }
 
   return (
     <GenericDialog
@@ -101,7 +126,7 @@ const UgTutorDialog: FC<UgTutorDialogProps> = ({ data }) => {
       onOpenChange={setIsOpen}
       trigger={<Button>UG Tutor Form</Button>}
     >
-      <FormWrapper action={upsertUgTutorWithId} onSuccess={handleFormSuccess}>
+      <FormWrapper action={upsertOutcomeWithId} onSuccess={handleFormSuccess}>
         <UgTutorForm data={data} />
       </FormWrapper>
     </GenericDialog>
