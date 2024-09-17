@@ -8,7 +8,16 @@ import { upsertAdminScoring } from '@/lib/forms'
 import { FormPassbackState, NextActionEnum } from '@/lib/types'
 import { AlevelQualification, GCSEQualification } from '@prisma/client'
 import { FileTextIcon, IdCardIcon } from '@radix-ui/react-icons'
-import { Button, Callout, Flex, Heading, Popover, Text, TextField } from '@radix-ui/themes'
+import {
+  Button,
+  Callout,
+  DataList,
+  Flex,
+  Heading,
+  Popover,
+  Text,
+  TextField
+} from '@radix-ui/themes'
 import { format } from 'date-fns'
 import React, { FC, useState } from 'react'
 
@@ -22,6 +31,8 @@ interface AdminScoringFormProps {
   data: ApplicationRow
 }
 
+const ICON_SIZE = 16
+
 const AdminScoringForm: FC<AdminScoringFormProps> = ({ data }) => {
   const { applicant, internalReview } = data
   const [gcseQualification, setGcseQualification] = useState(data.gcseQualification?.toString())
@@ -30,18 +41,26 @@ const AdminScoringForm: FC<AdminScoringFormProps> = ({ data }) => {
   )
 
   return (
-    <Flex direction="column" gap="2">
+    <Flex direction="column" gap="3">
       {internalReview?.lastAdminEditOn && internalReview?.lastAdminEditBy && (
         <Text size="2" className="italic text-gray-500">
-          Last edited by {internalReview?.lastAdminEditBy} on{' '}
-          {format(internalReview?.lastAdminEditOn, "dd/MM/yy 'at' HH:mm")}
+          Last edited by {internalReview.lastAdminEditBy} on{' '}
+          {format(internalReview.lastAdminEditOn, "dd/MM/yy 'at' HH:mm")}
         </Text>
       )}
       <Callout.Root>
-        <Callout.Text size="3">
-          Applicant: {applicant.firstName} {applicant.surname}
-        </Callout.Text>
-        <Callout.Text size="3">UCAS number: {applicant.ucasNumber}</Callout.Text>
+        <DataList.Root>
+          <DataList.Item align="center">
+            <DataList.Label>Applicant:</DataList.Label>
+            <DataList.Value className="font-bold">
+              {applicant.firstName} {applicant.surname}
+            </DataList.Value>
+          </DataList.Item>
+          <DataList.Item align="center">
+            <DataList.Label>UCAS number:</DataList.Label>
+            <DataList.Value className="font-bold">{applicant.ucasNumber}</DataList.Value>
+          </DataList.Item>
+        </DataList.Root>
       </Callout.Root>
 
       <Flex direction="column" gap="2">
@@ -50,7 +69,7 @@ const AdminScoringForm: FC<AdminScoringFormProps> = ({ data }) => {
             <Popover.Root>
               <Popover.Trigger>
                 <Button type="button" variant="soft" color="yellow">
-                  <IdCardIcon width={16} height={16} />
+                  <IdCardIcon width={ICON_SIZE} height={ICON_SIZE} />
                   Extenuating circumstances
                 </Button>
               </Popover.Trigger>
@@ -66,7 +85,7 @@ const AdminScoringForm: FC<AdminScoringFormProps> = ({ data }) => {
             <Popover.Root>
               <Popover.Trigger>
                 <Button type="button" variant="soft" color="yellow">
-                  <FileTextIcon width={16} height={16} />
+                  <FileTextIcon width={ICON_SIZE} height={ICON_SIZE} />
                   Academic eligibility notes
                 </Button>
               </Popover.Trigger>
@@ -137,7 +156,7 @@ const AdminScoringForm: FC<AdminScoringFormProps> = ({ data }) => {
           </LabelText>
         </Flex>
 
-        <LabelText label="Motivation Assessments">
+        <LabelText label="Motivation Assessments (optional)">
           <TextField.Root
             id="motivationAdminScore"
             name="motivationAdminScore"
@@ -149,7 +168,7 @@ const AdminScoringForm: FC<AdminScoringFormProps> = ({ data }) => {
           />
         </LabelText>
 
-        <LabelText label="Extracurricular Assessments">
+        <LabelText label="Extracurricular Assessments (optional)">
           <TextField.Root
             id="extracurricularAdminScore"
             name="extracurricularAdminScore"
@@ -161,7 +180,7 @@ const AdminScoringForm: FC<AdminScoringFormProps> = ({ data }) => {
           />
         </LabelText>
 
-        <LabelText label="Exam Comments">
+        <LabelText label="Exam Comments (optional)">
           <TextField.Root
             id="examComments"
             name="examComments"

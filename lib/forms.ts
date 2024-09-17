@@ -75,15 +75,63 @@ export const upsertAdminScoring = async (
       applicationId,
       motivationAdminScore,
       extracurricularAdminScore,
-      examComments
+      examComments,
+      lastAdminEditBy: 'admin', // TODO: get the actual admin user
+      lastAdminEditOn: new Date()
     },
     update: {
       motivationAdminScore,
       extracurricularAdminScore,
-      examComments
+      examComments,
+      lastAdminEditBy: 'admin', // TODO: get the actual admin user
+      lastAdminEditOn: new Date()
     }
   })
 
   revalidatePath('/')
   return { status: 'success', message: 'Admin scoring form updated successfully.' }
+}
+
+const reviewerFormSchema = z.object({
+  motivationReviewerScore: numberSchema(0, 10, 'Motivation Score'),
+  extracurricularReviewerScore: numberSchema(0, 10, 'Extracurricular Score'),
+  referenceReviewerScore: numberSchema(0, 10, 'Reference Score'),
+  academicComments: z.string()
+})
+
+export const upsertReviewerScoring = async (
+  applicationId: number,
+  _: FormPassbackState,
+  formData: FormData
+): Promise<FormPassbackState> => {
+  const result = reviewerFormSchema.safeParse(Object.fromEntries(formData))
+  if (!result.success) return { status: 'error', message: result.error.issues[0].message }
+  const {
+    motivationReviewerScore,
+    extracurricularReviewerScore,
+    referenceReviewerScore,
+    academicComments
+  } = result.data
+
+  // move the application to the next stage: UG_TUTOR_REVIEW
+  await prisma.application.update({
+    where: { id: applicationId },
+    data: {
+      nextAction: NextAction.UG_TUTOR_REVIEW
+    }
+  })
+
+  await prisma.internalReview.update({
+    where: { applicationId },
+    data: {
+      motivationReviewerScore,
+      extracurricularReviewerScore,
+      referenceReviewerScore,
+      academicComments,
+      lastReviewerEditOn: new Date()
+    }
+  })
+
+  revalidatePath('/')
+  return { status: 'success', message: 'Reviewer scoring form updated successfully.' }
 }
