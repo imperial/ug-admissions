@@ -57,7 +57,7 @@ const UgTutorForm: FC<UgTutorFormProps> = ({ data }) => {
 
         <Box pt="3">
           <Tabs.Content value="outcomes">
-            {outcomes.map((outcome) => (
+            {outcomes.map((outcome, i) => (
               <Card key={outcome.id} className="my-2 bg-gray-200" variant="classic" size={'2'}>
                 <Heading size={'3'}>{outcome.degreeCode}</Heading>
                 <Separator className="w-full my-1" />
