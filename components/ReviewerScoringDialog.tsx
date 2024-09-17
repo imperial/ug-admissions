@@ -106,7 +106,7 @@ const ReviewerScoringForm: FC<ReviewerScoringFormProps> = ({ data }) => {
           />
         </LabelText>
 
-        <LabelText label="Academic Comments">
+        <LabelText label="Academic Comments (optional)">
           <TextField.Root
             id="academicComments"
             name="academicComments"

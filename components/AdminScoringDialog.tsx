@@ -111,7 +111,7 @@ const AdminScoringForm: FC<AdminScoringFormProps> = ({ data }) => {
         </LabelText>
       </Flex>
 
-      <LabelText label="Motivation Assessments">
+      <LabelText label="Motivation Assessments (optional)">
         <TextField.Root
           id="motivationAdminScore"
           name="motivationAdminScore"
@@ -123,7 +123,7 @@ const AdminScoringForm: FC<AdminScoringFormProps> = ({ data }) => {
         />
       </LabelText>
 
-      <LabelText label="Extracurricular Assessments">
+      <LabelText label="Extracurricular Assessments (optional)">
         <TextField.Root
           id="extracurricularAdminScore"
           name="extracurricularAdminScore"
@@ -135,7 +135,7 @@ const AdminScoringForm: FC<AdminScoringFormProps> = ({ data }) => {
         />
       </LabelText>
 
-      <LabelText label="Exam Comments">
+      <LabelText label="Exam Comments (optional)">
         <TextField.Root
           id="examComments"
           name="examComments"
