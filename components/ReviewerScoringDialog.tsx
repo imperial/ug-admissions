@@ -19,6 +19,9 @@ interface ReviewerScoringFormProps {
   data: ApplicationRow
 }
 
+const MOTIVATION_COLOUR = 'amber'
+const EXTRACURRICULAR_COLOUR = 'mint'
+
 const ReviewerScoringForm: FC<ReviewerScoringFormProps> = ({ data }) => {
   const { applicant, internalReview } = data
 
@@ -44,13 +47,15 @@ const ReviewerScoringForm: FC<ReviewerScoringFormProps> = ({ data }) => {
           </DataList.Item>
 
           <DataList.Item align="center">
-            <DataList.Label color="amber">Admin Motivation Assessment:</DataList.Label>
+            <DataList.Label color={MOTIVATION_COLOUR}>Admin Motivation Assessment:</DataList.Label>
             <DataList.Value className="font-bold">
               {String(internalReview?.motivationAdminScore ?? 'Missing')}
             </DataList.Value>
           </DataList.Item>
           <DataList.Item align="center">
-            <DataList.Label color="mint">Admin Extracurricular Assessment:</DataList.Label>
+            <DataList.Label color={EXTRACURRICULAR_COLOUR}>
+              Admin Extracurricular Assessment:
+            </DataList.Label>
             <DataList.Value className="font-bold">
               {String(internalReview?.extracurricularAdminScore ?? 'Missing')}
             </DataList.Value>
@@ -63,7 +68,7 @@ const ReviewerScoringForm: FC<ReviewerScoringFormProps> = ({ data }) => {
             id="motivationReviewerScore"
             name="motivationReviewerScore"
             type="number"
-            color="amber"
+            color={MOTIVATION_COLOUR}
             min={0.0}
             max={10.0}
             step={0.1}
@@ -77,7 +82,7 @@ const ReviewerScoringForm: FC<ReviewerScoringFormProps> = ({ data }) => {
             id="extracurricularReviewerScore"
             name="extracurricularReviewerScore"
             type="number"
-            color="mint"
+            color={EXTRACURRICULAR_COLOUR}
             min={0.0}
             max={10.0}
             step={0.1}
@@ -126,7 +131,10 @@ const ReviewerScoringDialog: FC<ReviewerScoringDialogProps> = ({ data }) => {
       isOpen={isOpen}
       onOpenChange={setIsOpen}
       trigger={
-        <Button disabled={NextActionEnum[data.nextAction] < NextActionEnum.REVIEWER_SCORING}>
+        <Button
+          color="jade"
+          disabled={NextActionEnum[data.nextAction] < NextActionEnum.REVIEWER_SCORING}
+        >
           Reviewer Scoring Form
         </Button>
       }
