@@ -122,6 +122,7 @@ export const upsertReviewerScoring = async (
     academicComments
   } = result.data
 
+  // move the application to the next stage: UG_TUTOR_REVIEW
   await prisma.application.update({
     where: { id: applicationId },
     data: {
