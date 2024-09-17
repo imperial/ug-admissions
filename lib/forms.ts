@@ -1,7 +1,7 @@
 'use server'
 
 import prisma from '@/db'
-import { AlevelQualification, GCSEQualification, NextAction } from '@prisma/client'
+import { AlevelQualification, Decision, GCSEQualification, NextAction } from '@prisma/client'
 import { revalidatePath } from 'next/cache'
 import { z } from 'zod'
 
@@ -136,12 +136,37 @@ export const upsertReviewerScoring = async (
   return { status: 'success', message: 'Reviewer scoring form updated successfully.' }
 }
 
-export const upsertUgTutor = async (
+const outcomeSchema = z.object({
+  offerCode: z.string(),
+  offerText: z.string(),
+  decision: z.nativeEnum(Decision)
+})
+
+export const upsertOutcome = async (
   currentAction: NextActionEnum,
-  applicationId: number,
   _: FormPassbackState,
-  formData: FormData
+  formData: FormData,
+  partialOutcomes: { id: number; degreeCode: string }[]
 ): Promise<FormPassbackState> => {
+  const groupedOutcomes = partialOutcomes.map(({ id, degreeCode }) => {
+    const offerCode = formData.get('offerCode-'.concat(degreeCode))
+    const offerText = formData.get('offerText-'.concat(degreeCode))
+    const decision = formData.get('decision-'.concat(degreeCode)) as Decision
+    const parsedOutcome = outcomeSchema.safeParse({ offerCode, offerText, decision })
+    return { id, ...parsedOutcome.data }
+  })
+
+  for (const { id, offerCode, offerText, decision } of groupedOutcomes) {
+    await prisma.outcome.update({
+      where: { id },
+      data: {
+        offerCode,
+        offerText,
+        decision
+      }
+    })
+  }
+
   revalidatePath('/')
   return { status: 'success', message: 'UG tutor form updated successfully.' }
 }
