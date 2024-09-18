@@ -76,4 +76,5 @@ model InternalReview {
   referenceReviewerScore       Decimal?    @db.Decimal(3, 1)
   academicComments             String?
   lastReviewerEditOn           DateTime?
+  generalComments              Comment[]
 }

@@ -1,12 +1,14 @@
 import { ApplicationRow } from '@/components/ApplicationTable'
+import CommentItem from '@/components/CommentItem'
 import FormWrapper from '@/components/FormWrapper'
 import GenericDialog from '@/components/GenericDialog'
 import LabelText from '@/components/LabelText'
 import Dropdown from '@/components/TanstackTable/Dropdown'
-import { upsertOutcome } from '@/lib/forms'
+import { insertComment, upsertOutcome } from '@/lib/forms'
 import { FormPassbackState, NextActionEnum } from '@/lib/types'
-import { Decision } from '@prisma/client'
+import { Comment, CommentType, Decision } from '@prisma/client'
 import {
+  Badge,
   Box,
   Button,
   Callout,
@@ -16,16 +18,20 @@ import {
   Heading,
   Separator,
   Tabs,
+  TextArea,
   TextField
 } from '@radix-ui/themes'
-import React, { FC, useState } from 'react'
+import React, { FC, useMemo, useState } from 'react'
 
 interface UgTutorDialogProps {
   data: ApplicationRow
 }
 
+type Tab = 'outcomes' | 'comments'
+
 interface UgTutorFormProps {
   data: ApplicationRow
+  setCurrentTab: (tab: Tab) => void
 }
 
 const decisionColourMap = {
@@ -34,9 +40,19 @@ const decisionColourMap = {
   [Decision.PENDING]: 'bg-amber-200'
 }
 
-const UgTutorForm: FC<UgTutorFormProps> = ({ data }) => {
-  const { applicant } = data
+const UgTutorForm: FC<UgTutorFormProps> = ({ data, setCurrentTab }) => {
+  const { applicant, internalReview } = data
   const [outcomes, setOutcomes] = useState(data.outcomes)
+  const [commentType, setCommentType] = useState(CommentType.NOTE.toString())
+
+  // sort in descending order (most recent)
+  const sortedComments = useMemo(
+    () =>
+      internalReview?.generalComments.toSorted(
+        (a: Comment, b: Comment) => new Date(b.madeOn) - new Date(a.madeOn)
+      ) ?? [],
+    [internalReview?.generalComments]
+  )
 
   return (
     <Flex direction="column" gap="3">
@@ -55,7 +71,7 @@ const UgTutorForm: FC<UgTutorFormProps> = ({ data }) => {
         </DataList.Root>
       </Callout.Root>
 
-      <Tabs.Root defaultValue="outcomes">
+      <Tabs.Root defaultValue="outcomes" onValueChange={(tabName) => setCurrentTab(tabName as Tab)}>
         <Tabs.List>
           <Tabs.Trigger value="outcomes">Outcomes</Tabs.Trigger>
           <Tabs.Trigger value="comments">Comments</Tabs.Trigger>
@@ -108,7 +124,33 @@ const UgTutorForm: FC<UgTutorFormProps> = ({ data }) => {
               </Card>
             ))}
           </Tabs.Content>
-          <Tabs.Content value="comments">Comments</Tabs.Content>
+
+          <Tabs.Content value="comments">
+            <Flex direction="column" gap="3">
+              <Flex gap="2">
+                <Badge color="orange">Note</Badge>
+                <Badge color="blue">Candidate Change Request</Badge>
+                <Badge color="green">Offer Condition</Badge>
+              </Flex>
+              {sortedComments.map((comment: Comment) => (
+                <CommentItem key={comment.commentNo} comment={comment} />
+              ))}
+              <Flex>
+                <LabelText label="Type">
+                  <Dropdown
+                    className="max-w-64"
+                    values={Object.keys(CommentType)}
+                    currentValue={commentType}
+                    onValueChange={setCommentType}
+                  />
+                  <input name="type" type="hidden" value={commentType.toString()} />
+                </LabelText>
+              </Flex>
+              <LabelText label="Comment">
+                <TextArea name={'text'} defaultValue={''} />
+              </LabelText>
+            </Flex>
+          </Tabs.Content>
         </Box>
       </Tabs.Root>
     </Flex>
@@ -118,6 +160,10 @@ const UgTutorForm: FC<UgTutorFormProps> = ({ data }) => {
 const UgTutorDialog: FC<UgTutorDialogProps> = ({ data }) => {
   const [isOpen, setIsOpen] = useState(false)
   const handleFormSuccess = () => setIsOpen(false)
+  const [currentTab, setCurrentTab] = useState<Tab>('outcomes')
+
+  const { applicantCid, admissionsCycle, internalReview } = data
+
   const upsertOutcomeWithId = async (prevState: FormPassbackState, formData: FormData) => {
     return await upsertOutcome(
       NextActionEnum[data.nextAction],
@@ -130,6 +176,18 @@ const UgTutorDialog: FC<UgTutorDialogProps> = ({ data }) => {
     )
   }
 
+  const addCommentWithId = async (prevState: FormPassbackState, formData: FormData) => {
+    if (!internalReview)
+      return { status: 'error', message: 'Admin scoring form must be completed first!' }
+    return await insertComment(
+      applicantCid,
+      admissionsCycle,
+      internalReview.id,
+      prevState,
+      formData
+    )
+  }
+
   return (
     <GenericDialog
       title="UG Tutor Form"
@@ -137,8 +195,12 @@ const UgTutorDialog: FC<UgTutorDialogProps> = ({ data }) => {
       onOpenChange={setIsOpen}
       trigger={<Button>UG Tutor Form</Button>}
     >
-      <FormWrapper action={upsertOutcomeWithId} onSuccess={handleFormSuccess}>
-        <UgTutorForm data={data} />
+      <FormWrapper
+        action={currentTab === 'outcomes' ? upsertOutcomeWithId : addCommentWithId}
+        onSuccess={handleFormSuccess}
+        submitButtonText={currentTab === 'outcomes' ? 'Save' : 'Add Comment'}
+      >
+        <UgTutorForm data={data} setCurrentTab={setCurrentTab} />
       </FormWrapper>
     </GenericDialog>
   )

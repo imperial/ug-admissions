@@ -3,19 +3,25 @@ import {
   AlevelQualification,
   Application,
   DegreeCode,
+  FeeStatus,
   GCSEQualification,
+  Gender,
+  NextAction,
   PrismaClient,
   Role,
   User
 } from '@prisma/client'
-import { FeeStatus, Gender, NextAction } from '@prisma/client'
 
 const prisma = new PrismaClient()
 
-const createUser = (role: Role) => {
+const createUser = (
+  role: Role,
+  login: string = faker.string.alpha({ length: 2 }).toLowerCase() +
+    faker.string.numeric({ length: 3 })
+) => {
   return {
     admissionsCycle: faker.date.future().getFullYear(),
-    login: faker.string.alpha({ length: 2 }).toLowerCase() + faker.string.numeric({ length: 3 }),
+    login: login,
     role: role
   }
 }
@@ -94,6 +100,8 @@ async function main() {
       await prisma.outcome.create({ data: createOutcome(application) })
     }
   }
+  await prisma.user.create({ data: createUser(Role.ADMIN, 'admin') })
+  await prisma.user.create({ data: createUser(Role.UG_TUTOR, 'ug_tutor') })
 }
 
 main()

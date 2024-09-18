@@ -1,7 +1,13 @@
 'use server'
 
 import prisma from '@/db'
-import { AlevelQualification, Decision, GCSEQualification, NextAction } from '@prisma/client'
+import {
+  AlevelQualification,
+  CommentType,
+  Decision,
+  GCSEQualification,
+  NextAction
+} from '@prisma/client'
 import { revalidatePath } from 'next/cache'
 import { z } from 'zod'
 
@@ -168,5 +174,36 @@ export const upsertOutcome = async (
   }
 
   revalidatePath('/')
-  return { status: 'success', message: 'UG tutor form updated successfully.' }
+  return { status: 'success', message: 'UG tutor form updated outcome successfully.' }
+}
+
+const commentSchema = z.object({
+  text: z.string(),
+  authorLogin: z.string(),
+  type: z.nativeEnum(CommentType)
+})
+
+export const insertComment = async (
+  cid: string,
+  admissionsCycle: number,
+  internalReviewId: number,
+  _: FormPassbackState,
+  formData: FormData
+): Promise<FormPassbackState> => {
+  formData.set('authorLogin', 'ug_tutor')
+
+  const result = commentSchema.safeParse(Object.fromEntries(formData))
+  if (!result.success) return { status: 'error', message: result.error.issues[0].message }
+
+  await prisma.comment.create({
+    data: {
+      cid,
+      admissionsCycle,
+      internalReviewId,
+      ...result.data
+    }
+  })
+
+  revalidatePath('/')
+  return { status: 'success', message: 'UG tutor form added comment successfully.' }
 }
