@@ -8,7 +8,6 @@ import { insertComment, upsertOutcome } from '@/lib/forms'
 import { FormPassbackState, NextActionEnum } from '@/lib/types'
 import { Comment, CommentType, Decision } from '@prisma/client'
 import {
-  Badge,
   Box,
   Button,
   Callout,
@@ -127,11 +126,6 @@ const UgTutorForm: FC<UgTutorFormProps> = ({ data, setCurrentTab }) => {
 
           <Tabs.Content value="comments">
             <Flex direction="column" gap="3">
-              <Flex gap="2">
-                <Badge color="orange">Note</Badge>
-                <Badge color="blue">Candidate Change Request</Badge>
-                <Badge color="green">Offer Condition</Badge>
-              </Flex>
               {sortedComments.map((comment: Comment) => (
                 <CommentItem key={comment.commentNo} comment={comment} />
               ))}
