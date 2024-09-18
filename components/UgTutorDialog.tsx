@@ -200,7 +200,7 @@ const UgTutorDialog: FC<UgTutorDialogProps> = ({ data }) => {
       title="UG Tutor Form"
       isOpen={isOpen}
       onOpenChange={setIsOpen}
-      trigger={<Button>UG Tutor Form</Button>}
+      trigger={<Button className="min-h-12">UG Tutor Form</Button>}
     >
       <FormWrapper
         action={currentTab === 'outcomes' ? upsertOutcomeWithId : addCommentWithId}
