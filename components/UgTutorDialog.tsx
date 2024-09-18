@@ -5,8 +5,8 @@ import GenericDialog from '@/components/GenericDialog'
 import LabelText from '@/components/LabelText'
 import Dropdown from '@/components/TanstackTable/Dropdown'
 import { insertComment, upsertOutcome } from '@/lib/forms'
-import { FormPassbackState, NextActionEnum } from '@/lib/types'
-import { Comment, CommentType, Decision } from '@prisma/client'
+import { FormPassbackState } from '@/lib/types'
+import { Comment, CommentType, Decision, NextAction } from '@prisma/client'
 import {
   Box,
   Button,
@@ -42,6 +42,7 @@ const decisionColourMap = {
 const UgTutorForm: FC<UgTutorFormProps> = ({ data, setCurrentTab }) => {
   const { applicant, internalReview } = data
   const [outcomes, setOutcomes] = useState(data.outcomes)
+  const [nextAction, setNextAction] = useState(data.nextAction.toString())
   const [commentType, setCommentType] = useState(CommentType.NOTE.toString())
 
   // sort in descending order (most recent)
@@ -122,6 +123,18 @@ const UgTutorForm: FC<UgTutorFormProps> = ({ data, setCurrentTab }) => {
                 </Flex>
               </Card>
             ))}
+            <LabelText label="Set Next Action">
+              <Dropdown
+                values={[
+                  NextAction.UG_TUTOR_REVIEW,
+                  NextAction.INFORM_CANDIDATE,
+                  NextAction.CANDIDATE_INFORMED
+                ]}
+                currentValue={nextAction}
+                onValueChange={setNextAction}
+              />
+            </LabelText>
+            <input name="nextAction" type="hidden" value={nextAction} />
           </Tabs.Content>
 
           <Tabs.Content value="comments">
@@ -137,7 +150,7 @@ const UgTutorForm: FC<UgTutorFormProps> = ({ data, setCurrentTab }) => {
                     currentValue={commentType}
                     onValueChange={setCommentType}
                   />
-                  <input name="type" type="hidden" value={commentType.toString()} />
+                  <input name="type" type="hidden" value={commentType} />
                 </LabelText>
               </Flex>
               <LabelText label="Comment">
@@ -156,17 +169,17 @@ const UgTutorDialog: FC<UgTutorDialogProps> = ({ data }) => {
   const handleFormSuccess = () => setIsOpen(false)
   const [currentTab, setCurrentTab] = useState<Tab>('outcomes')
 
-  const { applicantCid, admissionsCycle, internalReview } = data
+  const { id, applicantCid, admissionsCycle, internalReview } = data
 
   const upsertOutcomeWithId = async (prevState: FormPassbackState, formData: FormData) => {
     return await upsertOutcome(
-      NextActionEnum[data.nextAction],
-      prevState,
-      formData,
+      id,
       data.outcomes.map((o) => ({
         id: o.id,
         degreeCode: o.degreeCode
-      }))
+      })),
+      prevState,
+      formData
     )
   }
 

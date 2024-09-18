@@ -148,18 +148,28 @@ const outcomeSchema = z.object({
   decision: z.nativeEnum(Decision)
 })
 
+const nextActionSchema = z.nativeEnum(NextAction)
+
 export const upsertOutcome = async (
-  currentAction: NextActionEnum,
+  applicationId: number,
+  partialOutcomes: { id: number; degreeCode: string }[],
   _: FormPassbackState,
-  formData: FormData,
-  partialOutcomes: { id: number; degreeCode: string }[]
+  formData: FormData
 ): Promise<FormPassbackState> => {
   const groupedOutcomes = partialOutcomes.map(({ id, degreeCode }) => {
     const offerCode = formData.get('offerCode-'.concat(degreeCode))
     const offerText = formData.get('offerText-'.concat(degreeCode))
     const decision = formData.get('decision-'.concat(degreeCode)) as Decision
-    const parsedOutcome = outcomeSchema.safeParse({ offerCode, offerText, decision })
-    return { id, ...parsedOutcome.data }
+    const parsedOutcome = outcomeSchema.parse({ offerCode, offerText, decision })
+    return { id, ...parsedOutcome }
+  })
+
+  const nextAction = nextActionSchema.parse(formData.get('nextAction'))
+  await prisma.application.update({
+    where: { id: applicationId },
+    data: {
+      nextAction
+    }
   })
 
   for (const { id, offerCode, offerText, decision } of groupedOutcomes) {
