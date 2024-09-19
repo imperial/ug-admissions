@@ -3,14 +3,15 @@
 import prisma from '@/db'
 import { preprocessCsvData } from '@/lib/csv/preprocessing'
 import { parseWithSchema, schemaApplication, schemaTMUAScores, schemaUser } from '@/lib/csv/schema'
-import { Prisma, type User } from '@prisma/client'
+import { allocateApplications } from '@/lib/reviewerAllocation'
+import { Application, Prisma, type User } from '@prisma/client'
 import { z } from 'zod'
 
 import { DataUploadEnum, FormPassbackState } from '../types'
 
 import PrismaClientKnownRequestError = Prisma.PrismaClientKnownRequestError
 
-async function executePromises(promises: Promise<unknown>[]): Promise<number> {
+async function executePromises(promises: Promise<unknown>[]): Promise<unknown[]> {
   const results = await Promise.allSettled(promises)
   results.forEach((result) => {
     if (result.status === 'rejected') {
@@ -25,7 +26,7 @@ async function executePromises(promises: Promise<unknown>[]): Promise<number> {
       } else console.error(result.reason?.message ?? 'Unknown Prisma error.')
     }
   })
-  return results.map((r) => r.status).filter((s) => s === 'rejected').length
+  return results.filter((r) => r.status === 'fulfilled').map((r) => r.value)
 }
 
 /**
@@ -35,29 +36,28 @@ async function executePromises(promises: Promise<unknown>[]): Promise<number> {
  * @param applications - an array of schema objects with a nested applicant and application object
  */
 function upsertApplication(applications: z.infer<typeof schemaApplication>[]) {
-  return applications.map((a) => {
-    return prisma.applicant.upsert({
+  return applications.map(({ applicant, application }) => {
+    return prisma.application.upsert({
       where: {
-        cid: a.applicant.cid
-      },
-      create: {
-        ...a.applicant,
-        applications: {
-          create: a.application
+        admissionsCycle_applicantCid: {
+          admissionsCycle: application.admissionsCycle,
+          applicantCid: applicant.cid
         }
       },
       update: {
-        ...a.applicant,
-        applications: {
-          upsert: {
+        ...application,
+        applicant: {
+          update: applicant
+        }
+      },
+      create: {
+        ...application,
+        applicant: {
+          connectOrCreate: {
             where: {
-              admissionsCycle_applicantCid: {
-                admissionsCycle: a.application.admissionsCycle,
-                applicantCid: a.applicant.cid
-              }
+              cid: applicant.cid
             },
-            update: a.application,
-            create: a.application
+            create: applicant
           }
         }
       }
@@ -135,18 +135,28 @@ export const processCsvUpload = async (
     }
   }
 
-  const noPrismaErrors = await executePromises(upsertPromises)
+  const successfulUpserts = await executePromises(upsertPromises)
+  // Assign reviewers to applications
+  if (dataUploadType === DataUploadEnum.APPLICANT) {
+    try {
+      await allocateApplications(successfulUpserts as Application[])
+    } catch (e: any) {
+      return { status: 'error', message: e.message }
+    }
+  }
+
+  const noPrismaErrors = upsertPromises.length - successfulUpserts.length
   const totalErrors = noParsingErrors + noPrismaErrors
-  const noSuccesses = objects.length - totalErrors
+  const noSuccesses = successfulUpserts.length - totalErrors
 
   if (totalErrors === 0) {
     return {
-      message: `${noSuccesses}/${objects.length} updates or inserts succeeded`,
+      message: `${noSuccesses}/${successfulUpserts.length} updates or inserts succeeded`,
       status: 'success'
     }
   }
   return {
-    message: `${totalErrors}/${objects.length} updates or inserts failed`,
+    message: `${totalErrors}/${successfulUpserts.length} updates or inserts failed`,
     status: 'error'
   }
 }
