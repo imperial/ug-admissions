@@ -2,7 +2,7 @@ import prisma from '@/db'
 import { Application, Role } from '@prisma/client'
 
 /**
- * Retrieves reviewers with application count from the database
+ * Retrieves reviewers with application count sorted in ascending order
  */
 const getReviewersWithAscApplicationCount = async () =>
   await prisma.user.findMany({
@@ -67,6 +67,66 @@ const getEqualPartition = (total: number, parts: number): [number, number][] => 
 }
 
 /**
+ * Allocates a specified number of new applications among reviewers based on their
+ * current application counts.
+ *
+ * PRECONDITION: applicationCounts must be sorted
+ *
+ * This function takes the current application count for each reviewer and distributes a given
+ * number of new applications by prioritising reviewers with the smallest application count.
+ * @param applicationCounts - A sorted array where each element represents the current number of
+ *                            applications assigned to each reviewer
+ * @param newApplications - The total number of new applications to be distributed.
+ * @returns An array of tuples representing the start and end indices for application ranges.
+ *          Each tuple corresponds to the range of applications assigned to a reviewer.
+ *
+ * @example
+ * const ranges = allocateApplicationRanges([3, 5, 5], 4);
+ * // ranges will be: [[0, 3], [3, 4], [4, 4]]
+ * // Explanation: first reviewer is given 2 applications because he has the least,
+ * // now application counts is [5, 5, 5]. The last 2 applications are distributed equally among
+ * // the first two reviewers, and the final application count is [6, 6, 5]
+ */
+const allocateApplicationRanges = (
+  applicationCounts: number[],
+  newApplications: number
+): [number, number][] => {
+  // PRE: applicationCounts is sorted
+  const arr = [...applicationCounts]
+  let i = 0
+  const res = new Array(arr.length).fill(0)
+
+  while (newApplications > 0) {
+    while (i < arr.length - 1 && arr[i + 1] == arr[i]) i++
+    if (i < arr.length - 1 && (i + 1) * (arr[i + 1] - arr[i]) <= newApplications) {
+      for (let j = 0; j < i + 1; j++) {
+        const applicationsToAdd = arr[i + 1] - arr[i]
+        res[j] += applicationsToAdd
+        arr[j] += applicationsToAdd
+        newApplications -= applicationsToAdd
+      }
+    } else {
+      const quotient = Math.floor(newApplications / (i + 1))
+      const remainder = newApplications % (i + 1)
+      for (let j = 0; j < i + 1; j++) {
+        const applicationsToAdd = quotient + (j < remainder ? 1 : 0)
+        res[j] += applicationsToAdd
+        arr[j] += applicationsToAdd
+        newApplications -= applicationsToAdd
+      }
+    }
+  }
+
+  const slices: [number, number][] = []
+  let added = 0
+  for (let i = 0; i < res.length; i++) {
+    slices.push([added, added + res[i]])
+    added += res[i]
+  }
+  return slices
+}
+
+/**
  *  Distributes a list of applications evenly among a set of reviewers. Each reviewer will be assigned
  *  a number of applications based on the total number of applications and the number of reviewers,
  *  attempting to balance the load across reviewers.
@@ -87,7 +147,13 @@ export const allocateApplications = async (applications: Application[]) => {
       'Reviewer allocation failed because no reviewers were found. Please upload reviewers and try again.'
     )
 
-  const slices = getEqualPartition(applications.length, reviewersCount)
+  // Allocator 1
+  //const slices = getEqualPartition(applications.length, reviewersCount)
+  // Allocator 2
+  const slices = allocateApplicationRanges(
+    reviewersWithCount.map((reviewer) => reviewer._count.applications),
+    applications.length
+  )
   const allocations = reviewersWithCount.map((reviewer, i) =>
     allocateApplicationsToReviewer(applications.slice(...slices[i]), reviewer.id)
   )
