@@ -48,22 +48,28 @@ const allocateApplicationsToReviewer = async (applications: Application[], revie
  * @param applications
  */
 export const allocateApplications = async (applications: Application[]) => {
+  // assign reviewers only to applications that don't have one
+  applications = applications.filter((application) => application.reviewerId === null)
   const applicationsCount = applications.length
   const reviewersWithCount = await getReviewersWithApplicationCount()
   const reviewersCount = reviewersWithCount.length
+  if (reviewersCount === 0)
+    throw new Error(
+      'Reviewer allocation failed because no reviewers were found. Please upload reviewers and try again.'
+    )
   const assignedApplicationsCount = reviewersWithCount.reduce(
     (acc, reviewer) => acc + reviewer._count.applications,
     0
   )
   const totalApplicationsCount = applicationsCount + assignedApplicationsCount
-  const quotient = totalApplicationsCount / reviewersCount
+  const quotient = Math.floor(totalApplicationsCount / reviewersCount)
   const remainder = totalApplicationsCount % reviewersCount
   let assignedCount = 0
   for (const reviewer of reviewersWithCount) {
     const i = reviewersWithCount.indexOf(reviewer)
     const newApplicationsCount = quotient - reviewer._count.applications + Number(i < remainder)
     await allocateApplicationsToReviewer(
-      applications.slice(assignedCount, newApplicationsCount),
+      applications.slice(assignedCount, assignedCount + newApplicationsCount),
       reviewer.id
     )
     assignedCount += newApplicationsCount
