@@ -147,16 +147,16 @@ export const processCsvUpload = async (
 
   const noPrismaErrors = upsertPromises.length - successfulUpserts.length
   const totalErrors = noParsingErrors + noPrismaErrors
-  const noSuccesses = successfulUpserts.length - totalErrors
+  const noSuccesses = objects.length - totalErrors
 
   if (totalErrors === 0) {
     return {
-      message: `${noSuccesses}/${successfulUpserts.length} updates or inserts succeeded`,
+      message: `${noSuccesses}/${objects.length} updates or inserts succeeded`,
       status: 'success'
     }
   }
   return {
-    message: `${totalErrors}/${successfulUpserts.length} updates or inserts failed`,
+    message: `${totalErrors}/${objects.length} updates or inserts failed`,
     status: 'error'
   }
 }
