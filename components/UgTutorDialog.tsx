@@ -6,7 +6,7 @@ import LabelText from '@/components/LabelText'
 import Dropdown from '@/components/TanstackTable/Dropdown'
 import { insertComment, upsertOutcome } from '@/lib/forms'
 import { FormPassbackState } from '@/lib/types'
-import { Comment, CommentType, Decision, NextAction } from '@prisma/client'
+import { Comment as ApplicationComment, CommentType, Decision, NextAction } from '@prisma/client'
 import {
   Box,
   Button,
@@ -24,13 +24,13 @@ import React, { FC, useMemo, useState } from 'react'
 
 interface UgTutorDialogProps {
   // generalComments relation does not type check otherwise
-  data: ApplicationRow & { internalReview: { generalComments: Comment[] } }
+  data: ApplicationRow
 }
 
 type Tab = 'outcomes' | 'comments'
 
 interface UgTutorFormProps {
-  data: ApplicationRow & { internalReview: { generalComments: Comment[] } }
+  data: ApplicationRow
   setCurrentTab: (tab: Tab) => void
 }
 
@@ -50,7 +50,8 @@ const UgTutorForm: FC<UgTutorFormProps> = ({ data, setCurrentTab }) => {
   const sortedComments = useMemo(
     () =>
       internalReview?.generalComments.toSorted(
-        (a: Comment, b: Comment) => new Date(b.madeOn).getTime() - new Date(a.madeOn).getTime()
+        (a: ApplicationComment, b: ApplicationComment) =>
+          new Date(b.madeOn).getTime() - new Date(a.madeOn).getTime()
       ) ?? [],
     [internalReview?.generalComments]
   )
@@ -140,7 +141,7 @@ const UgTutorForm: FC<UgTutorFormProps> = ({ data, setCurrentTab }) => {
 
           <Tabs.Content value="comments">
             <Flex direction="column" gap="3">
-              {sortedComments.map((comment: Comment) => (
+              {sortedComments.map((comment: ApplicationComment) => (
                 <CommentItem key={comment.commentNo} comment={comment} />
               ))}
               <Flex>

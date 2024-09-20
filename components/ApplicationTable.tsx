@@ -3,7 +3,14 @@
 import AdminScoringDialog from '@/components/AdminScoringDialog'
 import ReviewerScoringDialog from '@/components/ReviewerScoringDialog'
 import UgTutorDialog from '@/components/UgTutorDialog'
-import type { Applicant, Application, InternalReview, Outcome, User } from '@prisma/client'
+import type {
+  Applicant,
+  Application,
+  Comment as ApplicationComment,
+  InternalReview,
+  Outcome,
+  User
+} from '@prisma/client'
 import { NextAction } from '@prisma/client'
 import { Card, Flex, Text } from '@radix-ui/themes'
 import { ColumnFiltersState, createColumnHelper } from '@tanstack/react-table'
@@ -16,7 +23,7 @@ import Dropdown from './TanstackTable/Dropdown'
 
 export type ApplicationRow = Application & {
   applicant: Applicant
-  internalReview: InternalReview | null
+  internalReview: (InternalReview & { generalComments: ApplicationComment[] }) | null
   reviewer: User | null
   outcomes: Outcome[]
 }
