@@ -11,6 +11,7 @@ model User {
   login           String
   role            Role
   applications    Application[]
+  comments        Comment[]
 
   @@unique([admissionsCycle, login])
 }

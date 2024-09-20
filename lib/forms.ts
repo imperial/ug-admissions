@@ -1,7 +1,13 @@
 'use server'
 
 import prisma from '@/db'
-import { AlevelQualification, GCSEQualification, NextAction } from '@prisma/client'
+import {
+  AlevelQualification,
+  CommentType,
+  Decision,
+  GCSEQualification,
+  NextAction
+} from '@prisma/client'
 import { revalidatePath } from 'next/cache'
 import { z } from 'zod'
 
@@ -134,4 +140,80 @@ export const upsertReviewerScoring = async (
 
   revalidatePath('/')
   return { status: 'success', message: 'Reviewer scoring form updated successfully.' }
+}
+
+const outcomeSchema = z.object({
+  offerCode: z.string(),
+  offerText: z.string(),
+  decision: z.nativeEnum(Decision)
+})
+
+const nextActionSchema = z.nativeEnum(NextAction)
+
+export const upsertOutcome = async (
+  applicationId: number,
+  partialOutcomes: { id: number; degreeCode: string }[],
+  _: FormPassbackState,
+  formData: FormData
+): Promise<FormPassbackState> => {
+  const groupedOutcomes = partialOutcomes.map(({ id, degreeCode }) => {
+    const offerCode = formData.get('offerCode-'.concat(degreeCode))
+    const offerText = formData.get('offerText-'.concat(degreeCode))
+    const decision = formData.get('decision-'.concat(degreeCode)) as Decision
+    const parsedOutcome = outcomeSchema.parse({ offerCode, offerText, decision })
+    return { id, ...parsedOutcome }
+  })
+
+  const nextAction = nextActionSchema.parse(formData.get('nextAction'))
+  await prisma.application.update({
+    where: { id: applicationId },
+    data: {
+      nextAction
+    }
+  })
+
+  for (const { id, offerCode, offerText, decision } of groupedOutcomes) {
+    await prisma.outcome.update({
+      where: { id },
+      data: {
+        offerCode,
+        offerText,
+        decision
+      }
+    })
+  }
+
+  revalidatePath('/')
+  return { status: 'success', message: 'UG tutor form updated outcome successfully.' }
+}
+
+const commentSchema = z.object({
+  text: z.string(),
+  authorLogin: z.string(),
+  type: z.nativeEnum(CommentType)
+})
+
+export const insertComment = async (
+  cid: string,
+  admissionsCycle: number,
+  internalReviewId: number,
+  _: FormPassbackState,
+  formData: FormData
+): Promise<FormPassbackState> => {
+  formData.set('authorLogin', 'ug_tutor')
+
+  const result = commentSchema.safeParse(Object.fromEntries(formData))
+  if (!result.success) return { status: 'error', message: result.error.issues[0].message }
+
+  await prisma.comment.create({
+    data: {
+      cid,
+      admissionsCycle,
+      internalReviewId,
+      ...result.data
+    }
+  })
+
+  revalidatePath('/')
+  return { status: 'success', message: 'UG tutor form added comment successfully.' }
 }

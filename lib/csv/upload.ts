@@ -29,36 +29,55 @@ async function executePromises(promises: Promise<unknown>[]): Promise<number> {
 }
 
 /**
- * If the applicant does not exist, create a new applicant and application.
- * If the applicant exists and the application is for the same admissions cycle, update both the applicant and application.
- * If the applicant exists and the application is for a different admissions cycle, update the applicant and create a new application.
+ * If application does not exist:
+ *   - creates a new outcome
+ *   - creates/updates the applicant depending on whether it exists
+ *
+ * If application does exist:
+ *   - updates the applicant (applicant must exist because application exists)
+ *   - updates the outcome if degree code is the same or creates a new outcome if it is different
  * @param applications - an array of schema objects with a nested applicant and application object
  */
 function upsertApplication(applications: z.infer<typeof schemaApplication>[]) {
-  return applications.map((a) => {
-    return prisma.applicant.upsert({
+  return applications.map(({ applicant, application, outcome }) => {
+    return prisma.application.upsert({
       where: {
-        cid: a.applicant.cid
-      },
-      create: {
-        ...a.applicant,
-        applications: {
-          create: a.application
+        admissionsCycle_applicantCid: {
+          admissionsCycle: application.admissionsCycle,
+          applicantCid: applicant.cid
         }
       },
       update: {
-        ...a.applicant,
-        applications: {
+        ...application,
+        applicant: {
+          update: applicant
+        },
+        outcomes: {
           upsert: {
             where: {
-              admissionsCycle_applicantCid: {
-                admissionsCycle: a.application.admissionsCycle,
-                applicantCid: a.applicant.cid
+              cid_cycle_degree: {
+                cid: applicant.cid,
+                admissionsCycle: application.admissionsCycle,
+                degreeCode: outcome.degreeCode
               }
             },
-            update: a.application,
-            create: a.application
+            update: outcome,
+            create: outcome
           }
+        }
+      },
+      create: {
+        ...application,
+        applicant: {
+          connectOrCreate: {
+            where: {
+              cid: applicant.cid
+            },
+            create: applicant
+          }
+        },
+        outcomes: {
+          create: outcome
         }
       }
     })

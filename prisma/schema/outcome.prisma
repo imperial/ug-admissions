@@ -1,0 +1,33 @@
+enum Decision {
+  PENDING
+  REJECT
+  OFFER
+}
+
+enum DegreeCode {
+  // Computing
+  G400
+  G401
+  G700
+  GG47
+  G402
+  G501
+  G600
+  G610
+  // JMC
+  GG14
+  GG41
+}
+
+model Outcome {
+  id              Int         @id @default(autoincrement())
+  application     Application @relation(fields: [cid, admissionsCycle], references: [applicantCid, admissionsCycle])
+  cid             String
+  admissionsCycle Int
+  degreeCode      DegreeCode
+  decision        Decision    @default(PENDING)
+  offerCode       String?
+  offerText       String?
+
+  @@unique(fields: [cid, admissionsCycle, degreeCode], name: "cid_cycle_degree")
+}
