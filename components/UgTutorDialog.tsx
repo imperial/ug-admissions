@@ -49,7 +49,7 @@ const UgTutorForm: FC<UgTutorFormProps> = ({ data, setCurrentTab }) => {
   const sortedComments = useMemo(
     () =>
       internalReview?.generalComments.toSorted(
-        (a: Comment, b: Comment) => new Date(b.madeOn) - new Date(a.madeOn)
+        (a: Comment, b: Comment) => new Date(b.madeOn).getTime() - new Date(a.madeOn).getTime()
       ) ?? [],
     [internalReview?.generalComments]
   )
