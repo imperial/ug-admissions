@@ -61,7 +61,7 @@ const TanstackTable = <T,>({
 
         <Table.Body>
           {table.getRowModel().rows.map((row) => (
-            <Table.Row key={row.id}>
+            <Table.Row key={row.id} className="align-middle">
               {row.getVisibleCells().map((cell, id) => (
                 <Table.Cell key={id}>
                   {flexRender(cell.column.columnDef.cell, cell.getContext())}

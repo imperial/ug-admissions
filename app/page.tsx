@@ -13,8 +13,13 @@ export default async function Home() {
     },
     include: {
       applicant: true,
-      internalReview: true,
-      reviewer: true
+      internalReview: {
+        include: {
+          generalComments: true
+        }
+      },
+      reviewer: true,
+      outcomes: true
     }
   })
 

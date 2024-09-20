@@ -30,13 +30,17 @@ async function executePromises(promises: Promise<unknown>[]): Promise<unknown[]>
 }
 
 /**
- * If the applicant does not exist, create a new applicant and application.
- * If the applicant exists and the application is for the same admissions cycle, update both the applicant and application.
- * If the applicant exists and the application is for a different admissions cycle, update the applicant and create a new application.
+ * If application does not exist:
+ *   - creates a new outcome
+ *   - creates/updates the applicant depending on whether it exists
+ *
+ * If application does exist:
+ *   - updates the applicant (applicant must exist because application exists)
+ *   - updates the outcome if degree code is the same or creates a new outcome if it is different
  * @param applications - an array of schema objects with a nested applicant and application object
  */
 function upsertApplication(applications: z.infer<typeof schemaApplication>[]) {
-  return applications.map(({ applicant, application }) => {
+  return applications.map(({ applicant, application, outcome }) => {
     return prisma.application.upsert({
       where: {
         admissionsCycle_applicantCid: {
@@ -48,6 +52,19 @@ function upsertApplication(applications: z.infer<typeof schemaApplication>[]) {
         ...application,
         applicant: {
           update: applicant
+        },
+        outcomes: {
+          upsert: {
+            where: {
+              cid_cycle_degree: {
+                cid: applicant.cid,
+                admissionsCycle: application.admissionsCycle,
+                degreeCode: outcome.degreeCode
+              }
+            },
+            update: outcome,
+            create: outcome
+          }
         }
       },
       create: {
@@ -59,6 +76,9 @@ function upsertApplication(applications: z.infer<typeof schemaApplication>[]) {
             },
             create: applicant
           }
+        },
+        outcomes: {
+          create: outcome
         }
       }
     })

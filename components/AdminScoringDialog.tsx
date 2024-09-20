@@ -204,7 +204,10 @@ const AdminScoringDialog: FC<AdminScoringDialogProps> = ({ data }) => {
       isOpen={isOpen}
       onOpenChange={setIsOpen}
       trigger={
-        <Button disabled={NextActionEnum[data.nextAction] < NextActionEnum.ADMIN_SCORING}>
+        <Button
+          className="min-h-12"
+          disabled={NextActionEnum[data.nextAction] < NextActionEnum.ADMIN_SCORING}
+        >
           Admin Scoring Form
         </Button>
       }

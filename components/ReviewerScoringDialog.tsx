@@ -134,6 +134,7 @@ const ReviewerScoringDialog: FC<ReviewerScoringDialogProps> = ({ data }) => {
       trigger={
         <Button
           color="jade"
+          className="min-h-12"
           disabled={NextActionEnum[data.nextAction] < NextActionEnum.REVIEWER_SCORING}
         >
           Reviewer Scoring Form

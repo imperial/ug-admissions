@@ -1,0 +1,18 @@
+enum CommentType {
+  NOTE
+  CANDIDATE_CHANGE_REQUEST
+  OFFER_CONDITION
+}
+
+model Comment {
+  commentNo        Int            @id @default(autoincrement())
+  cid              String
+  admissionsCycle  Int
+  text             String
+  authorLogin      String
+  madeBy           User           @relation(fields: [authorLogin, admissionsCycle], references: [login, admissionsCycle])
+  madeOn           DateTime       @updatedAt
+  type             CommentType
+  internalReview   InternalReview @relation(fields: [internalReviewId], references: [id])
+  internalReviewId Int
+}
