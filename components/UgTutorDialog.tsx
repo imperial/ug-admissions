@@ -23,13 +23,14 @@ import {
 import React, { FC, useMemo, useState } from 'react'
 
 interface UgTutorDialogProps {
-  data: ApplicationRow
+  // generalComments relation does not type check otherwise
+  data: ApplicationRow & { internalReview: { generalComments: Comment[] } }
 }
 
 type Tab = 'outcomes' | 'comments'
 
 interface UgTutorFormProps {
-  data: ApplicationRow
+  data: ApplicationRow & { internalReview: { generalComments: Comment[] } }
   setCurrentTab: (tab: Tab) => void
 }
 
