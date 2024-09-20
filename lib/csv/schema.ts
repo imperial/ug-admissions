@@ -1,4 +1,4 @@
-import { FeeStatus, Gender, Role } from '@prisma/client'
+import { DegreeCode, FeeStatus, Gender, Role } from '@prisma/client'
 import { formatISO } from 'date-fns'
 import { parse as parseDate } from 'date-fns/parse'
 import { ZodSchema, z } from 'zod'
@@ -32,6 +32,9 @@ export const schemaApplication = z.object({
       .transform((value) => formatISO(parseDate(value, 'dd/MM/yyyy HH:mm', new Date()))),
     extenuatingCircumstances: z.string().nullable(),
     academicEligibilityNotes: z.string().nullable()
+  }),
+  outcome: z.object({
+    degreeCode: z.nativeEnum(DegreeCode)
   })
 })
 

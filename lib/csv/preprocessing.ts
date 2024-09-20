@@ -61,6 +61,7 @@ function processApplicantData(objects: unknown[]): unknown[] {
   const columnsToRename = [
     ['College ID (Applicant) (Contact)', 'cid'],
     ['UCAS ID (Applicant) (Contact)', 'ucasNumber'],
+    ['Programme code (Programme) (Programme)', 'degreeCode'],
     ['First name (Applicant) (Contact)', 'firstName'],
     ['Last name (Applicant) (Contact)', 'surname'],
     ['Nationality (Applicant) (Contact)', 'primaryNationality'],
@@ -89,6 +90,15 @@ function processApplicantData(objects: unknown[]): unknown[] {
       // format is 'Autumn 2024-2025' so extract 2024
       row.get('admissionsCycle')?.split(' ').at(1)?.split('-')[0]
   )
+
+  df = df.withColumn(
+    'degreeCode',
+    // @ts-ignore
+    (row: any) =>
+      // format is G400.1 so remove the .1
+      row.get('degreeCode')?.split('.').at(0)
+  )
+
   // capitalise enums so they validate
   // @ts-ignore
   df = df.withColumn('gender', (row: any) => row.get('gender')?.toUpperCase())
@@ -122,10 +132,15 @@ function processApplicantData(objects: unknown[]): unknown[] {
   const applicationDf = df.select(...applicationColumns)
   const applicationObjects = applicationDf.toCollection()
 
+  const outcomeColumns = ['degreeCode']
+  const outcomeDf = df.select(...outcomeColumns)
+  const outcomeObjects = outcomeDf.toCollection()
+
   // zip arrays together to create nested object for schema validation
   return applicantObjects.map((applicant: unknown, i: number) => ({
     applicant: applicant,
-    application: applicationObjects[i]
+    application: applicationObjects[i],
+    outcome: outcomeObjects[i]
   }))
 }
 

@@ -2,19 +2,26 @@ import { faker } from '@faker-js/faker'
 import {
   AlevelQualification,
   Application,
+  DegreeCode,
+  FeeStatus,
   GCSEQualification,
+  Gender,
+  NextAction,
   PrismaClient,
   Role,
   User
 } from '@prisma/client'
-import { FeeStatus, Gender, NextAction } from '@prisma/client'
 
 const prisma = new PrismaClient()
 
-const createUser = (role: Role) => {
+const createUser = (
+  role: Role,
+  login: string = faker.string.alpha({ length: 2 }).toLowerCase() +
+    faker.string.numeric({ length: 3 })
+) => {
   return {
     admissionsCycle: faker.date.future().getFullYear(),
-    login: faker.string.alpha({ length: 2 }).toLowerCase() + faker.string.numeric({ length: 3 }),
+    login: login,
     role: role
   }
 }
@@ -75,6 +82,14 @@ const createReview = (application: Application) => {
   }
 }
 
+const createOutcome = (application: Application) => {
+  return {
+    cid: application.applicantCid,
+    admissionsCycle: application.admissionsCycle,
+    degreeCode: faker.helpers.arrayElement(Object.keys(DegreeCode)) as DegreeCode
+  }
+}
+
 async function main() {
   for (let i = 0; i < 5; i++) {
     const user = await prisma.user.create({ data: createUser(Role.REVIEWER) })
@@ -82,8 +97,11 @@ async function main() {
     for (let j = 0; j < 10; j++) {
       const application = await prisma.application.create({ data: createApplication(user) })
       await prisma.internalReview.create({ data: createReview(application) })
+      await prisma.outcome.create({ data: createOutcome(application) })
     }
   }
+  await prisma.user.create({ data: createUser(Role.ADMIN, 'admin') })
+  await prisma.user.create({ data: createUser(Role.UG_TUTOR, 'ug_tutor') })
 }
 
 main()
