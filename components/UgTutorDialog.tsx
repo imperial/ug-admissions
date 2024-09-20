@@ -23,13 +23,14 @@ import {
 import React, { FC, useMemo, useState } from 'react'
 
 interface UgTutorDialogProps {
-  data: ApplicationRow
+  // generalComments relation does not type check otherwise
+  data: ApplicationRow & { internalReview: { generalComments: Comment[] } }
 }
 
 type Tab = 'outcomes' | 'comments'
 
 interface UgTutorFormProps {
-  data: ApplicationRow
+  data: ApplicationRow & { internalReview: { generalComments: Comment[] } }
   setCurrentTab: (tab: Tab) => void
 }
 
@@ -49,7 +50,7 @@ const UgTutorForm: FC<UgTutorFormProps> = ({ data, setCurrentTab }) => {
   const sortedComments = useMemo(
     () =>
       internalReview?.generalComments.toSorted(
-        (a: Comment, b: Comment) => new Date(b.madeOn) - new Date(a.madeOn)
+        (a: Comment, b: Comment) => new Date(b.madeOn).getTime() - new Date(a.madeOn).getTime()
       ) ?? [],
     [internalReview?.generalComments]
   )
@@ -200,7 +201,11 @@ const UgTutorDialog: FC<UgTutorDialogProps> = ({ data }) => {
       title="UG Tutor Form"
       isOpen={isOpen}
       onOpenChange={setIsOpen}
-      trigger={<Button className="min-h-12">UG Tutor Form</Button>}
+      trigger={
+        <Button className="min-h-10" color="ruby">
+          UG Tutor Form
+        </Button>
+      }
     >
       <FormWrapper
         action={currentTab === 'outcomes' ? upsertOutcomeWithId : addCommentWithId}

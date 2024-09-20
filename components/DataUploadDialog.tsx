@@ -73,7 +73,7 @@ const DataUploadDialog: FC = () => {
   return (
     <GenericDialog
       title={'Data Upload'}
-      trigger={<Button>Data Upload</Button>}
+      trigger={<Button className="min-h-10">Data Upload</Button>}
       isOpen={isDialogOpen}
       onOpenChange={(isOpen) => {
         if (!isOpen) setFile(null)

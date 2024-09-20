@@ -3,14 +3,15 @@
 import prisma from '@/db'
 import { preprocessCsvData } from '@/lib/csv/preprocessing'
 import { parseWithSchema, schemaApplication, schemaTMUAScores, schemaUser } from '@/lib/csv/schema'
-import { Prisma, type User } from '@prisma/client'
+import { allocateApplications } from '@/lib/reviewerAllocation'
+import { Application, Prisma, type User } from '@prisma/client'
 import { z } from 'zod'
 
 import { DataUploadEnum, FormPassbackState } from '../types'
 
 import PrismaClientKnownRequestError = Prisma.PrismaClientKnownRequestError
 
-async function executePromises(promises: Promise<unknown>[]): Promise<number> {
+async function executePromises(promises: Promise<unknown>[]): Promise<unknown[]> {
   const results = await Promise.allSettled(promises)
   results.forEach((result) => {
     if (result.status === 'rejected') {
@@ -25,7 +26,7 @@ async function executePromises(promises: Promise<unknown>[]): Promise<number> {
       } else console.error(result.reason?.message ?? 'Unknown Prisma error.')
     }
   })
-  return results.map((r) => r.status).filter((s) => s === 'rejected').length
+  return results.filter((r) => r.status === 'fulfilled').map((r) => r.value)
 }
 
 /**
@@ -154,7 +155,17 @@ export const processCsvUpload = async (
     }
   }
 
-  const noPrismaErrors = await executePromises(upsertPromises)
+  const successfulUpserts = await executePromises(upsertPromises)
+  // Assign reviewers to applications
+  if (dataUploadType === DataUploadEnum.APPLICANT) {
+    try {
+      await allocateApplications(successfulUpserts as Application[])
+    } catch (e: any) {
+      return { status: 'error', message: e.message }
+    }
+  }
+
+  const noPrismaErrors = upsertPromises.length - successfulUpserts.length
   const totalErrors = noParsingErrors + noPrismaErrors
   const noSuccesses = objects.length - totalErrors
 
