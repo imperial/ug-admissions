@@ -77,6 +77,9 @@ function upsertApplication(applications: z.infer<typeof schemaApplication>[]) {
             create: applicant
           }
         },
+        internalReview: {
+          create: {}
+        },
         outcomes: {
           create: outcome
         }
