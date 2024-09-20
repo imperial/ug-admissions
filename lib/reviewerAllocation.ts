@@ -29,7 +29,7 @@ const getReviewersWithAscApplicationCount = async () =>
  * @param reviewerId - a reviewer id to be assigned to the applications
  * @returns - a Promise that resolves to the updated user object
  */
-const allocateApplicationsToReviewer = (applications: Application[], reviewerId: number) =>
+const assignApplicationsToReviewer = (applications: Application[], reviewerId: number) =>
   prisma.user.update({
     where: {
       id: reviewerId
@@ -42,43 +42,33 @@ const allocateApplicationsToReviewer = (applications: Application[], reviewerId:
   })
 
 /**
- * Divides a total number into equal partitions and distributes the remainder evenly from the beginning.
- * @param total - The total number of items to be divided into partitions.
- * @param parts - The number of partitions to create.
- * @returns An array of tuples, where each tuple contains the start and end
- *          indices of each partition, represented as [startIndex, endIndex].
- *          The indices can be used to slice an array into the desired partitions.
- * @example
- * // Example: Dividing 10 items into 3 partitions
- * const partitions = getEqualPartition(10, 3);
- * // partitions will be: [[0, 4], [4, 7], [7, 10]]
- */
-const getEqualPartition = (total: number, parts: number): [number, number][] => {
-  const quotient = Math.floor(total / parts)
-  const remainder = total % parts
-  const result: [number, number][] = []
-  let added = 0
-  for (let i = 0; i < parts; i++) {
-    const intervalLen = quotient + (i < remainder ? 1 : 0)
-    result.push([added, added + intervalLen])
-    added += intervalLen
-  }
-  return result
-}
-
-/**
  * Allocates a specified number of new applications among reviewers based on their
  * current application counts.
  *
- * PRECONDITION: applicationCounts must be sorted
+ * PRECONDITION: initialApplicationCounts is sorted in ascending order.
  *
  * This function takes the current application count for each reviewer and distributes a given
  * number of new applications by prioritising reviewers with the smallest application count.
- * @param applicationCounts - A sorted array where each element represents the current number of
+ * The algorithm flattens the staircase distribution of applications from left/minimum to right/maximum.
+ *
+ * @param initialApplicationCounts - A sorted array where each element represents the current number of
  *                            applications assigned to each reviewer
  * @param newApplications - The total number of new applications to be distributed.
  * @returns An array of tuples representing the start and end indices for application ranges.
  *          Each tuple corresponds to the range of applications assigned to a reviewer.
+ *
+ *                               ____
+ *                             |    |
+ *                         ____|    |
+ *                        |         |
+ *                    ____|         |
+ *                   |              |
+ *               ____|              |
+ *              |                   |
+ *          ____|                   |
+ *         |                        |
+ *         |_______________________|
+ *
  *
  * @example
  * const ranges = allocateApplicationRanges([3, 5, 5], 4);
@@ -88,42 +78,55 @@ const getEqualPartition = (total: number, parts: number): [number, number][] => 
  * // the first two reviewers, and the final application count is [6, 6, 5]
  */
 const allocateApplicationRanges = (
-  applicationCounts: number[],
+  initialApplicationCounts: number[],
   newApplications: number
 ): [number, number][] => {
-  // PRE: applicationCounts is sorted
-  const arr = [...applicationCounts]
-  let i = 0
-  const res = new Array(arr.length).fill(0)
+  // PRE: initialApplicationCounts is sorted
+  const currentApplicationCounts = [...initialApplicationCounts]
+
+  let x = 0 // the horizontal coordinate along the staircase
+  const lastReviewerIndex = currentApplicationCounts.length - 1
 
   while (newApplications > 0) {
-    while (i < arr.length - 1 && arr[i + 1] == arr[i]) i++
-    if (i < arr.length - 1 && (i + 1) * (arr[i + 1] - arr[i]) <= newApplications) {
-      for (let j = 0; j < i + 1; j++) {
-        const applicationsToAdd = arr[i + 1] - arr[i]
-        res[j] += applicationsToAdd
-        arr[j] += applicationsToAdd
-        newApplications -= applicationsToAdd
+    // skip reviewers who have same number of applications
+    while (x < lastReviewerIndex && currentApplicationCounts[x + 1] == currentApplicationCounts[x])
+      x++
+
+    // enough applications to fill in the current gap at the bottom left of staircase
+    let differenceInApplications: number
+    if (
+      x < lastReviewerIndex &&
+      (x + 1) *
+        (differenceInApplications =
+          currentApplicationCounts[x + 1] - currentApplicationCounts[x]) <=
+        newApplications
+    ) {
+      for (let i = 0; i < x + 1; i++) {
+        currentApplicationCounts[i] += differenceInApplications
+        newApplications -= differenceInApplications
       }
+      // every reviewer up to and including x+1 has the same number of applications
     } else {
-      const quotient = Math.floor(newApplications / (i + 1))
-      const remainder = newApplications % (i + 1)
-      for (let j = 0; j < i + 1; j++) {
-        const applicationsToAdd = quotient + (j < remainder ? 1 : 0)
-        res[j] += applicationsToAdd
-        arr[j] += applicationsToAdd
+      // staircase is entirely flat or not enough applications to fully level staircase
+      // in either case, distribute applications from left to right
+      const quotient = Math.floor(newApplications / (x + 1))
+      const remainder = newApplications % (x + 1)
+      for (let i = 0; i < x + 1; i++) {
+        const applicationsToAdd = quotient + (i < remainder ? 1 : 0)
+        currentApplicationCounts[i] += applicationsToAdd
         newApplications -= applicationsToAdd
       }
     }
   }
 
-  const slices: [number, number][] = []
-  let added = 0
-  for (let i = 0; i < res.length; i++) {
-    slices.push([added, added + res[i]])
-    added += res[i]
+  const allocationRanges: [number, number][] = []
+  let intervalStart = 0
+  for (let i = 0; i < currentApplicationCounts.length; i++) {
+    const toAdd = currentApplicationCounts[i] - initialApplicationCounts[i]
+    allocationRanges.push([intervalStart, intervalStart + toAdd])
+    intervalStart += toAdd
   }
-  return slices
+  return allocationRanges
 }
 
 /**
@@ -141,21 +144,17 @@ export const allocateApplications = async (applications: Application[]) => {
   // assign reviewers only to applications that don't have one
   applications = applications.filter((application) => application.reviewerId === null)
   const reviewersWithCount = await getReviewersWithAscApplicationCount()
-  const reviewersCount = reviewersWithCount.length
-  if (reviewersCount === 0)
+  if (reviewersWithCount.length === 0)
     throw new Error(
       'Reviewer allocation failed because no reviewers were found. Please upload reviewers and try again.'
     )
 
-  // Allocator 1
-  //const slices = getEqualPartition(applications.length, reviewersCount)
-  // Allocator 2
   const slices = allocateApplicationRanges(
     reviewersWithCount.map((reviewer) => reviewer._count.applications),
     applications.length
   )
   const allocations = reviewersWithCount.map((reviewer, i) =>
-    allocateApplicationsToReviewer(applications.slice(...slices[i]), reviewer.id)
+    assignApplicationsToReviewer(applications.slice(...slices[i]), reviewer.id)
   )
   await Promise.all(allocations)
 }
