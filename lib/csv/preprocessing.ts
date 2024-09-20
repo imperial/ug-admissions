@@ -81,15 +81,7 @@ function processApplicantData(objects: unknown[]): unknown[] {
     df = df.rename(oldName, newName)
   })
 
-  // transform admissionsCycle column to a number
-  // ts-ignore is used because the type of DataFrame.withColumn() does not match the docs or implementation
-  df = df.withColumn(
-    'admissionsCycle',
-    // @ts-ignore
-    (row: any) =>
-      // format is 'Autumn 2024-2025' so extract 2024
-      row.get('admissionsCycle')?.split(' ').at(1)?.split('-')[0]
-  )
+  df = transformAdmissionsCycle(df)
 
   df = df.withColumn(
     'degreeCode',
@@ -145,9 +137,46 @@ function processApplicantData(objects: unknown[]): unknown[] {
 }
 
 function processTMUAData(objects: unknown[]): unknown[] {
-  return objects
+  let df = new DataFrame(objects)
+
+  const columnsToRename = [
+    ['TMUA Grade Paper 1 (Applicant) (Contact)', 'tmuaPaper1Score'],
+    ['TMUA Grade Paper 2 (Applicant) (Contact)', 'tmuaPaper2Score'],
+    ['TMUA Grade Overall (Applicant) (Contact)', 'tmuaOverallScore'],
+    ['Entry term', 'admissionsCycle'],
+    ['College ID (Applicant) (Contact)', 'applicantCid']
+  ]
+  columnsToRename.forEach(([oldName, newName]) => {
+    df = df.rename(oldName, newName)
+  })
+
+  // transform admissionsCycle column to a number
+  // ts-ignore is used because the type of DataFrame.withColumn() does not match the docs or implementation
+  df = transformAdmissionsCycle(df)
+
+  const tmuaColumns = [
+    'tmuaPaper1Score',
+    'tmuaPaper2Score',
+    'tmuaOverallScore',
+    'admissionsCycle',
+    'applicantCid'
+  ]
+
+  const tmuaDf = df.select(...tmuaColumns)
+  return tmuaDf.toCollection()
 }
 
 function processUserData(objects: unknown[]): unknown[] {
   return objects
+}
+
+function transformAdmissionsCycle(df: DataFrame) {
+  // @ts-ignore is used because the type of DataFrame.withColumn() does not match the docs or implementation
+  return df.withColumn(
+    'admissionsCycle',
+    // @ts-ignore
+    (row: any) =>
+      // format is 'Autumn 2024-2025' so extract 2024
+      row.get('admissionsCycle')?.split(' ').at(1)?.split('-')[0]
+  )
 }

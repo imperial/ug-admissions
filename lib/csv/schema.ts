@@ -3,6 +3,25 @@ import { formatISO } from 'date-fns'
 import { parse as parseDate } from 'date-fns/parse'
 import { ZodSchema, z } from 'zod'
 
+export const schemaNumberWithRange = (
+  from: number,
+  to: number,
+  fieldName: string,
+  isNullable: boolean = false,
+  minStep: number = 0.1
+) => {
+  let schema = z
+    .number()
+    .step(minStep, { message: `${fieldName} can only be specified to a precision of ${minStep}` })
+    .gte(from, { message: `${fieldName} must be ≥ ${from}` })
+    .lte(to, { message: `${fieldName} must be ≤ ${to}` })
+
+  return z.preprocess(
+    (val) => (val === '' ? null : Number(val)),
+    isNullable ? schema.nullable() : schema
+  )
+}
+
 // nested schema for upserting an applicant and creating a new application
 export const schemaApplication = z.object({
   applicant: z.object({
@@ -39,11 +58,12 @@ export const schemaApplication = z.object({
 })
 
 // used to insert TMUA grades
-export const schemaTMUAScores = z.object({
-  cid: z.string().length(8, { message: 'CID must be exactly 8 characters' }),
-  tmuaPaper1Score: z.coerce.number().min(1).max(9).optional(),
-  tmuaPaper2Score: z.coerce.number().min(1).max(9).optional(),
-  tmuaOverallScore: z.coerce.number().min(1).max(9).optional()
+export const schemaTmuaScores = z.object({
+  applicantCid: z.string().length(8, { message: 'CID must be exactly 8 characters' }),
+  admissionsCycle: z.coerce.number().int().positive(),
+  tmuaPaper1Score: schemaNumberWithRange(1, 9, 'TMUA Paper 1 Score'),
+  tmuaPaper2Score: schemaNumberWithRange(1, 9, 'TMUA Paper 2 Score'),
+  tmuaOverallScore: schemaNumberWithRange(1, 9, 'TMUA Overall Score')
 })
 
 export const schemaUser = z.object({

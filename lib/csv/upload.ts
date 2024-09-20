@@ -2,9 +2,9 @@
 
 import prisma from '@/db'
 import { preprocessCsvData } from '@/lib/csv/preprocessing'
-import { parseWithSchema, schemaApplication, schemaTMUAScores, schemaUser } from '@/lib/csv/schema'
+import { parseWithSchema, schemaApplication, schemaTmuaScores, schemaUser } from '@/lib/csv/schema'
 import { allocateApplications } from '@/lib/reviewerAllocation'
-import { Application, Prisma, type User } from '@prisma/client'
+import { Application, NextAction, Prisma, type User } from '@prisma/client'
 import { z } from 'zod'
 
 import { DataUploadEnum, FormPassbackState } from '../types'
@@ -88,8 +88,21 @@ function upsertApplication(applications: z.infer<typeof schemaApplication>[]) {
   })
 }
 
-function upsertTMUAScores(scores: any[]) {
-  return [new Promise((resolve, reject) => {})]
+function upsertTMUAScores(tmuaScores: z.infer<typeof schemaTmuaScores>[]) {
+  return tmuaScores.map((score) => {
+    return prisma.application.update({
+      where: {
+        admissionsCycle_applicantCid: {
+          admissionsCycle: score.admissionsCycle,
+          applicantCid: score.applicantCid
+        }
+      },
+      data: {
+        ...score,
+        nextAction: NextAction.ADMIN_SCORING
+      }
+    })
+  })
 }
 
 /**
@@ -145,7 +158,7 @@ export const processCsvUpload = async (
       break
     }
     case DataUploadEnum.TMUA_SCORES: {
-      const { data: parsedTMUAData, noErrors } = parseWithSchema(objects, schemaTMUAScores)
+      const { data: parsedTMUAData, noErrors } = parseWithSchema(objects, schemaTmuaScores)
       noParsingErrors = noErrors
       upsertPromises = upsertTMUAScores(parsedTMUAData)
       break

@@ -1,6 +1,7 @@
 'use server'
 
 import prisma from '@/db'
+import { schemaNumberWithRange } from '@/lib/csv/schema'
 import {
   AlevelQualification,
   CommentType,
@@ -16,26 +17,20 @@ import { FormPassbackState, NextActionEnum } from './types'
 const gcseQualificationEnum = z.nativeEnum(GCSEQualification)
 const aLevelQualificationEnum = z.nativeEnum(AlevelQualification)
 
-function numberSchema(from: number, to: number, fieldName: string, isNullable: boolean = false) {
-  let schema = z
-    .number()
-    .gte(from, { message: `${fieldName} must be ≥ ${from}` })
-    .lte(to, { message: `${fieldName} must be ≤ ${to}` })
-
-  return z.preprocess(
-    (val) => (val === '' ? null : Number(val)),
-    isNullable ? schema.nullable() : schema
-  )
-}
-
 const adminFormSchema = z
   .object({
     gcseQualification: gcseQualificationEnum,
-    gcseQualificationScore: numberSchema(0, 10, 'Age 16 exam score'),
+    gcseQualificationScore: schemaNumberWithRange(0, 10, 'Age 16 exam score'),
     aLevelQualification: aLevelQualificationEnum,
-    aLevelQualificationScore: numberSchema(0, 10, 'Age 18 exam score'),
-    motivationAdminScore: numberSchema(0, 10, 'Motivation Assessments', true),
-    extracurricularAdminScore: numberSchema(0, 10, 'Extracurricular Assessments', true),
+    aLevelQualificationScore: schemaNumberWithRange(0, 10, 'Age 18 exam score'),
+    motivationAdminScore: schemaNumberWithRange(0, 10, 'Motivation Assessments', true, 0.1),
+    extracurricularAdminScore: schemaNumberWithRange(
+      0,
+      10,
+      'Extracurricular Assessments',
+      true,
+      0.1
+    ),
     examComments: z.string()
   })
   .partial()
@@ -99,9 +94,9 @@ export const upsertAdminScoring = async (
 }
 
 const reviewerFormSchema = z.object({
-  motivationReviewerScore: numberSchema(0, 10, 'Motivation Score'),
-  extracurricularReviewerScore: numberSchema(0, 10, 'Extracurricular Score'),
-  referenceReviewerScore: numberSchema(0, 10, 'Reference Score'),
+  motivationReviewerScore: schemaNumberWithRange(0, 10, 'Motivation Score'),
+  extracurricularReviewerScore: schemaNumberWithRange(0, 10, 'Extracurricular Score'),
+  referenceReviewerScore: schemaNumberWithRange(0, 10, 'Reference Score'),
   academicComments: z.string()
 })
 
