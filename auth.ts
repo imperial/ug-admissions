@@ -8,5 +8,10 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
       clientSecret: process.env.MS_ENTRA_CLIENT_SECRET as string,
       tenantId: process.env.MS_ENTRA_TENANT_ID
     })
-  ]
+  ],
+  callbacks: {
+    authorized: async ({ auth }) => {
+      return !!auth
+    }
+  }
 })
