@@ -1,10 +1,15 @@
+import { auth } from '@/auth'
 import ApplicationTable from '@/components/ApplicationTable'
 import prisma from '@/db'
 import { Role } from '@prisma/client'
+import { SessionProvider } from 'next-auth/react'
 
 export const dynamic = 'force-dynamic'
 
 export default async function Home() {
+  // redirect to login if not authenticated
+  const session = await auth()
+
   const applications = await prisma.application.findMany({
     orderBy: {
       applicant: {
@@ -38,9 +43,11 @@ export default async function Home() {
   ).map((user) => user.login)
 
   return (
-    <ApplicationTable
-      applications={JSON.parse(JSON.stringify(applications))}
-      reviewerIds={reviewerIds}
-    />
+    <SessionProvider session={session}>
+      <ApplicationTable
+        applications={JSON.parse(JSON.stringify(applications))}
+        reviewerIds={reviewerIds}
+      />
+    </SessionProvider>
   )
 }

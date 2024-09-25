@@ -14,6 +14,7 @@ import type {
 import { NextAction } from '@prisma/client'
 import { Card, Flex, Text } from '@radix-ui/themes'
 import { ColumnFiltersState, createColumnHelper } from '@tanstack/react-table'
+import { getSession, useSession } from 'next-auth/react'
 import { usePathname, useRouter, useSearchParams } from 'next/navigation'
 import React, { FC, useEffect, useState } from 'react'
 
@@ -101,6 +102,19 @@ const ApplicationTable: FC<ApplicationTableProps> = ({ applications, reviewerIds
   const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([])
   const [nextActionFilterValue, setNextActionFilterValue] = useState(ALL_DROPDOWN_OPTION)
   const [reviewerFilterValue, setReviewerFilterValue] = useState(ALL_DROPDOWN_OPTION)
+  const [userEmail, setUserEmail] = useState<string | null | undefined>(null)
+
+  // Redirect to login if not authenticated
+  useEffect(() => {
+    const checkSession = async () => {
+      const session = await getSession()
+      if (!session) {
+        router.push('/auth/login')
+      }
+      setUserEmail(session?.user?.email)
+    }
+    checkSession()
+  }, [router])
 
   // searchParams determine what filters should be applied and the value of the dropdown
   useEffect(() => {
