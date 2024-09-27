@@ -1,9 +1,9 @@
 import { auth } from '@/auth'
-import ApplicationTable from '@/components/ApplicationTable'
+import SelectAdmissionsCycle from '@/components/SelectAdmissionsCycle'
 import prisma from '@/db'
-import { Role } from '@prisma/client'
-import { SessionProvider } from 'next-auth/react'
+import { Card, Flex, Heading, Text } from '@radix-ui/themes'
 import { redirect } from 'next/navigation'
+import React from 'react'
 
 export const dynamic = 'force-dynamic'
 
@@ -14,44 +14,35 @@ export default async function Home() {
     redirect('/auth/login')
   }
 
-  const applications = await prisma.application.findMany({
-    orderBy: {
-      applicant: {
-        surname: 'asc'
-      }
-    },
-    include: {
-      applicant: true,
-      internalReview: {
-        include: {
-          generalComments: true
-        }
-      },
-      reviewer: true,
-      outcomes: true
-    }
-  })
+  const userEmail = session?.user?.email as string
 
-  const reviewerIds = (
+  const admissionsCyclesWithRoles = (
     await prisma.user.findMany({
       select: {
-        login: true
+        admissionsCycle: true
       },
       where: {
-        role: Role.REVIEWER
+        login: userEmail
       },
       orderBy: {
         login: 'asc'
       }
     })
-  ).map((user) => user.login)
+  ).map((user) => user.admissionsCycle.toString())
 
   return (
-    <SessionProvider>
-      <ApplicationTable
-        applications={JSON.parse(JSON.stringify(applications))}
-        reviewerIds={reviewerIds}
-      />
-    </SessionProvider>
+    <Flex direction="column">
+      <Flex align="center" justify="between" gapX="5" className="mb-2">
+        <Heading>Undergraduate Admissions Portal</Heading>
+        <Card className="bg-cyan-200">
+          <Text>
+            Logged in as: <strong>{userEmail}</strong>
+          </Text>
+        </Card>
+      </Flex>
+      <Flex align="center" justify="center" className="mt-4">
+        <SelectAdmissionsCycle admissionsCycles={admissionsCyclesWithRoles} />
+      </Flex>
+    </Flex>
   )
 }

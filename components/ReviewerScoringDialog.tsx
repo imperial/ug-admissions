@@ -13,16 +13,18 @@ import { ApplicationRow } from './ApplicationTable'
 
 interface ReviewerScoringDialogProps {
   data: ApplicationRow
+  userEmail: string
 }
 
 interface ReviewerScoringFormProps {
   data: ApplicationRow
+  readOnly: boolean
 }
 
 const MOTIVATION_COLOUR = 'amber'
 const EXTRACURRICULAR_COLOUR = 'mint'
 
-const ReviewerScoringForm: FC<ReviewerScoringFormProps> = ({ data }) => {
+const ReviewerScoringForm: FC<ReviewerScoringFormProps> = ({ data, readOnly }) => {
   const { applicant, internalReview } = data
 
   return (
@@ -75,6 +77,7 @@ const ReviewerScoringForm: FC<ReviewerScoringFormProps> = ({ data }) => {
             step={0.1}
             defaultValue={parseFloat(internalReview?.motivationReviewerScore?.toString() ?? '')}
             required
+            disabled={readOnly}
           />
         </LabelText>
 
@@ -91,6 +94,7 @@ const ReviewerScoringForm: FC<ReviewerScoringFormProps> = ({ data }) => {
               internalReview?.extracurricularReviewerScore?.toString() ?? ''
             )}
             required
+            disabled={readOnly}
           />
         </LabelText>
 
@@ -104,6 +108,7 @@ const ReviewerScoringForm: FC<ReviewerScoringFormProps> = ({ data }) => {
             step={0.1}
             defaultValue={parseFloat(internalReview?.referenceReviewerScore?.toString() ?? '')}
             required
+            disabled={readOnly}
           />
         </LabelText>
 
@@ -112,6 +117,7 @@ const ReviewerScoringForm: FC<ReviewerScoringFormProps> = ({ data }) => {
             id="academicComments"
             name="academicComments"
             defaultValue={internalReview?.academicComments ?? undefined}
+            disabled={readOnly}
           />
         </LabelText>
       </Flex>
@@ -119,12 +125,15 @@ const ReviewerScoringForm: FC<ReviewerScoringFormProps> = ({ data }) => {
   )
 }
 
-const ReviewerScoringDialog: FC<ReviewerScoringDialogProps> = ({ data }) => {
+const ReviewerScoringDialog: FC<ReviewerScoringDialogProps> = ({ data, userEmail }) => {
   const [isOpen, setIsOpen] = useState(false)
   const handleFormSuccess = () => setIsOpen(false)
 
   const upsertReviewerScoringWithId = (prevState: FormPassbackState, formData: FormData) =>
     upsertReviewerScoring(data.id, prevState, formData)
+
+  // only the assigned reviewer can edit the form
+  const readOnly = userEmail !== data?.reviewer?.login
 
   return (
     <GenericDialog
@@ -141,8 +150,12 @@ const ReviewerScoringDialog: FC<ReviewerScoringDialogProps> = ({ data }) => {
         </Button>
       }
     >
-      <FormWrapper action={upsertReviewerScoringWithId} onSuccess={handleFormSuccess}>
-        <ReviewerScoringForm data={data} />
+      <FormWrapper
+        action={upsertReviewerScoringWithId}
+        onSuccess={handleFormSuccess}
+        readOnly={readOnly}
+      >
+        <ReviewerScoringForm data={data} readOnly={readOnly} />
       </FormWrapper>
     </GenericDialog>
   )

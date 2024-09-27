@@ -9,8 +9,8 @@ import { Button, Flex, Text } from '@radix-ui/themes'
 import React, { FC, useState } from 'react'
 import Dropzone from 'react-dropzone'
 
+import Dropdown from './Dropdown'
 import LabelledInput from './LabelText'
-import Dropdown from './TanstackTable/Dropdown'
 
 interface DataUploadFormProps {
   file: File | null

@@ -1,12 +1,18 @@
 import { ApplicationRow } from '@/components/ApplicationTable'
 import CommentItem from '@/components/CommentItem'
+import Dropdown from '@/components/Dropdown'
 import FormWrapper from '@/components/FormWrapper'
 import GenericDialog from '@/components/GenericDialog'
 import LabelText from '@/components/LabelText'
-import Dropdown from '@/components/TanstackTable/Dropdown'
 import { insertComment, upsertOutcome } from '@/lib/forms'
 import { FormPassbackState } from '@/lib/types'
-import { Comment as ApplicationComment, CommentType, Decision, NextAction } from '@prisma/client'
+import {
+  Comment as ApplicationComment,
+  CommentType,
+  Decision,
+  NextAction,
+  Role
+} from '@prisma/client'
 import {
   Box,
   Button,
@@ -25,12 +31,14 @@ import React, { FC, useMemo, useState } from 'react'
 interface UgTutorDialogProps {
   // generalComments relation does not type check otherwise
   data: ApplicationRow
+  user: { email: string; role: Role }
 }
 
 type Tab = 'outcomes' | 'comments'
 
 interface UgTutorFormProps {
   data: ApplicationRow
+  readOnly: boolean
   setCurrentTab: (tab: Tab) => void
 }
 
@@ -40,7 +48,7 @@ const decisionColourMap = {
   [Decision.PENDING]: 'bg-amber-200'
 }
 
-const UgTutorForm: FC<UgTutorFormProps> = ({ data, setCurrentTab }) => {
+const UgTutorForm: FC<UgTutorFormProps> = ({ data, readOnly, setCurrentTab }) => {
   const { applicant, internalReview } = data
   const [outcomes, setOutcomes] = useState(data.outcomes)
   const [nextAction, setNextAction] = useState(data.nextAction.toString())
@@ -95,12 +103,14 @@ const UgTutorForm: FC<UgTutorFormProps> = ({ data, setCurrentTab }) => {
                     <TextField.Root
                       name={'offerCode'.concat('-', outcome.degreeCode)}
                       defaultValue={outcome.offerCode ?? ''}
+                      disabled={readOnly}
                     />
                   </LabelText>
                   <LabelText label="Offer Text" weight="medium">
                     <TextField.Root
                       name={'offerText'.concat('-', outcome.degreeCode)}
                       defaultValue={outcome.offerText ?? ''}
+                      disabled={readOnly}
                     />
                   </LabelText>
                   <LabelText label="Decision" weight="medium">
@@ -114,6 +124,7 @@ const UgTutorForm: FC<UgTutorFormProps> = ({ data, setCurrentTab }) => {
                           return newOutcomes
                         })
                       }}
+                      disabled={readOnly}
                       className="flex-grow"
                     />
                     <input
@@ -134,6 +145,7 @@ const UgTutorForm: FC<UgTutorFormProps> = ({ data, setCurrentTab }) => {
                 ]}
                 currentValue={nextAction}
                 onValueChange={setNextAction}
+                disabled={readOnly}
               />
             </LabelText>
             <input name="nextAction" type="hidden" value={nextAction} />
@@ -151,12 +163,13 @@ const UgTutorForm: FC<UgTutorFormProps> = ({ data, setCurrentTab }) => {
                     values={Object.keys(CommentType)}
                     currentValue={commentType}
                     onValueChange={setCommentType}
+                    disabled={readOnly}
                   />
                   <input name="type" type="hidden" value={commentType} />
                 </LabelText>
               </Flex>
               <LabelText label="Comment">
-                <TextArea name={'text'} defaultValue={''} />
+                <TextArea name={'text'} defaultValue={''} disabled={readOnly} />
               </LabelText>
             </Flex>
           </Tabs.Content>
@@ -166,12 +179,13 @@ const UgTutorForm: FC<UgTutorFormProps> = ({ data, setCurrentTab }) => {
   )
 }
 
-const UgTutorDialog: FC<UgTutorDialogProps> = ({ data }) => {
+const UgTutorDialog: FC<UgTutorDialogProps> = ({ data, user }) => {
   const [isOpen, setIsOpen] = useState(false)
   const handleFormSuccess = () => setIsOpen(false)
   const [currentTab, setCurrentTab] = useState<Tab>('outcomes')
 
   const { id, applicantCid, admissionsCycle, internalReview } = data
+  const { email, role } = user
 
   const upsertOutcomeWithId = async (prevState: FormPassbackState, formData: FormData) => {
     return await upsertOutcome(
@@ -191,6 +205,7 @@ const UgTutorDialog: FC<UgTutorDialogProps> = ({ data }) => {
     return await insertComment(
       applicantCid,
       admissionsCycle,
+      email,
       internalReview.id,
       prevState,
       formData
@@ -213,7 +228,7 @@ const UgTutorDialog: FC<UgTutorDialogProps> = ({ data }) => {
         onSuccess={handleFormSuccess}
         submitButtonText={currentTab === 'outcomes' ? 'Save' : 'Add Comment'}
       >
-        <UgTutorForm data={data} setCurrentTab={setCurrentTab} />
+        <UgTutorForm data={data} setCurrentTab={setCurrentTab} readOnly={role !== Role.UG_TUTOR} />
       </FormWrapper>
     </GenericDialog>
   )

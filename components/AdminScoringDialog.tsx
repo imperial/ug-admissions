@@ -1,12 +1,12 @@
 'use client'
 
+import Dropdown from '@/components/Dropdown'
 import FormWrapper from '@/components/FormWrapper'
 import GenericDialog from '@/components/GenericDialog'
 import LabelText from '@/components/LabelText'
-import Dropdown from '@/components/TanstackTable/Dropdown'
 import { upsertAdminScoring } from '@/lib/forms'
 import { FormPassbackState, NextActionEnum } from '@/lib/types'
-import { AlevelQualification, GCSEQualification } from '@prisma/client'
+import { AlevelQualification, GCSEQualification, Role } from '@prisma/client'
 import { FileTextIcon, IdCardIcon } from '@radix-ui/react-icons'
 import {
   Button,
@@ -25,15 +25,17 @@ import { ApplicationRow } from './ApplicationTable'
 
 interface AdminScoringDialogProps {
   data: ApplicationRow
+  user: { email: string; role: Role }
 }
 
 interface AdminScoringFormProps {
   data: ApplicationRow
+  readOnly: boolean
 }
 
 const ICON_SIZE = 16
 
-const AdminScoringForm: FC<AdminScoringFormProps> = ({ data }) => {
+const AdminScoringForm: FC<AdminScoringFormProps> = ({ data, readOnly }) => {
   const { applicant, internalReview } = data
   const [gcseQualification, setGcseQualification] = useState(data.gcseQualification?.toString())
   const [aLevelQualification, setALevelQualification] = useState(
@@ -105,6 +107,7 @@ const AdminScoringForm: FC<AdminScoringFormProps> = ({ data }) => {
               values={Object.keys(GCSEQualification)}
               currentValue={gcseQualification}
               onValueChange={setGcseQualification}
+              disabled={readOnly}
               className="flex-grow"
             />
             <input name="gcseQualification" type="hidden" value={gcseQualification} />
@@ -119,7 +122,7 @@ const AdminScoringForm: FC<AdminScoringFormProps> = ({ data }) => {
               max={10.0}
               step={0.1}
               className="flex-grow"
-              disabled={!gcseQualification}
+              disabled={!gcseQualification || readOnly}
               required={!!gcseQualification}
               defaultValue={parseFloat(data?.gcseQualificationScore?.toString() ?? '')}
             />
@@ -135,6 +138,7 @@ const AdminScoringForm: FC<AdminScoringFormProps> = ({ data }) => {
               values={Object.keys(AlevelQualification)}
               currentValue={aLevelQualification}
               onValueChange={setALevelQualification}
+              disabled={readOnly}
               className="flex-grow"
             />
             <input name="aLevelQualification" type="hidden" value={aLevelQualification} />
@@ -149,7 +153,7 @@ const AdminScoringForm: FC<AdminScoringFormProps> = ({ data }) => {
               max={10.0}
               step={0.1}
               className="flex-grow"
-              disabled={!aLevelQualification}
+              disabled={!aLevelQualification || readOnly}
               required={!!aLevelQualification}
               defaultValue={parseFloat(data?.aLevelQualificationScore?.toString() ?? '')}
             />
@@ -165,6 +169,7 @@ const AdminScoringForm: FC<AdminScoringFormProps> = ({ data }) => {
             max={10.0}
             step={0.1}
             defaultValue={parseFloat(internalReview?.motivationAdminScore?.toString() ?? '')}
+            disabled={readOnly}
           />
         </LabelText>
 
@@ -177,6 +182,7 @@ const AdminScoringForm: FC<AdminScoringFormProps> = ({ data }) => {
             max={10.0}
             step={0.1}
             defaultValue={parseFloat(internalReview?.extracurricularAdminScore?.toString() ?? '')}
+            disabled={readOnly}
           />
         </LabelText>
 
@@ -185,6 +191,7 @@ const AdminScoringForm: FC<AdminScoringFormProps> = ({ data }) => {
             id="examComments"
             name="examComments"
             defaultValue={internalReview?.examComments ?? undefined}
+            disabled={readOnly}
           />
         </LabelText>
       </Flex>
@@ -192,11 +199,14 @@ const AdminScoringForm: FC<AdminScoringFormProps> = ({ data }) => {
   )
 }
 
-const AdminScoringDialog: FC<AdminScoringDialogProps> = ({ data }) => {
+const AdminScoringDialog: FC<AdminScoringDialogProps> = ({ data, user }) => {
+  const { email, role } = user
+  const readOnly = role !== Role.ADMIN && role !== Role.UG_TUTOR
+
   const [isOpen, setIsOpen] = useState(false)
   const handleFormSuccess = () => setIsOpen(false)
   const upsertAdminScoringWithId = (prevState: FormPassbackState, formData: FormData) =>
-    upsertAdminScoring(NextActionEnum[data.nextAction], data.id, prevState, formData)
+    upsertAdminScoring(NextActionEnum[data.nextAction], data.id, email, prevState, formData)
 
   return (
     <GenericDialog
@@ -213,8 +223,12 @@ const AdminScoringDialog: FC<AdminScoringDialogProps> = ({ data }) => {
         </Button>
       }
     >
-      <FormWrapper action={upsertAdminScoringWithId} onSuccess={handleFormSuccess}>
-        <AdminScoringForm data={data} />
+      <FormWrapper
+        action={upsertAdminScoringWithId}
+        onSuccess={handleFormSuccess}
+        readOnly={readOnly}
+      >
+        <AdminScoringForm data={data} readOnly={readOnly} />
       </FormWrapper>
     </GenericDialog>
   )

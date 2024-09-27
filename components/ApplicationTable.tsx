@@ -9,6 +9,7 @@ import type {
   Comment as ApplicationComment,
   InternalReview,
   Outcome,
+  Role,
   User
 } from '@prisma/client'
 import { NextAction } from '@prisma/client'
@@ -19,8 +20,8 @@ import { usePathname, useRouter, useSearchParams } from 'next/navigation'
 import React, { FC, useEffect, useState } from 'react'
 
 import DataUploadDialog from './DataUploadDialog'
+import Dropdown from './Dropdown'
 import TanstackTable from './TanstackTable'
-import Dropdown from './TanstackTable/Dropdown'
 
 export type ApplicationRow = Application & {
   applicant: Applicant
@@ -35,76 +36,26 @@ const SEARCH_PARAM_REVIEWER = 'reviewer'
 
 const columnHelper = createColumnHelper<ApplicationRow>()
 
-const columns = [
-  columnHelper.accessor('applicant.cid', {
-    cell: (info) => info.getValue(),
-    header: 'CID',
-    id: 'applicant.cid'
-  }),
-  columnHelper.accessor('applicant.ucasNumber', {
-    cell: (info) => info.getValue(),
-    header: 'UCAS number',
-    id: 'applicant.ucasNumber'
-  }),
-  columnHelper.accessor('applicant.firstName', {
-    cell: (info) => info.getValue(),
-    header: 'First Name',
-    id: 'applicant.firstName'
-  }),
-  columnHelper.accessor('applicant.surname', {
-    cell: (info) => info.getValue(),
-    header: 'Last Name',
-    id: 'applicant.surname'
-  }),
-  columnHelper.accessor('feeStatus', {
-    cell: (info) => info.getValue(),
-    header: 'Fee Status',
-    id: 'feeStatus'
-  }),
-  columnHelper.accessor('wideningParticipation', {
-    cell: (info) => info.getValue().toString(),
-    header: 'Widening Participation',
-    id: 'wideningParticipation'
-  }),
-  columnHelper.accessor('nextAction', {
-    cell: (info) => info.getValue(),
-    header: 'Next Action',
-    id: SEARCH_PARAM_NEXT_ACTION
-  }),
-  columnHelper.accessor('reviewer.login', {
-    cell: (info) => info.getValue(),
-    header: 'Reviewer',
-    id: SEARCH_PARAM_REVIEWER
-  }),
-  columnHelper.display({
-    id: 'adminFormButton',
-    cell: (info) => <AdminScoringDialog data={info.row.original} />
-  }),
-  columnHelper.display({
-    id: 'reviewerFormButton',
-    cell: (info) => <ReviewerScoringDialog data={info.row.original} />
-  }),
-  columnHelper.display({
-    id: 'ugTutorFormButton',
-    cell: (info) => <UgTutorDialog data={info.row.original} />
-  })
-]
-
 interface ApplicationTableProps {
   applications: ApplicationRow[]
   reviewerIds: string[]
+  user: { email: string; role: Role }
 }
 
-const ApplicationTable: FC<ApplicationTableProps> = ({ applications, reviewerIds }) => {
+const ApplicationTable: FC<ApplicationTableProps> = ({
+  applications,
+  reviewerIds,
+  user: { email, role }
+}) => {
+  // ensure login
+  useSession()
+
   const router = useRouter()
   const pathname = usePathname()
   const searchParams = useSearchParams()
   const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([])
   const [nextActionFilterValue, setNextActionFilterValue] = useState(ALL_DROPDOWN_OPTION)
   const [reviewerFilterValue, setReviewerFilterValue] = useState(ALL_DROPDOWN_OPTION)
-
-  const session = useSession()
-  const userEmail = session?.data?.user?.email
 
   // searchParams determine what filters should be applied and the value of the dropdown
   useEffect(() => {
@@ -132,13 +83,70 @@ const ApplicationTable: FC<ApplicationTableProps> = ({ applications, reviewerIds
     else updateSearchParam(name, value)
   }
 
+  const columns = [
+    columnHelper.accessor('applicant.cid', {
+      cell: (info) => info.getValue(),
+      header: 'CID',
+      id: 'applicant.cid'
+    }),
+    columnHelper.accessor('applicant.ucasNumber', {
+      cell: (info) => info.getValue(),
+      header: 'UCAS number',
+      id: 'applicant.ucasNumber'
+    }),
+    columnHelper.accessor('applicant.firstName', {
+      cell: (info) => info.getValue(),
+      header: 'First Name',
+      id: 'applicant.firstName'
+    }),
+    columnHelper.accessor('applicant.surname', {
+      cell: (info) => info.getValue(),
+      header: 'Last Name',
+      id: 'applicant.surname'
+    }),
+    columnHelper.accessor('feeStatus', {
+      cell: (info) => info.getValue(),
+      header: 'Fee Status',
+      id: 'feeStatus'
+    }),
+    columnHelper.accessor('wideningParticipation', {
+      cell: (info) => info.getValue().toString(),
+      header: 'Widening Participation',
+      id: 'wideningParticipation'
+    }),
+    columnHelper.accessor('nextAction', {
+      cell: (info) => info.getValue(),
+      header: 'Next Action',
+      id: SEARCH_PARAM_NEXT_ACTION
+    }),
+    columnHelper.accessor('reviewer.login', {
+      cell: (info) => info.getValue(),
+      header: 'Reviewer',
+      id: SEARCH_PARAM_REVIEWER
+    }),
+    columnHelper.display({
+      id: 'adminFormButton',
+      cell: (info) => (
+        <AdminScoringDialog data={info.row.original} user={{ email: email, role: role }} />
+      )
+    }),
+    columnHelper.display({
+      id: 'reviewerFormButton',
+      cell: (info) => <ReviewerScoringDialog data={info.row.original} userEmail={email} />
+    }),
+    columnHelper.display({
+      id: 'ugTutorFormButton',
+      cell: (info) => <UgTutorDialog data={info.row.original} user={{ email: email, role: role }} />
+    })
+  ]
+
   return (
     <>
       <Flex align="center" justify="between" gapX="5" className="mb-2">
         <Heading>Undergraduate Admissions Portal</Heading>
         <Card className="bg-cyan-200">
           <Text>
-            Logged in as: <strong>{userEmail}</strong>
+            Logged in as: <strong>{email}</strong>
           </Text>
         </Card>
       </Flex>
