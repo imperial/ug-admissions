@@ -3,16 +3,16 @@
 import AdminScoringDialog from '@/components/AdminScoringDialog'
 import ReviewerScoringDialog from '@/components/ReviewerScoringDialog'
 import UgTutorDialog from '@/components/UgTutorDialog'
-import type {
+import {
   Applicant,
   Application,
   Comment as ApplicationComment,
   InternalReview,
+  NextAction,
   Outcome,
   Role,
   User
 } from '@prisma/client'
-import { NextAction } from '@prisma/client'
 import { Card, Flex, Heading, Text } from '@radix-ui/themes'
 import { ColumnFiltersState, createColumnHelper } from '@tanstack/react-table'
 import { useSession } from 'next-auth/react'
@@ -170,8 +170,7 @@ const ApplicationTable: FC<ApplicationTableProps> = ({
               />
             </Flex>
           </Flex>
-          {/* eventually there are 4 uploads: applicant, course, TMUA grades, user roles */}
-          <DataUploadDialog />
+          <DataUploadDialog disabled={role !== Role.UG_TUTOR && role !== Role.ADMIN} />
         </Flex>
       </Card>
       <TanstackTable
