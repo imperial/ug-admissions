@@ -1,8 +1,8 @@
 import { auth } from '@/auth'
 import ApplicationTable from '@/components/ApplicationTable'
+import NotFoundPage from '@/components/NotFoundPage'
 import prisma from '@/db'
 import { Role } from '@prisma/client'
-import { Heading } from '@radix-ui/themes'
 import { SessionProvider } from 'next-auth/react'
 import { redirect } from 'next/navigation'
 
@@ -76,6 +76,10 @@ export default async function AdmissionsCycleApplicationsPage({
       />
     </SessionProvider>
   ) : (
-    <Heading>{userEmail} has no role in this admissions cycle</Heading>
+    <NotFoundPage
+      btnName={'Return to homepage'}
+      btnUrl={'/'}
+      explanation={`Admissions cycle ${params.cycle} does not exist or ${userEmail} has no role in this admissions cycle`}
+    />
   )
 }
