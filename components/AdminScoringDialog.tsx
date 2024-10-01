@@ -4,8 +4,10 @@ import Dropdown from '@/components/Dropdown'
 import FormWrapper from '@/components/FormWrapper'
 import GenericDialog from '@/components/GenericDialog'
 import LabelText from '@/components/LabelText'
+import TmuaGradeBox from '@/components/TmuaGradeBox'
 import { upsertAdminScoring } from '@/lib/forms'
 import { FormPassbackState, NextActionEnum } from '@/lib/types'
+import { decimalToNumber } from '@/lib/utils'
 import { AlevelQualification, GCSEQualification, Role } from '@prisma/client'
 import { FileTextIcon, IdCardIcon } from '@radix-ui/react-icons'
 import {
@@ -64,6 +66,12 @@ const AdminScoringForm: FC<AdminScoringFormProps> = ({ data, readOnly }) => {
           </DataList.Item>
         </DataList.Root>
       </Callout.Root>
+
+      <TmuaGradeBox
+        paper1Score={data.tmuaPaper1Score}
+        paper2Score={data.tmuaPaper2Score}
+        overallScore={data.tmuaOverallScore}
+      />
 
       <Flex direction="column" gap="2">
         <Flex direction="column" gap="2">
@@ -124,7 +132,7 @@ const AdminScoringForm: FC<AdminScoringFormProps> = ({ data, readOnly }) => {
               className="flex-grow"
               disabled={!gcseQualification || readOnly}
               required={!!gcseQualification}
-              defaultValue={parseFloat(data?.gcseQualificationScore?.toString() ?? '')}
+              defaultValue={decimalToNumber(data?.gcseQualificationScore)}
             />
           </LabelText>
         </Flex>
@@ -155,7 +163,7 @@ const AdminScoringForm: FC<AdminScoringFormProps> = ({ data, readOnly }) => {
               className="flex-grow"
               disabled={!aLevelQualification || readOnly}
               required={!!aLevelQualification}
-              defaultValue={parseFloat(data?.aLevelQualificationScore?.toString() ?? '')}
+              defaultValue={decimalToNumber(data?.aLevelQualificationScore)}
             />
           </LabelText>
         </Flex>
@@ -168,7 +176,7 @@ const AdminScoringForm: FC<AdminScoringFormProps> = ({ data, readOnly }) => {
             min={0.0}
             max={10.0}
             step={0.1}
-            defaultValue={parseFloat(internalReview?.motivationAdminScore?.toString() ?? '')}
+            defaultValue={decimalToNumber(internalReview?.motivationAdminScore)}
             disabled={readOnly}
           />
         </LabelText>
@@ -181,7 +189,7 @@ const AdminScoringForm: FC<AdminScoringFormProps> = ({ data, readOnly }) => {
             min={0.0}
             max={10.0}
             step={0.1}
-            defaultValue={parseFloat(internalReview?.extracurricularAdminScore?.toString() ?? '')}
+            defaultValue={decimalToNumber(internalReview?.extracurricularAdminScore)}
             disabled={readOnly}
           />
         </LabelText>

@@ -4,6 +4,7 @@ import Dropdown from '@/components/Dropdown'
 import FormWrapper from '@/components/FormWrapper'
 import GenericDialog from '@/components/GenericDialog'
 import LabelText from '@/components/LabelText'
+import TmuaGradeBox from '@/components/TmuaGradeBox'
 import { insertComment, upsertOutcome } from '@/lib/forms'
 import { FormPassbackState } from '@/lib/types'
 import {
@@ -80,6 +81,12 @@ const UgTutorForm: FC<UgTutorFormProps> = ({ data, readOnly, setCurrentTab }) =>
           </DataList.Item>
         </DataList.Root>
       </Callout.Root>
+
+      <TmuaGradeBox
+        paper1Score={data.tmuaPaper1Score}
+        paper2Score={data.tmuaPaper2Score}
+        overallScore={data.tmuaOverallScore}
+      />
 
       <Tabs.Root defaultValue="outcomes" onValueChange={(tabName) => setCurrentTab(tabName as Tab)}>
         <Tabs.List>
