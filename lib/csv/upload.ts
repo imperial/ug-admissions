@@ -88,8 +88,23 @@ function upsertApplication(applications: z.infer<typeof schemaApplication>[]) {
   })
 }
 
-function upsertTMUAScores(scores: any[]) {
-  return [new Promise((resolve, reject) => {})]
+// application must already exist
+function updateTmuaScores(scores: z.infer<typeof schemaTMUAScores>[]) {
+  return scores.map((s) => {
+    return prisma.application.update({
+      where: {
+        admissionsCycle_applicantCid: {
+          admissionsCycle: s.admissionsCycle,
+          applicantCid: s.cid
+        }
+      },
+      data: {
+        tmuaPaper1Score: s.tmuaPaper1Score,
+        tmuaPaper2Score: s.tmuaPaper2Score,
+        tmuaOverallScore: s.tmuaOverallScore
+      }
+    })
+  })
 }
 
 /**
@@ -147,7 +162,7 @@ export const processCsvUpload = async (
     case DataUploadEnum.TMUA_SCORES: {
       const { data: parsedTMUAData, noErrors } = parseWithSchema(objects, schemaTMUAScores)
       noParsingErrors = noErrors
-      upsertPromises = upsertTMUAScores(parsedTMUAData)
+      upsertPromises = updateTmuaScores(parsedTMUAData)
       break
     }
     case DataUploadEnum.USER_ROLES: {
