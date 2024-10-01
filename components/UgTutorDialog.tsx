@@ -1,4 +1,5 @@
 import { ApplicationRow } from '@/components/ApplicationTable'
+import CandidateCallout from '@/components/CandidateCallout'
 import CommentItem from '@/components/CommentItem'
 import Dropdown from '@/components/Dropdown'
 import FormWrapper from '@/components/FormWrapper'
@@ -17,9 +18,7 @@ import {
 import {
   Box,
   Button,
-  Callout,
   Card,
-  DataList,
   Flex,
   Heading,
   Separator,
@@ -67,20 +66,11 @@ const UgTutorForm: FC<UgTutorFormProps> = ({ data, readOnly, setCurrentTab }) =>
 
   return (
     <Flex direction="column" gap="3">
-      <Callout.Root>
-        <DataList.Root>
-          <DataList.Item align="center">
-            <DataList.Label>Applicant:</DataList.Label>
-            <DataList.Value className="font-bold">
-              {applicant.firstName} {applicant.surname}
-            </DataList.Value>
-          </DataList.Item>
-          <DataList.Item align="center">
-            <DataList.Label>UCAS number:</DataList.Label>
-            <DataList.Value className="font-bold">{applicant.ucasNumber}</DataList.Value>
-          </DataList.Item>
-        </DataList.Root>
-      </Callout.Root>
+      <CandidateCallout
+        firstName={applicant.firstName}
+        surname={applicant.surname}
+        ucasNumber={applicant.ucasNumber}
+      />
 
       <TmuaGradeBox
         paper1Score={data.tmuaPaper1Score}

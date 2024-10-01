@@ -1,5 +1,6 @@
 'use client'
 
+import CandidateCallout from '@/components/CandidateCallout'
 import Dropdown from '@/components/Dropdown'
 import FormWrapper from '@/components/FormWrapper'
 import GenericDialog from '@/components/GenericDialog'
@@ -10,16 +11,7 @@ import { FormPassbackState, NextActionEnum } from '@/lib/types'
 import { decimalToNumber } from '@/lib/utils'
 import { AlevelQualification, GCSEQualification, Role } from '@prisma/client'
 import { FileTextIcon, IdCardIcon } from '@radix-ui/react-icons'
-import {
-  Button,
-  Callout,
-  DataList,
-  Flex,
-  Heading,
-  Popover,
-  Text,
-  TextField
-} from '@radix-ui/themes'
+import { Button, Flex, Heading, Popover, Text, TextField } from '@radix-ui/themes'
 import { format } from 'date-fns'
 import React, { FC, useState } from 'react'
 
@@ -52,20 +44,12 @@ const AdminScoringForm: FC<AdminScoringFormProps> = ({ data, readOnly }) => {
           {format(internalReview.lastAdminEditOn, "dd/MM/yy 'at' HH:mm")}
         </Text>
       )}
-      <Callout.Root>
-        <DataList.Root>
-          <DataList.Item align="center">
-            <DataList.Label>Applicant:</DataList.Label>
-            <DataList.Value className="font-bold">
-              {applicant.firstName} {applicant.surname}
-            </DataList.Value>
-          </DataList.Item>
-          <DataList.Item align="center">
-            <DataList.Label>UCAS number:</DataList.Label>
-            <DataList.Value className="font-bold">{applicant.ucasNumber}</DataList.Value>
-          </DataList.Item>
-        </DataList.Root>
-      </Callout.Root>
+
+      <CandidateCallout
+        firstName={applicant.firstName}
+        surname={applicant.surname}
+        ucasNumber={applicant.ucasNumber}
+      />
 
       <TmuaGradeBox
         paper1Score={data.tmuaPaper1Score}
