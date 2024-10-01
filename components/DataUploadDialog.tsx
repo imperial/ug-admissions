@@ -9,8 +9,8 @@ import { Button, Flex, Text } from '@radix-ui/themes'
 import React, { FC, useState } from 'react'
 import Dropzone from 'react-dropzone'
 
+import Dropdown from './Dropdown'
 import LabelledInput from './LabelText'
-import Dropdown from './TanstackTable/Dropdown'
 
 interface DataUploadFormProps {
   file: File | null
@@ -60,7 +60,11 @@ const DataUploadForm: FC<DataUploadFormProps> = ({ file, setFile }) => {
   )
 }
 
-const DataUploadDialog: FC = () => {
+interface DataUploadDialogProps {
+  disabled: boolean
+}
+
+const DataUploadDialog: FC<DataUploadDialogProps> = ({ disabled }) => {
   const [isDialogOpen, setIsDialogOpen] = useState(false)
   const [file, setFile] = useState<File | null>(null)
 
@@ -73,7 +77,11 @@ const DataUploadDialog: FC = () => {
   return (
     <GenericDialog
       title={'Data Upload'}
-      trigger={<Button className="min-h-10">Data Upload</Button>}
+      trigger={
+        <Button className="min-h-10" disabled={disabled}>
+          Data Upload
+        </Button>
+      }
       isOpen={isDialogOpen}
       onOpenChange={(isOpen) => {
         if (!isOpen) setFile(null)
