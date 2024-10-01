@@ -13,13 +13,16 @@ interface FormInDialogProps {
   action: (prevState: FormPassbackState, formData: FormData) => Promise<FormPassbackState>
   submitButtonText?: string
   onSuccess?: () => void
+  // readOnly access disables save
+  readOnly?: boolean
 }
 
 const FormWrapper: FC<FormInDialogProps> = ({
   children,
   action,
   submitButtonText,
-  onSuccess = () => {}
+  onSuccess = () => {},
+  readOnly = false
 }) => {
   const [pending, setPending] = useState(false)
   const wrappedAction = async (
@@ -51,7 +54,7 @@ const FormWrapper: FC<FormInDialogProps> = ({
       <form action={formAction} onSubmit={() => setPending(true)}>
         {children}
         <Flex justify="end" gap="2" mt="4">
-          <Button type="submit" disabled={pending}>
+          <Button type="submit" disabled={pending || readOnly}>
             {pending ? <Spinner /> : (submitButtonText ?? DEFAULT_SUBMIT_BTN_TEXT)}
           </Button>
         </Flex>

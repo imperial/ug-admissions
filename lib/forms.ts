@@ -43,6 +43,7 @@ const adminFormSchema = z
 export const upsertAdminScoring = async (
   currentAction: NextActionEnum,
   applicationId: number,
+  adminLogin: string,
   _: FormPassbackState,
   formData: FormData
 ): Promise<FormPassbackState> => {
@@ -82,14 +83,14 @@ export const upsertAdminScoring = async (
       motivationAdminScore,
       extracurricularAdminScore,
       examComments,
-      lastAdminEditBy: 'admin', // TODO: get the actual admin user
+      lastAdminEditBy: adminLogin,
       lastAdminEditOn: new Date()
     },
     update: {
       motivationAdminScore,
       extracurricularAdminScore,
       examComments,
-      lastAdminEditBy: 'admin', // TODO: get the actual admin user
+      lastAdminEditBy: adminLogin,
       lastAdminEditOn: new Date()
     }
   })
@@ -196,11 +197,12 @@ const commentSchema = z.object({
 export const insertComment = async (
   cid: string,
   admissionsCycle: number,
+  ugTutorEmail: string,
   internalReviewId: number,
   _: FormPassbackState,
   formData: FormData
 ): Promise<FormPassbackState> => {
-  formData.set('authorLogin', 'ug_tutor')
+  formData.set('authorLogin', ugTutorEmail)
 
   const result = commentSchema.safeParse(Object.fromEntries(formData))
   if (!result.success) return { status: 'error', message: result.error.issues[0].message }

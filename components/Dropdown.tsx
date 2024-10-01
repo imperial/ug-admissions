@@ -1,4 +1,4 @@
-import { Flex, Select, Text } from '@radix-ui/themes'
+import { Select } from '@radix-ui/themes'
 import React, { FC } from 'react'
 
 interface DropdownProps {
@@ -6,6 +6,7 @@ interface DropdownProps {
   values: string[]
   currentValue?: string
   placeholder?: string
+  disabled?: boolean
   className?: string
 }
 
@@ -14,10 +15,11 @@ const Dropdown: FC<DropdownProps> = ({
   values,
   currentValue,
   placeholder,
+  disabled = false,
   className
 }) => {
   return (
-    <Select.Root onValueChange={onValueChange} value={currentValue}>
+    <Select.Root onValueChange={onValueChange} value={currentValue} disabled={disabled}>
       <Select.Trigger placeholder={placeholder ?? ''} className={className} />
       <Select.Content>
         {values.map((value) => (

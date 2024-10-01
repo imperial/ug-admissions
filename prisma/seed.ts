@@ -17,10 +17,11 @@ const prisma = new PrismaClient()
 const createUser = (
   role: Role,
   login: string = faker.string.alpha({ length: 2 }).toLowerCase() +
-    faker.string.numeric({ length: 3 })
+    faker.string.numeric({ length: 3 }),
+  admissionsCycle: number = faker.date.future().getFullYear()
 ) => {
   return {
-    admissionsCycle: faker.date.future().getFullYear(),
+    admissionsCycle: admissionsCycle,
     login: login,
     role: role
   }
@@ -91,17 +92,22 @@ const createOutcome = (application: Application) => {
 }
 
 async function main() {
-  for (let i = 0; i < 5; i++) {
+  // create 10 reviewers with 20 applications each
+  for (let i = 0; i < 10; i++) {
     const user = await prisma.user.create({ data: createUser(Role.REVIEWER) })
 
-    for (let j = 0; j < 10; j++) {
+    for (let j = 0; j < 20; j++) {
       const application = await prisma.application.create({ data: createApplication(user) })
       await prisma.internalReview.create({ data: createReview(application) })
       await prisma.outcome.create({ data: createOutcome(application) })
     }
   }
-  await prisma.user.create({ data: createUser(Role.ADMIN, 'admin') })
-  await prisma.user.create({ data: createUser(Role.UG_TUTOR, 'ug_tutor') })
+  await prisma.user.create({
+    data: createUser(Role.ADMIN, 'zaki.amin20@imperial.ac.uk', 2024)
+  })
+  await prisma.user.create({
+    data: createUser(Role.UG_TUTOR, 'zaki.amin20@imperial.ac.uk', 2025)
+  })
 }
 
 main()
