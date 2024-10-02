@@ -23,9 +23,14 @@ const SelectAdmissionsCycle: FC<SelectAdmissionsCycleProps> = ({ admissionsCycle
       </Heading>
       <Dropdown values={admissionsCycles} onValueChange={setSelectedCycle} className="mb-2" />
       {selectedCycle && (
-        <Button color="green" onClick={() => router.push(`/applications/${selectedCycle}`)}>
-          Take me to application page for {selectedCycle}
-        </Button>
+        <Flex direction="column" gap="3">
+          <Button color="green" onClick={() => router.push(`/applications/${selectedCycle}`)}>
+            View application table for {selectedCycle}
+          </Button>
+          <Button color="plum" onClick={() => router.push(`/statistics/${selectedCycle}`)}>
+            View statistics for {selectedCycle}
+          </Button>
+        </Flex>
       )}
     </Flex>
   ) : (
