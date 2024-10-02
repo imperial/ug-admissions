@@ -101,7 +101,8 @@ function updateTmuaScores(scores: z.infer<typeof schemaTMUAScores>[]) {
       data: {
         tmuaPaper1Score: s.tmuaPaper1Score,
         tmuaPaper2Score: s.tmuaPaper2Score,
-        tmuaOverallScore: s.tmuaOverallScore
+        tmuaOverallScore: s.tmuaOverallScore,
+        nextAction: 'ADMIN_SCORING'
       }
     })
   })
