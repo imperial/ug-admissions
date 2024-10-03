@@ -41,7 +41,7 @@ const adminFormSchema = z
   .partial()
 
 export const upsertAdminScoring = async (
-  currentAction: NextActionEnum,
+  currentAction: NextAction,
   applicationId: number,
   adminLogin: string,
   _: FormPassbackState,
@@ -59,9 +59,18 @@ export const upsertAdminScoring = async (
     examComments
   } = result.data
 
-  // admin form can be updated at later stages so make sure to reset to the furthest stage
-  const nextActionEnum = Math.max(currentAction, NextActionEnum.REVIEWER_SCORING)
-  const nextAction = Object.keys(NextAction)[nextActionEnum] as NextAction
+  let nextAction: NextAction
+  if (
+    currentAction === NextAction.ADMIN_SCORING_MISSING_TMUA ||
+    currentAction === NextAction.PENDING_TMUA
+  ) {
+    // still waiting on TMUA grades
+    nextAction = NextAction.PENDING_TMUA
+  } else {
+    // admin form can be updated at later stages so make sure to reset to the furthest stage
+    const nextActionEnum = Math.max(NextActionEnum[currentAction], NextActionEnum.REVIEWER_SCORING)
+    nextAction = Object.keys(NextAction)[nextActionEnum] as NextAction
+  }
 
   await prisma.application.update({
     where: { id: applicationId },

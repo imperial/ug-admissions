@@ -126,10 +126,18 @@ function processApplicantData(objects: unknown[]): unknown[] {
     'feeStatus',
     'wideningParticipation',
     'applicationDate',
+    'tmuaPaper1Score',
+    'tmuaPaper2Score',
+    'tmuaOverallScore',
     'extenuatingCircumstances',
     'academicEligibilityNotes'
   ]
-  const applicationDf = df.select(...applicationColumns)
+
+  // filter in case the TMUA columns don't exist
+  const existingApplicationColumns = applicationColumns.filter((col) =>
+    df.listColumns().includes(col)
+  )
+  const applicationDf = df.select(...existingApplicationColumns)
   const applicationObjects = applicationDf.toCollection()
 
   const outcomeColumns = ['degreeCode']

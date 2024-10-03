@@ -7,7 +7,7 @@ import GenericDialog from '@/components/GenericDialog'
 import LabelText from '@/components/LabelText'
 import TmuaGradeBox from '@/components/TmuaGradeBox'
 import { upsertAdminScoring } from '@/lib/forms'
-import { FormPassbackState, NextActionEnum } from '@/lib/types'
+import { FormPassbackState } from '@/lib/types'
 import { decimalToNumber } from '@/lib/utils'
 import { AlevelQualification, GCSEQualification, Role } from '@prisma/client'
 import { FileTextIcon, IdCardIcon } from '@radix-ui/react-icons'
@@ -201,7 +201,7 @@ const AdminScoringDialog: FC<AdminScoringDialogProps> = ({ data, user }) => {
   const [isOpen, setIsOpen] = useState(false)
   const handleFormSuccess = () => setIsOpen(false)
   const upsertAdminScoringWithId = (prevState: FormPassbackState, formData: FormData) =>
-    upsertAdminScoring(NextActionEnum[data.nextAction], data.id, email, prevState, formData)
+    upsertAdminScoring(data.nextAction, data.id, email, prevState, formData)
 
   return (
     <GenericDialog
@@ -209,11 +209,7 @@ const AdminScoringDialog: FC<AdminScoringDialogProps> = ({ data, user }) => {
       isOpen={isOpen}
       onOpenChange={setIsOpen}
       trigger={
-        <Button
-          className="min-h-10"
-          color={'cyan'}
-          disabled={NextActionEnum[data.nextAction] < NextActionEnum.ADMIN_SCORING}
-        >
+        <Button className="min-h-10" color={'cyan'}>
           Admin Scoring Form
         </Button>
       }

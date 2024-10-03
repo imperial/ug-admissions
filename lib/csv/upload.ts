@@ -4,7 +4,7 @@ import prisma from '@/db'
 import { preprocessCsvData } from '@/lib/csv/preprocessing'
 import { parseWithSchema, schemaApplication, schemaTMUAScores, schemaUser } from '@/lib/csv/schema'
 import { allocateApplications } from '@/lib/reviewerAllocation'
-import { Application, Prisma, type User } from '@prisma/client'
+import { Application, NextAction, Prisma, type User } from '@prisma/client'
 import { z } from 'zod'
 
 import { DataUploadEnum, FormPassbackState } from '../types'
@@ -41,6 +41,13 @@ async function executePromises(promises: Promise<unknown>[]): Promise<unknown[]>
  */
 function upsertApplication(applications: z.infer<typeof schemaApplication>[]) {
   return applications.map(({ applicant, application, outcome }) => {
+    // TODO: if application already exists, nextAction can erroneously be backtracked
+    // If the application has all TMUA scores, set the next action to ADMIN_SCORING_WITH_TMUA
+    const nextAction =
+      application.tmuaPaper1Score && application.tmuaPaper2Score && application.tmuaOverallScore
+        ? NextAction.ADMIN_SCORING_WITH_TMUA
+        : NextAction.ADMIN_SCORING_MISSING_TMUA
+
     return prisma.application.upsert({
       where: {
         admissionsCycle_applicantCid: {
@@ -50,6 +57,7 @@ function upsertApplication(applications: z.infer<typeof schemaApplication>[]) {
       },
       update: {
         ...application,
+        nextAction,
         applicant: {
           update: applicant
         },
@@ -69,6 +77,7 @@ function upsertApplication(applications: z.infer<typeof schemaApplication>[]) {
       },
       create: {
         ...application,
+        nextAction,
         applicant: {
           connectOrCreate: {
             where: {
@@ -88,9 +97,42 @@ function upsertApplication(applications: z.infer<typeof schemaApplication>[]) {
   })
 }
 
-// application must already exist
+/**
+ * Updates the TMUA scores for existing applications (must already exist!)
+ *
+ * - If current nextAction is ADMIN_SCORING_MISSING_TMUA, set nextAction to ADMIN_SCORING_WITH_TMUA
+ * - If current nextAction is ADMIN_SCORING_WITH_TMUA, keep it as is
+ * - If current nextAction is PENDING_TMUA, move to REVIEWER_SCORING
+ *
+ * @param scores - an array of schema objects containing TMUA scores
+ */
 function updateTmuaScores(scores: z.infer<typeof schemaTMUAScores>[]) {
-  return scores.map((s) => {
+  return scores.map(async (s) => {
+    const application = await prisma.application.findUnique({
+      where: {
+        admissionsCycle_applicantCid: {
+          admissionsCycle: s.admissionsCycle,
+          applicantCid: s.cid
+        }
+      },
+      select: {
+        nextAction: true
+      }
+    })
+
+    if (!application) {
+      // cannot update TMUA scores for an application that does not exist
+      return
+    }
+
+    let nextAction = application.nextAction
+    if (application.nextAction === NextAction.ADMIN_SCORING_MISSING_TMUA) {
+      nextAction = NextAction.ADMIN_SCORING_WITH_TMUA
+    } else if (application.nextAction === NextAction.PENDING_TMUA) {
+      nextAction = NextAction.REVIEWER_SCORING
+    }
+    // if another nextAction, keep it as is
+
     return prisma.application.update({
       where: {
         admissionsCycle_applicantCid: {
@@ -102,7 +144,7 @@ function updateTmuaScores(scores: z.infer<typeof schemaTMUAScores>[]) {
         tmuaPaper1Score: s.tmuaPaper1Score,
         tmuaPaper2Score: s.tmuaPaper2Score,
         tmuaOverallScore: s.tmuaOverallScore,
-        nextAction: 'ADMIN_SCORING'
+        nextAction
       }
     })
   })
