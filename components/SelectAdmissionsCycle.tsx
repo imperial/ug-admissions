@@ -3,7 +3,7 @@
 import Dropdown from '@/components/Dropdown'
 import { BarChartIcon, ExclamationTriangleIcon, ReaderIcon } from '@radix-ui/react-icons'
 import { Button, Callout, Flex, Heading } from '@radix-ui/themes'
-import { useRouter } from 'next/navigation'
+import Link from 'next/link'
 import { FC, useState } from 'react'
 
 interface SelectAdmissionsCycleProps {
@@ -12,8 +12,6 @@ interface SelectAdmissionsCycleProps {
 
 // Choose an applications cycle for which the user has a role.
 const SelectAdmissionsCycle: FC<SelectAdmissionsCycleProps> = ({ admissionsCycles }) => {
-  const router = useRouter()
-
   const [selectedCycle, setSelectedCycle] = useState<string | null>(null)
 
   return admissionsCycles.length > 0 ? (
@@ -24,14 +22,22 @@ const SelectAdmissionsCycle: FC<SelectAdmissionsCycleProps> = ({ admissionsCycle
       <Dropdown values={admissionsCycles} onValueChange={setSelectedCycle} className="mb-2" />
       {selectedCycle && (
         <Flex direction="column" gap="3">
-          <Button color="green" onClick={() => router.push(`/applications/${selectedCycle}`)}>
-            <ReaderIcon />
-            Process applications
-          </Button>
-          <Button color="plum" onClick={() => router.push(`/statistics/${selectedCycle}`)}>
-            <BarChartIcon />
-            View statistics
-          </Button>
+          <Link href={`/applications/${selectedCycle}`}>
+            <Button color="green" className="w-full">
+              <Flex align="center" justify="center" gap="2">
+                <ReaderIcon />
+                Process applications
+              </Flex>
+            </Button>
+          </Link>
+          <Link href={`/statistics/${selectedCycle}`}>
+            <Button color="plum" className="w-full">
+              <Flex align="center" justify="center" gap="2">
+                <BarChartIcon />
+                View statistics
+              </Flex>
+            </Button>
+          </Link>
         </Flex>
       )}
     </Flex>
