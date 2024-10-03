@@ -41,6 +41,7 @@ export const schemaApplication = z.object({
 // used to insert TMUA grades
 export const schemaTMUAScores = z.object({
   cid: z.string().length(8, { message: 'CID must be exactly 8 characters' }),
+  admissionsCycle: z.coerce.number().int().positive(),
   tmuaPaper1Score: z.coerce.number().min(1).max(9).optional(),
   tmuaPaper2Score: z.coerce.number().min(1).max(9).optional(),
   tmuaOverallScore: z.coerce.number().min(1).max(9).optional()

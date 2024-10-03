@@ -1,5 +1,6 @@
 'use client'
 
+import CandidateCallout from '@/components/CandidateCallout'
 import FormWrapper from '@/components/FormWrapper'
 import GenericDialog from '@/components/GenericDialog'
 import LabelText from '@/components/LabelText'
@@ -35,19 +36,14 @@ const ReviewerScoringForm: FC<ReviewerScoringFormProps> = ({ data, readOnly }) =
         </Text>
       )}
 
+      <CandidateCallout
+        firstName={applicant.firstName}
+        surname={applicant.surname}
+        ucasNumber={applicant.ucasNumber}
+      />
+
       <Callout.Root>
         <DataList.Root>
-          <DataList.Item align="center">
-            <DataList.Label>Applicant:</DataList.Label>
-            <DataList.Value className="font-bold">
-              {applicant.firstName} {applicant.surname}
-            </DataList.Value>
-          </DataList.Item>
-          <DataList.Item align="center">
-            <DataList.Label>UCAS number:</DataList.Label>
-            <DataList.Value className="font-bold">{applicant.ucasNumber}</DataList.Value>
-          </DataList.Item>
-
           <DataList.Item align="center">
             <DataList.Label color={MOTIVATION_COLOUR}>Admin Motivation Assessment:</DataList.Label>
             <DataList.Value className="font-bold">
