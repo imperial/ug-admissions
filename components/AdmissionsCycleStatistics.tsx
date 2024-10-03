@@ -1,6 +1,5 @@
 'use client'
 
-import { NextAction } from '@prisma/client'
 import { DataList, Flex, Heading } from '@radix-ui/themes'
 import React, { FC } from 'react'
 import {
@@ -19,7 +18,7 @@ interface AdmissionsCycleStatisticsProps {
   noApplicants: number
   noOffers: number
   noRejections: number
-  nextActionCounts: Record<NextAction, number>
+  nextActionCounts: { name: string; quantity: number }[]
 }
 
 interface NextActionGraphProps {
@@ -28,7 +27,7 @@ interface NextActionGraphProps {
 
 const NextActionGraph: FC<NextActionGraphProps> = ({ data }) => {
   return (
-    <ResponsiveContainer width="100%" height={400}>
+    <ResponsiveContainer width="100%" height={500} className="mt-2">
       <BarChart data={data}>
         <XAxis dataKey="name" />
         <YAxis />
@@ -51,11 +50,6 @@ const AdmissionsCycleStatistics: FC<AdmissionsCycleStatisticsProps> = ({
   noRejections,
   nextActionCounts
 }) => {
-  const nextActionGraphData = Object.entries(nextActionCounts).map(([nextAction, count]) => ({
-    name: nextAction,
-    quantity: count
-  }))
-
   return (
     <Flex direction="column" gap="4">
       <Heading>Undergraduate Admissions Portal</Heading>
@@ -81,7 +75,7 @@ const AdmissionsCycleStatistics: FC<AdmissionsCycleStatisticsProps> = ({
         </DataList.Item>
       </DataList.Root>
 
-      <NextActionGraph data={nextActionGraphData} />
+      <NextActionGraph data={nextActionCounts} />
     </Flex>
   )
 }

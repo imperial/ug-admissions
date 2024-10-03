@@ -38,23 +38,21 @@ export default async function AdmissionsCycleStatisticsPage({
   const noOffers = outcomes.filter((outcome) => outcome.decision === Decision.OFFER).length
   const noRejections = outcomes.filter((outcome) => outcome.decision === Decision.REJECT).length
 
-  // Count the number of applications with each type of nextAction
-  const nextActionCounts: Record<NextAction, number> = {
-    ADMIN_SCORING: 0,
-    CANDIDATE_INFORMED: 0,
-    INFORM_CANDIDATE: 0,
-    REVIEWER_SCORING: 0,
-    TMUA_CANDIDATE: 0,
-    TMUA_RESULT: 0,
-    UG_TUTOR_REVIEW: 0
-  }
-  for (const nextAction of Object.values(NextAction)) {
-    nextActionCounts[nextAction] = await prisma.application.count({
-      where: {
-        admissionsCycle: cycle,
-        nextAction
-      }
-    })
+  const nextActionCountsQuery = await prisma.application.groupBy({
+    by: ['nextAction'],
+    where: {
+      admissionsCycle: cycle
+    },
+    _count: {
+      nextAction: true
+    }
+  })
+
+  const nextActionCounts: { name: string; quantity: number }[] = []
+  for (const nextAction of Object.keys(NextAction)) {
+    const correspondingNumber = nextActionCountsQuery.find((item) => item.nextAction === nextAction)
+      ?._count.nextAction
+    nextActionCounts.push({ name: nextAction, quantity: correspondingNumber ?? 0 })
   }
 
   return (
