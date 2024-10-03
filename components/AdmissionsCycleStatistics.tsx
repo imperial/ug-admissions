@@ -33,18 +33,17 @@ const AdmissionsCycleStatistics: FC<AdmissionsCycleStatisticsProps> = ({
   return (
     <Flex direction="column" gap="5">
       <Flex justify="between">
-        <Heading>Undergraduate Admissions Portal</Heading>
+        <Heading as="h1" size="6">
+          {`Admissions Cycle Statistics: ${cycle}`}
+        </Heading>
         <Button color="green" onClick={() => (window.location.href = '/')}>
           <HomeIcon />
           Return to homepage
         </Button>
       </Flex>
-      <Heading as="h1" size="4">
-        {`${cycle} Admissions Cycle`}
-      </Heading>
 
-      <Heading as="h2" size="3">
-        Summary statistics
+      <Heading as="h2" size="4">
+        Overview
       </Heading>
       <DataList.Root>
         <DataList.Item>
@@ -79,11 +78,11 @@ interface NextActionGraphProps {
 const NextActionGraph: FC<NextActionGraphProps> = ({ data }) => {
   return (
     <Flex direction="column">
-      <Heading as="h2" size="3">
+      <Heading as="h2" size="3" align="center">
         Applications per stage
       </Heading>
       <ResponsiveContainer width="100%" height={400} className="mt-4">
-        <BarChart data={data} title="Applications per stage">
+        <BarChart data={data}>
           <XAxis dataKey="name">
             <Label value={'Next Action'} dy={10} position="insideBottom" />
           </XAxis>
@@ -96,6 +95,7 @@ const NextActionGraph: FC<NextActionGraphProps> = ({ data }) => {
             dataKey="quantity"
             fill="#085d9e"
             activeBar={<Rectangle fill="green" stroke="black" />}
+            barSize={100}
           />
         </BarChart>
       </ResponsiveContainer>
