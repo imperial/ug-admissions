@@ -1,7 +1,7 @@
 'use client'
 
 import Dropdown from '@/components/Dropdown'
-import { ExclamationTriangleIcon } from '@radix-ui/react-icons'
+import { BarChartIcon, ExclamationTriangleIcon, ReaderIcon } from '@radix-ui/react-icons'
 import { Button, Callout, Flex, Heading } from '@radix-ui/themes'
 import { useRouter } from 'next/navigation'
 import { FC, useState } from 'react'
@@ -25,10 +25,12 @@ const SelectAdmissionsCycle: FC<SelectAdmissionsCycleProps> = ({ admissionsCycle
       {selectedCycle && (
         <Flex direction="column" gap="3">
           <Button color="green" onClick={() => router.push(`/applications/${selectedCycle}`)}>
-            View application table for {selectedCycle}
+            <ReaderIcon />
+            Process applications
           </Button>
           <Button color="plum" onClick={() => router.push(`/statistics/${selectedCycle}`)}>
-            View statistics for {selectedCycle}
+            <BarChartIcon />
+            View statistics
           </Button>
         </Flex>
       )}
