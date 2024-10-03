@@ -91,6 +91,9 @@ const DataUploadDialog: FC<DataUploadDialogProps> = ({ disabled }) => {
       <FormWrapper action={processCsvUploadWrapped} submitButtonText="Upload">
         <DataUploadForm file={file} setFile={setFile} />
       </FormWrapper>
+      <Button color="teal" onClick={() => window.location.reload()}>
+        <em>After uploading, refresh to see changes</em>
+      </Button>
     </GenericDialog>
   )
 }

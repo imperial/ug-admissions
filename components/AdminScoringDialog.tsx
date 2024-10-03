@@ -1,23 +1,17 @@
 'use client'
 
+import CandidateCallout from '@/components/CandidateCallout'
 import Dropdown from '@/components/Dropdown'
 import FormWrapper from '@/components/FormWrapper'
 import GenericDialog from '@/components/GenericDialog'
 import LabelText from '@/components/LabelText'
+import TmuaGradeBox from '@/components/TmuaGradeBox'
 import { upsertAdminScoring } from '@/lib/forms'
 import { FormPassbackState, NextActionEnum } from '@/lib/types'
+import { decimalToNumber } from '@/lib/utils'
 import { AlevelQualification, GCSEQualification, Role } from '@prisma/client'
 import { FileTextIcon, IdCardIcon } from '@radix-ui/react-icons'
-import {
-  Button,
-  Callout,
-  DataList,
-  Flex,
-  Heading,
-  Popover,
-  Text,
-  TextField
-} from '@radix-ui/themes'
+import { Button, Flex, Heading, Popover, Text, TextField } from '@radix-ui/themes'
 import { format } from 'date-fns'
 import React, { FC, useState } from 'react'
 
@@ -50,20 +44,21 @@ const AdminScoringForm: FC<AdminScoringFormProps> = ({ data, readOnly }) => {
           {format(internalReview.lastAdminEditOn, "dd/MM/yy 'at' HH:mm")}
         </Text>
       )}
-      <Callout.Root>
-        <DataList.Root>
-          <DataList.Item align="center">
-            <DataList.Label>Applicant:</DataList.Label>
-            <DataList.Value className="font-bold">
-              {applicant.firstName} {applicant.surname}
-            </DataList.Value>
-          </DataList.Item>
-          <DataList.Item align="center">
-            <DataList.Label>UCAS number:</DataList.Label>
-            <DataList.Value className="font-bold">{applicant.ucasNumber}</DataList.Value>
-          </DataList.Item>
-        </DataList.Root>
-      </Callout.Root>
+
+      <CandidateCallout
+        firstName={applicant.firstName}
+        surname={applicant.surname}
+        ucasNumber={applicant.ucasNumber}
+      />
+
+      {/* Reviewers should not be able to see TMUA grades */}
+      {!readOnly && (
+        <TmuaGradeBox
+          paper1Score={data.tmuaPaper1Score}
+          paper2Score={data.tmuaPaper2Score}
+          overallScore={data.tmuaOverallScore}
+        />
+      )}
 
       <Flex direction="column" gap="2">
         <Flex direction="column" gap="2">
@@ -124,7 +119,7 @@ const AdminScoringForm: FC<AdminScoringFormProps> = ({ data, readOnly }) => {
               className="flex-grow"
               disabled={!gcseQualification || readOnly}
               required={!!gcseQualification}
-              defaultValue={parseFloat(data?.gcseQualificationScore?.toString() ?? '')}
+              defaultValue={decimalToNumber(data?.gcseQualificationScore)}
             />
           </LabelText>
         </Flex>
@@ -155,7 +150,7 @@ const AdminScoringForm: FC<AdminScoringFormProps> = ({ data, readOnly }) => {
               className="flex-grow"
               disabled={!aLevelQualification || readOnly}
               required={!!aLevelQualification}
-              defaultValue={parseFloat(data?.aLevelQualificationScore?.toString() ?? '')}
+              defaultValue={decimalToNumber(data?.aLevelQualificationScore)}
             />
           </LabelText>
         </Flex>
@@ -168,7 +163,7 @@ const AdminScoringForm: FC<AdminScoringFormProps> = ({ data, readOnly }) => {
             min={0.0}
             max={10.0}
             step={0.1}
-            defaultValue={parseFloat(internalReview?.motivationAdminScore?.toString() ?? '')}
+            defaultValue={decimalToNumber(internalReview?.motivationAdminScore)}
             disabled={readOnly}
           />
         </LabelText>
@@ -181,7 +176,7 @@ const AdminScoringForm: FC<AdminScoringFormProps> = ({ data, readOnly }) => {
             min={0.0}
             max={10.0}
             step={0.1}
-            defaultValue={parseFloat(internalReview?.extracurricularAdminScore?.toString() ?? '')}
+            defaultValue={decimalToNumber(internalReview?.extracurricularAdminScore)}
             disabled={readOnly}
           />
         </LabelText>

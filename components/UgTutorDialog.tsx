@@ -1,9 +1,11 @@
 import { ApplicationRow } from '@/components/ApplicationTable'
+import CandidateCallout from '@/components/CandidateCallout'
 import CommentItem from '@/components/CommentItem'
 import Dropdown from '@/components/Dropdown'
 import FormWrapper from '@/components/FormWrapper'
 import GenericDialog from '@/components/GenericDialog'
 import LabelText from '@/components/LabelText'
+import TmuaGradeBox from '@/components/TmuaGradeBox'
 import { insertComment, upsertOutcome } from '@/lib/forms'
 import { FormPassbackState } from '@/lib/types'
 import {
@@ -16,9 +18,7 @@ import {
 import {
   Box,
   Button,
-  Callout,
   Card,
-  DataList,
   Flex,
   Heading,
   Separator,
@@ -66,20 +66,20 @@ const UgTutorForm: FC<UgTutorFormProps> = ({ data, readOnly, setCurrentTab }) =>
 
   return (
     <Flex direction="column" gap="3">
-      <Callout.Root>
-        <DataList.Root>
-          <DataList.Item align="center">
-            <DataList.Label>Applicant:</DataList.Label>
-            <DataList.Value className="font-bold">
-              {applicant.firstName} {applicant.surname}
-            </DataList.Value>
-          </DataList.Item>
-          <DataList.Item align="center">
-            <DataList.Label>UCAS number:</DataList.Label>
-            <DataList.Value className="font-bold">{applicant.ucasNumber}</DataList.Value>
-          </DataList.Item>
-        </DataList.Root>
-      </Callout.Root>
+      <CandidateCallout
+        firstName={applicant.firstName}
+        surname={applicant.surname}
+        ucasNumber={applicant.ucasNumber}
+      />
+
+      {/* Reviewers should not be able to see TMUA grades */}
+      {!readOnly && (
+        <TmuaGradeBox
+          paper1Score={data.tmuaPaper1Score}
+          paper2Score={data.tmuaPaper2Score}
+          overallScore={data.tmuaOverallScore}
+        />
+      )}
 
       <Tabs.Root defaultValue="outcomes" onValueChange={(tabName) => setCurrentTab(tabName as Tab)}>
         <Tabs.List>
