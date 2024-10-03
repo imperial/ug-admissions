@@ -1,6 +1,7 @@
 'use client'
 
 import AdminScoringDialog from '@/components/AdminScoringDialog'
+import HomepageLinkButton from '@/components/HomepageLinkButton'
 import ReviewerScoringDialog from '@/components/ReviewerScoringDialog'
 import UgTutorDialog from '@/components/UgTutorDialog'
 import {
@@ -149,6 +150,7 @@ const ApplicationTable: FC<ApplicationTableProps> = ({
             Logged in as: <strong>{email}</strong>
           </Text>
         </Card>
+        <HomepageLinkButton />
       </Flex>
       <Card className="mb-2 bg-amber-200">
         <Flex justify="between">

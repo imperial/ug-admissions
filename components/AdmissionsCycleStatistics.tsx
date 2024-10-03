@@ -1,7 +1,7 @@
 'use client'
 
-import { HomeIcon } from '@radix-ui/react-icons'
-import { Button, DataList, Flex, Heading } from '@radix-ui/themes'
+import HomepageLinkButton from '@/components/HomepageLinkButton'
+import { DataList, Flex, Heading } from '@radix-ui/themes'
 import React, { FC } from 'react'
 import {
   Bar,
@@ -36,10 +36,7 @@ const AdmissionsCycleStatistics: FC<AdmissionsCycleStatisticsProps> = ({
         <Heading as="h1" size="6">
           {`Admissions Cycle Statistics: ${cycle}`}
         </Heading>
-        <Button color="green" onClick={() => (window.location.href = '/')}>
-          <HomeIcon />
-          Return to homepage
-        </Button>
+        <HomepageLinkButton />
       </Flex>
 
       <Heading as="h2" size="4">
