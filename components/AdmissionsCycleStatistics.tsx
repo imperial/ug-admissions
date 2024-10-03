@@ -1,10 +1,12 @@
 'use client'
 
-import { DataList, Flex, Heading } from '@radix-ui/themes'
+import { HomeIcon } from '@radix-ui/react-icons'
+import { Button, DataList, Flex, Heading } from '@radix-ui/themes'
 import React, { FC } from 'react'
 import {
   Bar,
   BarChart,
+  Label,
   Legend,
   Rectangle,
   ResponsiveContainer,
@@ -21,28 +23,6 @@ interface AdmissionsCycleStatisticsProps {
   nextActionCounts: { name: string; quantity: number }[]
 }
 
-interface NextActionGraphProps {
-  data: { name: string; quantity: number }[]
-}
-
-const NextActionGraph: FC<NextActionGraphProps> = ({ data }) => {
-  return (
-    <ResponsiveContainer width="100%" height={500} className="mt-2">
-      <BarChart data={data}>
-        <XAxis dataKey="name" />
-        <YAxis />
-        <Tooltip />
-        <Legend />
-        <Bar
-          dataKey="quantity"
-          fill="#8884d8"
-          activeBar={<Rectangle fill="pink" stroke="blue" />}
-        />
-      </BarChart>
-    </ResponsiveContainer>
-  )
-}
-
 const AdmissionsCycleStatistics: FC<AdmissionsCycleStatisticsProps> = ({
   cycle,
   noApplicants,
@@ -51,31 +31,74 @@ const AdmissionsCycleStatistics: FC<AdmissionsCycleStatisticsProps> = ({
   nextActionCounts
 }) => {
   return (
-    <Flex direction="column" gap="4">
-      <Heading>Undergraduate Admissions Portal</Heading>
+    <Flex direction="column" gap="5">
+      <Flex justify="between">
+        <Heading>Undergraduate Admissions Portal</Heading>
+        <Button color="green" onClick={() => (window.location.href = '/')}>
+          <HomeIcon />
+          Return to homepage
+        </Button>
+      </Flex>
       <Heading as="h1" size="4">
         {`${cycle} Admissions Cycle`}
       </Heading>
+
       <Heading as="h2" size="3">
         Summary statistics
       </Heading>
-
       <DataList.Root>
         <DataList.Item>
-          <DataList.Label>Total number of applicants:</DataList.Label>
+          <DataList.Label>
+            <strong>Total number of applicants:</strong>
+          </DataList.Label>
           <DataList.Value>{noApplicants}</DataList.Value>
         </DataList.Item>
         <DataList.Item>
-          <DataList.Label color="green">Offers made:</DataList.Label>
+          <DataList.Label color="green">
+            <strong>Offers made:</strong>
+          </DataList.Label>
           <DataList.Value>{noOffers}</DataList.Value>
         </DataList.Item>
         <DataList.Item>
-          <DataList.Label color="red">Rejections:</DataList.Label>
+          <DataList.Label color="red">
+            <strong>Rejections:</strong>
+          </DataList.Label>
           <DataList.Value>{noRejections}</DataList.Value>
         </DataList.Item>
       </DataList.Root>
 
       <NextActionGraph data={nextActionCounts} />
+    </Flex>
+  )
+}
+
+interface NextActionGraphProps {
+  data: { name: string; quantity: number }[]
+}
+
+const NextActionGraph: FC<NextActionGraphProps> = ({ data }) => {
+  return (
+    <Flex direction="column">
+      <Heading as="h2" size="3">
+        Applications per stage
+      </Heading>
+      <ResponsiveContainer width="100%" height={400} className="mt-4">
+        <BarChart data={data} title="Applications per stage">
+          <XAxis dataKey="name">
+            <Label value={'Next Action'} dy={10} position="insideBottom" />
+          </XAxis>
+          <YAxis dataKey="quantity">
+            <Label value={'Number of applications'} angle={-90} dx={-30} position="middle" />
+          </YAxis>
+          <Tooltip />
+          <Legend verticalAlign="top" align="right" />
+          <Bar
+            dataKey="quantity"
+            fill="#085d9e"
+            activeBar={<Rectangle fill="green" stroke="black" />}
+          />
+        </BarChart>
+      </ResponsiveContainer>
     </Flex>
   )
 }
