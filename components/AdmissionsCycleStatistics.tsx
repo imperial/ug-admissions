@@ -17,7 +17,7 @@ import {
 
 interface AdmissionsCycleStatisticsProps {
   cycle: number
-  noApplicants: number
+  noApplications: number
   noOffers: number
   noRejections: number
   nextActionCounts: { name: string; quantity: number }[]
@@ -25,7 +25,7 @@ interface AdmissionsCycleStatisticsProps {
 
 const AdmissionsCycleStatistics: FC<AdmissionsCycleStatisticsProps> = ({
   cycle,
-  noApplicants,
+  noApplications,
   noOffers,
   noRejections,
   nextActionCounts
@@ -45,9 +45,9 @@ const AdmissionsCycleStatistics: FC<AdmissionsCycleStatisticsProps> = ({
       <DataList.Root>
         <DataList.Item>
           <DataList.Label>
-            <strong>Total number of applicants:</strong>
+            <strong>Total number of applications:</strong>
           </DataList.Label>
-          <DataList.Value>{noApplicants}</DataList.Value>
+          <DataList.Value>{noApplications}</DataList.Value>
         </DataList.Item>
         <DataList.Item>
           <DataList.Label color="green">

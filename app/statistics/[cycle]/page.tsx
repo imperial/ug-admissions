@@ -1,8 +1,6 @@
-import { auth } from '@/auth'
 import AdmissionsCycleStatistics from '@/components/AdmissionsCycleStatistics'
 import prisma from '@/db'
 import { Decision, NextAction } from '@prisma/client'
-import { redirect } from 'next/navigation'
 
 export const dynamic = 'force-dynamic'
 
@@ -11,22 +9,7 @@ export default async function AdmissionsCycleStatisticsPage({
 }: {
   params: { cycle: string }
 }) {
-  // Redirect to login page if not authenticated
-  const session = await auth()
-  if (!session) {
-    redirect('/auth/login')
-  }
-
-  const userEmail = session?.user?.email as string
   const cycle = parseInt(params.cycle)
-
-  // count applications because applicants don't have cycles
-  // ignore different outcomes per degree code
-  const noApplicants = await prisma.application.count({
-    where: {
-      admissionsCycle: cycle
-    }
-  })
 
   const outcomes = await prisma.outcome.findMany({
     where: {
@@ -35,6 +18,8 @@ export default async function AdmissionsCycleStatisticsPage({
       }
     }
   })
+
+  const noApplications = outcomes.length
   const noOffers = outcomes.filter((outcome) => outcome.decision === Decision.OFFER).length
   const noRejections = outcomes.filter((outcome) => outcome.decision === Decision.REJECT).length
 
@@ -58,7 +43,7 @@ export default async function AdmissionsCycleStatisticsPage({
   return (
     <AdmissionsCycleStatistics
       cycle={Number(params.cycle)}
-      noApplicants={noApplicants}
+      noApplications={noApplications}
       noOffers={noOffers}
       noRejections={noRejections}
       nextActionCounts={nextActionCounts}
