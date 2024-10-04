@@ -80,7 +80,7 @@ const NextActionGraph: FC<NextActionGraphProps> = ({ data }) => {
       </Heading>
       <ResponsiveContainer width="100%" height={400} className="mt-4">
         <BarChart data={data}>
-          <XAxis dataKey="name">
+          <XAxis dataKey="name" tick={{ fontSize: 11 }}>
             <Label value={'Next Action'} dy={10} position="insideBottom" />
           </XAxis>
           <YAxis dataKey="quantity">
