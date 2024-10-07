@@ -17,17 +17,17 @@ import {
 
 interface AdmissionsCycleStatisticsProps {
   cycle: number
-  noApplications: number
-  noOffers: number
-  noRejections: number
+  applicationsCount: number
+  offersCount: number
+  rejectionsCount: number
   nextActionCounts: { name: string; quantity: number }[]
 }
 
 const AdmissionsCycleStatistics: FC<AdmissionsCycleStatisticsProps> = ({
   cycle,
-  noApplications,
-  noOffers,
-  noRejections,
+  applicationsCount,
+  offersCount,
+  rejectionsCount,
   nextActionCounts
 }) => {
   return (
@@ -47,19 +47,19 @@ const AdmissionsCycleStatistics: FC<AdmissionsCycleStatisticsProps> = ({
           <DataList.Label>
             <strong>Total number of applications:</strong>
           </DataList.Label>
-          <DataList.Value>{noApplications}</DataList.Value>
+          <DataList.Value>{applicationsCount}</DataList.Value>
         </DataList.Item>
         <DataList.Item>
           <DataList.Label color="green">
             <strong>Offers made:</strong>
           </DataList.Label>
-          <DataList.Value>{noOffers}</DataList.Value>
+          <DataList.Value>{offersCount}</DataList.Value>
         </DataList.Item>
         <DataList.Item>
           <DataList.Label color="red">
             <strong>Rejections:</strong>
           </DataList.Label>
-          <DataList.Value>{noRejections}</DataList.Value>
+          <DataList.Value>{rejectionsCount}</DataList.Value>
         </DataList.Item>
       </DataList.Root>
 

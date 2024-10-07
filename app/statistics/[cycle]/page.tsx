@@ -19,9 +19,9 @@ export default async function AdmissionsCycleStatisticsPage({
     }
   })
 
-  const noApplications = outcomes.length
-  const noOffers = outcomes.filter((outcome) => outcome.decision === Decision.OFFER).length
-  const noRejections = outcomes.filter((outcome) => outcome.decision === Decision.REJECT).length
+  const applicationsCount = outcomes.length
+  const offersCount = outcomes.filter((outcome) => outcome.decision === Decision.OFFER).length
+  const rejectionsCount = outcomes.filter((outcome) => outcome.decision === Decision.REJECT).length
 
   const nextActionCountsQuery = await prisma.application.groupBy({
     by: ['nextAction'],
@@ -33,19 +33,19 @@ export default async function AdmissionsCycleStatisticsPage({
     }
   })
 
-  const nextActionCounts: { name: string; quantity: number }[] = []
-  for (const nextAction of Object.keys(NextAction)) {
-    const correspondingNumber = nextActionCountsQuery.find((item) => item.nextAction === nextAction)
-      ?._count.nextAction
-    nextActionCounts.push({ name: nextAction, quantity: correspondingNumber ?? 0 })
-  }
+  const nextActionCounts: { name: string; quantity: number }[] = Object.keys(NextAction).map(
+    (na) => ({
+      name: na,
+      quantity: nextActionCountsQuery.find((i) => i.nextAction === na)?._count.nextAction ?? 0
+    })
+  )
 
   return (
     <AdmissionsCycleStatistics
       cycle={Number(params.cycle)}
-      noApplications={noApplications}
-      noOffers={noOffers}
-      noRejections={noRejections}
+      applicationsCount={applicationsCount}
+      offersCount={offersCount}
+      rejectionsCount={rejectionsCount}
       nextActionCounts={nextActionCounts}
     />
   )

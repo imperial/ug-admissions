@@ -145,12 +145,14 @@ const ApplicationTable: FC<ApplicationTableProps> = ({
     <>
       <Flex align="center" justify="between" gapX="5" className="mb-2">
         <Heading>Undergraduate Admissions Portal</Heading>
-        <Card className="bg-cyan-200">
-          <Text>
-            Logged in as: <strong>{email}</strong>
-          </Text>
-        </Card>
-        <HomepageLinkButton />
+        <Flex direction="column" align="end" gapY="2">
+          <HomepageLinkButton />
+          <Card className="bg-cyan-200">
+            <Text>
+              Logged in as: <strong>{email}</strong>
+            </Text>
+          </Card>
+        </Flex>
       </Flex>
       <Card className="mb-2 bg-amber-200">
         <Flex justify="between">
