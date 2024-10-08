@@ -62,16 +62,17 @@ const DataUploadForm: FC<DataUploadFormProps> = ({ file, setFile }) => {
 
 interface DataUploadDialogProps {
   disabled: boolean
+  userEmail: string
 }
 
-const DataUploadDialog: FC<DataUploadDialogProps> = ({ disabled }) => {
+const DataUploadDialog: FC<DataUploadDialogProps> = ({ disabled, userEmail }) => {
   const [isDialogOpen, setIsDialogOpen] = useState(false)
   const [file, setFile] = useState<File | null>(null)
 
   const processCsvUploadWrapped = async (prevState: FormPassbackState, formData: FormData) => {
     if (!file) return { message: 'No CSV file uploaded', status: 'error' }
     formData.append('csv', file)
-    return await processCsvUpload(prevState, formData)
+    return await processCsvUpload(prevState, formData, userEmail)
   }
 
   return (

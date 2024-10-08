@@ -176,7 +176,10 @@ function updateTmuaScores(scores: z.infer<typeof schemaTMUAScores>[]) {
 }
 
 // application must already exist
-function updateAdminAssessments(assessments: z.infer<typeof schemaAdminAssessments>[]) {
+function updateAdminAssessments(
+  assessments: z.infer<typeof schemaAdminAssessments>[],
+  userEmail: string
+) {
   return assessments.map(async (a) => {
     const currentNextAction = await getCurrentNextAction(a.admissionsCycle, a.cid)
     if (!currentNextAction) return
@@ -204,7 +207,9 @@ function updateAdminAssessments(assessments: z.infer<typeof schemaAdminAssessmen
           update: {
             motivationAdminScore: a.motivationAssessments,
             extracurricularAdminScore: a.extracurricularAssessments,
-            examComments: a.examComments
+            examComments: a.examComments,
+            lastAdminEditBy: userEmail,
+            lastAdminEditOn: new Date()
           }
         }
       }
@@ -234,10 +239,12 @@ function upsertUsers(users: z.infer<typeof schemaUser>[]): Promise<User>[] {
  * Process a CSV upload and upsert the data into the database
  * @param _ - unused form passback state
  * @param formData - the form data containing the CSV file and the dataUploadType
+ * @param userEmail - the email of the user uploading the data for logging
  */
 export const processCsvUpload = async (
   _: FormPassbackState,
-  formData: FormData
+  formData: FormData,
+  userEmail: string
 ): Promise<FormPassbackState> => {
   const dataUploadTypeParseResult = z
     .nativeEnum(DataUploadEnum)
@@ -273,7 +280,7 @@ export const processCsvUpload = async (
     case DataUploadEnum.ADMIN_ASSESSMENTS: {
       const { data: parsedAdminData, noErrors } = parseWithSchema(objects, schemaAdminAssessments)
       noParsingErrors = noErrors
-      upsertPromises = updateAdminAssessments(parsedAdminData)
+      upsertPromises = updateAdminAssessments(parsedAdminData, userEmail)
       break
     }
     case DataUploadEnum.USER_ROLES: {
