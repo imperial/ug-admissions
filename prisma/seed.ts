@@ -41,6 +41,8 @@ const createApplicant = () => {
 }
 
 const createApplication = (reviewer: User) => {
+  const paper1Score = faker.number.float({ multipleOf: 0.1, min: 1.0, max: 9.0 })
+  const paper2Score = faker.number.float({ multipleOf: 0.1, min: 1.0, max: 9.0 })
   return {
     applicant: { create: createApplicant() },
     admissionsCycle: faker.date.future().getFullYear(),
@@ -49,9 +51,9 @@ const createApplication = (reviewer: User) => {
     hasDisability: faker.datatype.boolean(),
     feeStatus: faker.helpers.arrayElement(Object.keys(FeeStatus)) as FeeStatus,
     nextAction: faker.helpers.arrayElement(Object.keys(NextAction)) as NextAction,
-    tmuaPaper1Score: faker.number.float({ multipleOf: 0.1, min: 1.0, max: 9.0 }),
-    tmuaPaper2Score: faker.number.float({ multipleOf: 0.1, min: 1.0, max: 9.0 }),
-    tmuaOverallScore: faker.number.float({ multipleOf: 0.1, min: 1.0, max: 9.0 }),
+    tmuaPaper1Score: paper1Score,
+    tmuaPaper2Score: paper2Score,
+    tmuaOverallScore: (paper1Score + paper2Score) / 2,
     gcseQualification: faker.helpers.arrayElement(
       Object.keys(GCSEQualification)
     ) as GCSEQualification,
@@ -106,7 +108,13 @@ async function main() {
     data: createUser(Role.ADMIN, 'zaki.amin20@imperial.ac.uk', 2024)
   })
   await prisma.user.create({
+    data: createUser(Role.REVIEWER, 'reviewer@imperial.ac.uk', 2024)
+  })
+  await prisma.user.create({
     data: createUser(Role.UG_TUTOR, 'zaki.amin20@imperial.ac.uk', 2025)
+  })
+  await prisma.user.create({
+    data: createUser(Role.REVIEWER, 'reviewer@imperial.ac.uk', 2025)
   })
 }
 

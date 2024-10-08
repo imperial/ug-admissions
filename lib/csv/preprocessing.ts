@@ -75,7 +75,10 @@ function processApplicantData(objects: unknown[]): unknown[] {
     ['WP flag', 'wideningParticipation'],
     ['Sent to department', 'applicationDate'],
     ['Extenuating circumstances notes', 'extenuatingCircumstances'],
-    ['Academic eligibility notes', 'academicEligibilityNotes']
+    ['Academic eligibility notes', 'academicEligibilityNotes'],
+    ['TMUA Paper 1 Score', 'tmuaPaper1Score'],
+    ['TMUA Paper 2 Score', 'tmuaPaper2Score'],
+    ['TMUA Overall Score', 'tmuaOverallScore']
   ]
   columnsToRename.forEach(([oldName, newName]) => {
     df = df.rename(oldName, newName)
@@ -126,10 +129,18 @@ function processApplicantData(objects: unknown[]): unknown[] {
     'feeStatus',
     'wideningParticipation',
     'applicationDate',
+    'tmuaPaper1Score',
+    'tmuaPaper2Score',
+    'tmuaOverallScore',
     'extenuatingCircumstances',
     'academicEligibilityNotes'
   ]
-  const applicationDf = df.select(...applicationColumns)
+
+  // filter in case the TMUA columns don't exist
+  const existingApplicationColumns = applicationColumns.filter((col) =>
+    df.listColumns().includes(col)
+  )
+  const applicationDf = df.select(...existingApplicationColumns)
   const applicationObjects = applicationDf.toCollection()
 
   const outcomeColumns = ['degreeCode']

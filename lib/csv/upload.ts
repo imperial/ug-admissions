@@ -4,7 +4,8 @@ import prisma from '@/db'
 import { preprocessCsvData } from '@/lib/csv/preprocessing'
 import { parseWithSchema, schemaApplication, schemaTMUAScores, schemaUser } from '@/lib/csv/schema'
 import { allocateApplications } from '@/lib/reviewerAllocation'
-import { Application, Prisma, type User } from '@prisma/client'
+import { Application, NextAction, Prisma, type User } from '@prisma/client'
+import { isNumber } from 'lodash'
 import { z } from 'zod'
 
 import { DataUploadEnum, FormPassbackState } from '../types'
@@ -29,6 +30,22 @@ async function executePromises(promises: Promise<unknown>[]): Promise<unknown[]>
   return results.filter((r) => r.status === 'fulfilled').map((r) => r.value)
 }
 
+async function getCurrentNextAction(
+  admissionsCycle: number,
+  cid: string
+): Promise<NextAction | undefined> {
+  return prisma.application
+    .findUnique({
+      where: {
+        admissionsCycle_applicantCid: {
+          admissionsCycle: admissionsCycle,
+          applicantCid: cid
+        }
+      }
+    })
+    .then((app) => app?.nextAction)
+}
+
 /**
  * If application does not exist:
  *   - creates a new outcome
@@ -40,7 +57,30 @@ async function executePromises(promises: Promise<unknown>[]): Promise<unknown[]>
  * @param applications - an array of schema objects with a nested applicant and application object
  */
 function upsertApplication(applications: z.infer<typeof schemaApplication>[]) {
-  return applications.map(({ applicant, application, outcome }) => {
+  function calculateNextAction(currentNextAction: NextAction | undefined, isTmuaPresent: boolean) {
+    if (!currentNextAction)
+      return isTmuaPresent
+        ? NextAction.ADMIN_SCORING_WITH_TMUA
+        : NextAction.ADMIN_SCORING_MISSING_TMUA
+    // don't backtrack the application state
+    if (currentNextAction >= NextAction.REVIEWER_SCORING) return currentNextAction
+    if (currentNextAction === NextAction.PENDING_TMUA && isTmuaPresent)
+      return NextAction.REVIEWER_SCORING
+    if (currentNextAction === NextAction.ADMIN_SCORING_MISSING_TMUA && isTmuaPresent)
+      return NextAction.ADMIN_SCORING_WITH_TMUA
+    return currentNextAction
+  }
+
+  return applications.map(async ({ applicant, application, outcome }) => {
+    const currentNextAction = await getCurrentNextAction(application.admissionsCycle, applicant.cid)
+    const isTmuaPresent = [
+      application.tmuaPaper1Score,
+      application.tmuaPaper2Score,
+      application.tmuaOverallScore
+    ].every(isNumber)
+
+    const nextNextAction = calculateNextAction(currentNextAction, isTmuaPresent)
+
     return prisma.application.upsert({
       where: {
         admissionsCycle_applicantCid: {
@@ -50,6 +90,7 @@ function upsertApplication(applications: z.infer<typeof schemaApplication>[]) {
       },
       update: {
         ...application,
+        nextAction: nextNextAction,
         applicant: {
           update: applicant
         },
@@ -69,6 +110,7 @@ function upsertApplication(applications: z.infer<typeof schemaApplication>[]) {
       },
       create: {
         ...application,
+        nextAction: nextNextAction,
         applicant: {
           connectOrCreate: {
             where: {
@@ -88,9 +130,28 @@ function upsertApplication(applications: z.infer<typeof schemaApplication>[]) {
   })
 }
 
-// application must already exist
+/**
+ * Updates the TMUA scores for existing applications
+ * - If current nextAction is ADMIN_SCORING_MISSING_TMUA, set nextAction to ADMIN_SCORING_WITH_TMUA
+ * - If current nextAction is PENDING_TMUA, move to REVIEWER_SCORING
+ * - Otherwise, nextAction is unchanged by the upload
+ *
+ * @param scores - an array of schema objects containing TMUA scores
+ */
 function updateTmuaScores(scores: z.infer<typeof schemaTMUAScores>[]) {
-  return scores.map((s) => {
+  return scores.map(async (s) => {
+    const currentNextAction = await getCurrentNextAction(s.admissionsCycle, s.cid)
+    // cannot update non-existent application
+    if (!currentNextAction) return
+
+    let nextNextAction = currentNextAction
+    if (currentNextAction === NextAction.ADMIN_SCORING_MISSING_TMUA) {
+      nextNextAction = NextAction.ADMIN_SCORING_WITH_TMUA
+    } else if (currentNextAction === NextAction.PENDING_TMUA) {
+      nextNextAction = NextAction.REVIEWER_SCORING
+    }
+    // if another nextAction, keep it as is
+
     return prisma.application.update({
       where: {
         admissionsCycle_applicantCid: {
@@ -102,7 +163,7 @@ function updateTmuaScores(scores: z.infer<typeof schemaTMUAScores>[]) {
         tmuaPaper1Score: s.tmuaPaper1Score,
         tmuaPaper2Score: s.tmuaPaper2Score,
         tmuaOverallScore: s.tmuaOverallScore,
-        nextAction: 'ADMIN_SCORING'
+        nextAction: nextNextAction
       }
     })
   })

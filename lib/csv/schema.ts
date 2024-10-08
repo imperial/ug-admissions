@@ -30,6 +30,9 @@ export const schemaApplication = z.object({
     applicationDate: z
       .string()
       .transform((value) => formatISO(parseDate(value, 'dd/MM/yyyy HH:mm', new Date()))),
+    tmuaPaper1Score: z.coerce.number().min(1).max(9).optional(),
+    tmuaPaper2Score: z.coerce.number().min(1).max(9).optional(),
+    tmuaOverallScore: z.coerce.number().min(1).max(9).optional(),
     extenuatingCircumstances: z.string().nullable(),
     academicEligibilityNotes: z.string().nullable()
   }),
