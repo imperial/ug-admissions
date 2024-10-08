@@ -2,17 +2,22 @@ import prisma from '@/db'
 import { Application, Role } from '@prisma/client'
 
 /**
- * Retrieves reviewers with application count sorted in ascending order
+ * Retrieves for the admissions cycle reviewers with application count sorted in ascending order
  */
-const getReviewersWithAscApplicationCount = async () =>
+const getReviewersWithAscApplicationCount = async (cycle: number) =>
   await prisma.user.findMany({
     where: {
-      role: Role.REVIEWER
+      role: Role.REVIEWER,
+      admissionsCycle: cycle
     },
     include: {
       _count: {
         select: {
-          applications: true
+          applications: {
+            where: {
+              admissionsCycle: cycle
+            }
+          }
         }
       }
     },
@@ -143,7 +148,10 @@ const allocateApplicationRanges = (
 export const allocateApplications = async (applications: Application[]) => {
   // assign reviewers only to applications that don't have one
   applications = applications.filter((application) => application.reviewerId === null)
-  const reviewersWithCount = await getReviewersWithAscApplicationCount()
+  if (applications.length === 0) return
+  const reviewersWithCount = await getReviewersWithAscApplicationCount(
+    applications[0].admissionsCycle
+  )
   if (reviewersWithCount.length === 0)
     throw new Error(
       'Reviewer allocation failed because no reviewers were found. Please upload reviewers and try again.'
