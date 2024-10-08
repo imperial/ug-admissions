@@ -11,7 +11,7 @@ import {
 import { revalidatePath } from 'next/cache'
 import { z } from 'zod'
 
-import { FormPassbackState, NextActionEnum } from './types'
+import { FormPassbackState } from './types'
 
 const gcseQualificationEnum = z.nativeEnum(GCSEQualification)
 const aLevelQualificationEnum = z.nativeEnum(AlevelQualification)
@@ -68,8 +68,8 @@ export const upsertAdminScoring = async (
     nextAction = NextAction.PENDING_TMUA
   } else {
     // admin form can be updated at later stages so make sure to reset to the furthest stage
-    const nextActionEnum = Math.max(NextActionEnum[currentAction], NextActionEnum.REVIEWER_SCORING)
-    nextAction = Object.keys(NextAction)[nextActionEnum] as NextAction
+    nextAction =
+      currentAction > NextAction.REVIEWER_SCORING ? currentAction : NextAction.REVIEWER_SCORING
   }
 
   await prisma.application.update({
