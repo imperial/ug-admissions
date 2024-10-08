@@ -79,7 +79,8 @@ const DataUploadDialog: FC<DataUploadDialogProps> = ({ disabled }) => {
       title={'Data Upload'}
       trigger={
         <Button className="min-h-10" disabled={disabled}>
-          Data Upload
+          <FilePlusIcon />
+          Upload data
         </Button>
       }
       isOpen={isDialogOpen}
