@@ -108,7 +108,13 @@ async function main() {
     data: createUser(Role.ADMIN, 'zaki.amin20@imperial.ac.uk', 2024)
   })
   await prisma.user.create({
+    data: createUser(Role.REVIEWER, 'reviewer@imperial.ac.uk', 2024)
+  })
+  await prisma.user.create({
     data: createUser(Role.UG_TUTOR, 'zaki.amin20@imperial.ac.uk', 2025)
+  })
+  await prisma.user.create({
+    data: createUser(Role.REVIEWER, 'reviewer@imperial.ac.uk', 2025)
   })
 }
 

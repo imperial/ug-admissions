@@ -29,6 +29,22 @@ async function executePromises(promises: Promise<unknown>[]): Promise<unknown[]>
   return results.filter((r) => r.status === 'fulfilled').map((r) => r.value)
 }
 
+async function getCurrentNextAction(
+  admissionsCycle: number,
+  cid: string
+): Promise<NextAction | undefined> {
+  return prisma.application
+    .findUnique({
+      where: {
+        admissionsCycle_applicantCid: {
+          admissionsCycle: admissionsCycle,
+          applicantCid: cid
+        }
+      }
+    })
+    .then((app) => app?.nextAction)
+}
+
 /**
  * If application does not exist:
  *   - creates a new outcome
@@ -40,13 +56,28 @@ async function executePromises(promises: Promise<unknown>[]): Promise<unknown[]>
  * @param applications - an array of schema objects with a nested applicant and application object
  */
 function upsertApplication(applications: z.infer<typeof schemaApplication>[]) {
-  return applications.map(({ applicant, application, outcome }) => {
-    // TODO: if application already exists, nextAction can erroneously be backtracked
-    // If the application has all TMUA scores, set the next action to ADMIN_SCORING_WITH_TMUA
-    const nextAction =
+  return applications.map(async ({ applicant, application, outcome }) => {
+    const currentNextAction = await getCurrentNextAction(application.admissionsCycle, applicant.cid)
+    const isTmuaPresent =
       application.tmuaPaper1Score && application.tmuaPaper2Score && application.tmuaOverallScore
+
+    // application has all TMUA scores, so set the next action to ADMIN_SCORING_WITH_TMUA
+    let nextNextAction: NextAction
+    if (!currentNextAction) {
+      // new application
+      nextNextAction = isTmuaPresent
         ? NextAction.ADMIN_SCORING_WITH_TMUA
         : NextAction.ADMIN_SCORING_MISSING_TMUA
+    } else if (currentNextAction >= NextAction.REVIEWER_SCORING) {
+      // don't backtrack the application state
+      nextNextAction = currentNextAction
+    } else if (currentNextAction === NextAction.PENDING_TMUA && isTmuaPresent) {
+      nextNextAction = NextAction.REVIEWER_SCORING
+    } else if (currentNextAction === NextAction.ADMIN_SCORING_MISSING_TMUA && isTmuaPresent) {
+      nextNextAction = NextAction.ADMIN_SCORING_WITH_TMUA
+    } else {
+      nextNextAction = currentNextAction
+    }
 
     return prisma.application.upsert({
       where: {
@@ -57,7 +88,7 @@ function upsertApplication(applications: z.infer<typeof schemaApplication>[]) {
       },
       update: {
         ...application,
-        nextAction,
+        nextAction: nextNextAction,
         applicant: {
           update: applicant
         },
@@ -77,7 +108,7 @@ function upsertApplication(applications: z.infer<typeof schemaApplication>[]) {
       },
       create: {
         ...application,
-        nextAction,
+        nextAction: nextNextAction,
         applicant: {
           connectOrCreate: {
             where: {
@@ -108,28 +139,17 @@ function upsertApplication(applications: z.infer<typeof schemaApplication>[]) {
  */
 function updateTmuaScores(scores: z.infer<typeof schemaTMUAScores>[]) {
   return scores.map(async (s) => {
-    const application = await prisma.application.findUnique({
-      where: {
-        admissionsCycle_applicantCid: {
-          admissionsCycle: s.admissionsCycle,
-          applicantCid: s.cid
-        }
-      },
-      select: {
-        nextAction: true
-      }
-    })
-
-    if (!application) {
+    const currentNextAction = await getCurrentNextAction(s.admissionsCycle, s.cid)
+    if (!currentNextAction) {
       // cannot update TMUA scores for an application that does not exist
       return
     }
 
-    let nextAction = application.nextAction
-    if (application.nextAction === NextAction.ADMIN_SCORING_MISSING_TMUA) {
-      nextAction = NextAction.ADMIN_SCORING_WITH_TMUA
-    } else if (application.nextAction === NextAction.PENDING_TMUA) {
-      nextAction = NextAction.REVIEWER_SCORING
+    let nextNextAction = currentNextAction
+    if (currentNextAction === NextAction.ADMIN_SCORING_MISSING_TMUA) {
+      nextNextAction = NextAction.ADMIN_SCORING_WITH_TMUA
+    } else if (currentNextAction === NextAction.PENDING_TMUA) {
+      nextNextAction = NextAction.REVIEWER_SCORING
     }
     // if another nextAction, keep it as is
 
@@ -144,7 +164,7 @@ function updateTmuaScores(scores: z.infer<typeof schemaTMUAScores>[]) {
         tmuaPaper1Score: s.tmuaPaper1Score,
         tmuaPaper2Score: s.tmuaPaper2Score,
         tmuaOverallScore: s.tmuaOverallScore,
-        nextAction
+        nextAction: nextNextAction
       }
     })
   })
