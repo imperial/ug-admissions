@@ -4,6 +4,7 @@ import prisma from '@/db'
 import { preprocessCsvData } from '@/lib/csv/preprocessing'
 import { parseWithSchema, schemaApplication, schemaTMUAScores, schemaUser } from '@/lib/csv/schema'
 import { allocateApplications } from '@/lib/reviewerAllocation'
+import { ord } from '@/lib/utils'
 import { Application, NextAction, Prisma, type User } from '@prisma/client'
 import { isNumber } from 'lodash'
 import { z } from 'zod'
@@ -63,7 +64,7 @@ function upsertApplication(applications: z.infer<typeof schemaApplication>[]) {
         ? NextAction.ADMIN_SCORING_WITH_TMUA
         : NextAction.ADMIN_SCORING_MISSING_TMUA
     // don't backtrack the application state
-    if (currentNextAction >= NextAction.REVIEWER_SCORING) return currentNextAction
+    if (ord(currentNextAction) >= ord(NextAction.REVIEWER_SCORING)) return currentNextAction
     if (currentNextAction === NextAction.PENDING_TMUA && isTmuaPresent)
       return NextAction.REVIEWER_SCORING
     if (currentNextAction === NextAction.ADMIN_SCORING_MISSING_TMUA && isTmuaPresent)

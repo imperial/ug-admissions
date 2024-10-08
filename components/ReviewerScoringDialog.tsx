@@ -6,6 +6,7 @@ import GenericDialog from '@/components/GenericDialog'
 import LabelText from '@/components/LabelText'
 import { upsertReviewerScoring } from '@/lib/forms'
 import { FormPassbackState } from '@/lib/types'
+import { ord } from '@/lib/utils'
 import { NextAction } from '@prisma/client'
 import { Button, Callout, DataList, Flex, Text, TextField } from '@radix-ui/themes'
 import { format } from 'date-fns'
@@ -141,7 +142,7 @@ const ReviewerScoringDialog: FC<ReviewerScoringDialogProps> = ({ data, userEmail
         <Button
           color="jade"
           className="min-h-10"
-          disabled={data.nextAction < NextAction.REVIEWER_SCORING}
+          disabled={ord(data.nextAction) < ord(NextAction.REVIEWER_SCORING)}
         >
           Reviewer Scoring Form
         </Button>
