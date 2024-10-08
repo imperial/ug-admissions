@@ -1,4 +1,11 @@
-import { DegreeCode, FeeStatus, Gender, Role } from '@prisma/client'
+import {
+  AlevelQualification,
+  DegreeCode,
+  FeeStatus,
+  GCSEQualification,
+  Gender,
+  Role
+} from '@prisma/client'
 import { formatISO } from 'date-fns'
 import { parse as parseDate } from 'date-fns/parse'
 import { ZodSchema, z } from 'zod'
@@ -48,6 +55,25 @@ export const schemaTMUAScores = z.object({
   tmuaPaper1Score: z.coerce.number().min(1).max(9).optional(),
   tmuaPaper2Score: z.coerce.number().min(1).max(9).optional(),
   tmuaOverallScore: z.coerce.number().min(1).max(9).optional()
+})
+
+export const schemaAdminAssessments = z.object({
+  cid: z.string().length(8, { message: 'CID must be exactly 8 characters' }),
+  admissionsCycle: z.coerce.number().int().positive(),
+  gcseQualification: z.nativeEnum(GCSEQualification),
+  gcseQualificationScore: z.coerce.number().min(0).max(10),
+  aLevelQualification: z.nativeEnum(AlevelQualification),
+  aLevelQualificationScore: z.coerce.number().min(0).max(10),
+  // dpn't parse empty strings as 0
+  motivationAssessments: z.preprocess(
+    (value) => (value === '' ? null : value),
+    z.coerce.number().min(0).max(10).nullable()
+  ),
+  extracurricularAssessments: z.preprocess(
+    (value) => (value === '' ? null : value),
+    z.coerce.number().min(0).max(10).nullable()
+  ),
+  examComments: z.string().nullable()
 })
 
 export const schemaUser = z.object({

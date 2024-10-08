@@ -2,7 +2,13 @@
 
 import prisma from '@/db'
 import { preprocessCsvData } from '@/lib/csv/preprocessing'
-import { parseWithSchema, schemaApplication, schemaTMUAScores, schemaUser } from '@/lib/csv/schema'
+import {
+  parseWithSchema,
+  schemaAdminAssessments,
+  schemaApplication,
+  schemaTMUAScores,
+  schemaUser
+} from '@/lib/csv/schema'
 import { allocateApplications } from '@/lib/reviewerAllocation'
 import { Application, NextAction, Prisma, type User } from '@prisma/client'
 import { isNumber } from 'lodash'
@@ -169,6 +175,43 @@ function updateTmuaScores(scores: z.infer<typeof schemaTMUAScores>[]) {
   })
 }
 
+// application must already exist
+function updateAdminAssessments(assessments: z.infer<typeof schemaAdminAssessments>[]) {
+  return assessments.map(async (a) => {
+    const currentNextAction = await getCurrentNextAction(a.admissionsCycle, a.cid)
+    if (!currentNextAction) return
+
+    let nextNextAction: NextAction = currentNextAction
+    if (currentNextAction === NextAction.ADMIN_SCORING_MISSING_TMUA)
+      nextNextAction = NextAction.PENDING_TMUA
+    if (currentNextAction === NextAction.ADMIN_SCORING_WITH_TMUA)
+      nextNextAction = NextAction.REVIEWER_SCORING
+
+    return prisma.application.update({
+      where: {
+        admissionsCycle_applicantCid: {
+          admissionsCycle: a.admissionsCycle,
+          applicantCid: a.cid
+        }
+      },
+      data: {
+        nextAction: nextNextAction,
+        gcseQualification: a.gcseQualification,
+        gcseQualificationScore: a.gcseQualificationScore,
+        aLevelQualification: a.aLevelQualification,
+        aLevelQualificationScore: a.aLevelQualificationScore,
+        internalReview: {
+          update: {
+            motivationAdminScore: a.motivationAssessments,
+            extracurricularAdminScore: a.extracurricularAssessments,
+            examComments: a.examComments
+          }
+        }
+      }
+    })
+  })
+}
+
 /**
  * Inserts roles as specified for the users
  */
@@ -225,6 +268,12 @@ export const processCsvUpload = async (
       const { data: parsedTMUAData, noErrors } = parseWithSchema(objects, schemaTMUAScores)
       noParsingErrors = noErrors
       upsertPromises = updateTmuaScores(parsedTMUAData)
+      break
+    }
+    case DataUploadEnum.ADMIN_ASSESSMENTS: {
+      const { data: parsedAdminData, noErrors } = parseWithSchema(objects, schemaAdminAssessments)
+      noParsingErrors = noErrors
+      upsertPromises = updateAdminAssessments(parsedAdminData)
       break
     }
     case DataUploadEnum.USER_ROLES: {

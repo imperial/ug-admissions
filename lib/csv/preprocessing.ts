@@ -5,6 +5,7 @@ import DataFrame from 'dataframe-js'
 const uploadTypeProcessFunctionMap = {
   [DataUploadEnum.APPLICANT]: processApplicantData,
   [DataUploadEnum.TMUA_SCORES]: processTMUAData,
+  [DataUploadEnum.ADMIN_ASSESSMENTS]: processAdminAssessmentData,
   [DataUploadEnum.USER_ROLES]: processUserData
 }
 
@@ -156,6 +157,10 @@ function processApplicantData(objects: unknown[]): unknown[] {
 }
 
 function processTMUAData(objects: unknown[]): unknown[] {
+  return objects
+}
+
+function processAdminAssessmentData(objects: unknown[]): unknown[] {
   return objects
 }
 
