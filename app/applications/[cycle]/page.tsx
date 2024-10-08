@@ -73,6 +73,7 @@ export default async function AdmissionsCycleApplicationsPage({
         applications={JSON.parse(JSON.stringify(applications))}
         reviewerIds={reviewerIds}
         user={{ email: userEmail, role: userRole.role }}
+        cycle={params.cycle}
       />
     </SessionProvider>
   ) : (

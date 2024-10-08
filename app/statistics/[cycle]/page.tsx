@@ -43,7 +43,7 @@ export default async function AdmissionsCycleStatisticsPage({
 
   return (
     <AdmissionsCycleStatistics
-      cycle={Number(params.cycle)}
+      cycle={params.cycle}
       applicationsCount={applicationsCount}
       offersCount={offersCount}
       rejectionsCount={rejectionsCount}

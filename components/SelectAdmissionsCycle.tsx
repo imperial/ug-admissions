@@ -1,9 +1,9 @@
 'use client'
 
 import Dropdown from '@/components/Dropdown'
-import { BarChartIcon, ExclamationTriangleIcon, ReaderIcon } from '@radix-ui/react-icons'
-import { Button, Callout, Flex, Heading } from '@radix-ui/themes'
-import Link from 'next/link'
+import { ApplicationsLinkButton, StatisticsLinkButton } from '@/components/LinkButton'
+import { ExclamationTriangleIcon } from '@radix-ui/react-icons'
+import { Callout, Flex, Heading } from '@radix-ui/themes'
 import { FC, useState } from 'react'
 
 interface SelectAdmissionsCycleProps {
@@ -22,22 +22,8 @@ const SelectAdmissionsCycle: FC<SelectAdmissionsCycleProps> = ({ admissionsCycle
       <Dropdown values={admissionsCycles} onValueChange={setSelectedCycle} className="mb-2" />
       {selectedCycle && (
         <Flex direction="column" gap="3">
-          <Link href={`/applications/${selectedCycle}`}>
-            <Button color="green" className="w-full">
-              <Flex align="center" justify="center" gap="2">
-                <ReaderIcon />
-                Process applications
-              </Flex>
-            </Button>
-          </Link>
-          <Link href={`/statistics/${selectedCycle}`}>
-            <Button color="plum" className="w-full">
-              <Flex align="center" justify="center" gap="2">
-                <BarChartIcon />
-                View statistics
-              </Flex>
-            </Button>
-          </Link>
+          <ApplicationsLinkButton admissionsCycle={selectedCycle} />
+          <StatisticsLinkButton admissionsCycle={selectedCycle} />
         </Flex>
       )}
     </Flex>
