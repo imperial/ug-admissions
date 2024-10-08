@@ -8,6 +8,7 @@ import {
   GCSEQualification,
   NextAction
 } from '@prisma/client'
+import { includes } from 'lodash'
 import { revalidatePath } from 'next/cache'
 import { z } from 'zod'
 
@@ -59,18 +60,11 @@ export const upsertAdminScoring = async (
     examComments
   } = result.data
 
-  let nextAction: NextAction
-  if (
-    currentAction === NextAction.ADMIN_SCORING_MISSING_TMUA ||
-    currentAction === NextAction.PENDING_TMUA
-  ) {
-    // still waiting on TMUA grades
+  let nextAction: NextAction = NextAction.REVIEWER_SCORING
+  // don't backtrack the application state
+  if (currentAction > nextAction) nextAction = currentAction
+  if (includes([NextAction.ADMIN_SCORING_MISSING_TMUA, NextAction.PENDING_TMUA], currentAction))
     nextAction = NextAction.PENDING_TMUA
-  } else {
-    // admin form can be updated at later stages so make sure to reset to the furthest stage
-    nextAction =
-      currentAction > NextAction.REVIEWER_SCORING ? currentAction : NextAction.REVIEWER_SCORING
-  }
 
   await prisma.application.update({
     where: { id: applicationId },
