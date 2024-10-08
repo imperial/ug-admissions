@@ -1,8 +1,9 @@
 import { faker } from '@faker-js/faker'
 import DataFrame from 'dataframe-js'
 import { format } from 'date-fns'
+import _ from 'lodash'
 
-const createApplicantRow = (admissionCycle: number) => {
+const applicantNoTmua = (admissionCycle: number) => {
   return {
     'Entry term': `Autumn ${admissionCycle}-${admissionCycle + 1}`,
     'College ID (Applicant) (Contact)': faker.string.numeric(8),
@@ -11,18 +12,18 @@ const createApplicantRow = (admissionCycle: number) => {
     'Last name (Applicant) (Contact)': faker.person.lastName(),
     'Nationality (Applicant) (Contact)': faker.location.country(),
     'Programme code (Programme) (Programme)': faker.helpers.arrayElement([
-      'G400',
-      'G401',
-      'GG41',
-      'GG14'
+      'G400.1',
+      'G401.1',
+      'GG41.1',
+      'GG14.1'
     ]),
     Programme: faker.helpers.arrayElement([
-      'Computing BEng',
-      'Computin MEng',
-      'Joint Maths and Computing BEng',
-      'Joint Maths and Computing MEng'
+      'Computing (BEng 3YFT)',
+      'Computing (MEng 3YFT)',
+      'Joint Mathematics and Computing (BEng 3YFT)',
+      'Joint Mathematics and Computing (MEng 3YFT)'
     ]),
-    'Academic level': 'Undegraduate',
+    'Academic level': 'Undergraduate',
     'Primary email address (Applicant) (Contact)': faker.internet.email(),
     'Minors flag': faker.helpers.arrayElement(['Over 18', 'Under 18']),
     'Fee status': faker.helpers.arrayElement(['UNKNOWN', 'OVERSEAS', 'HOME', null]),
@@ -36,19 +37,32 @@ const createApplicantRow = (admissionCycle: number) => {
     'Extenuating circumstances': faker.datatype.boolean() ? 'Yes' : 'No',
     'Extenuating circumstances notes': faker.hacker.phrase(),
     'Preferred first name': faker.person.firstName(),
-    'In Care,In care duration': faker.lorem.words(1),
+    'In Care': faker.datatype.boolean() ? 'Yes' : 'No',
+    'In care duration': faker.lorem.words(1),
     'Disability flag': faker.datatype.boolean() ? 'True' : 'False',
     otherNationality: faker.helpers.arrayElement([null, faker.location.country()])
   }
 }
 
-let rows: any[] = []
-for (let i = 0; i < 6000; i++) {
-  rows.push(createApplicantRow(2024))
+const applicantWithTmua = (admissionCycle: number) => {
+  const applicant = applicantNoTmua(admissionCycle)
+  const paper1Score = faker.number.float({ multipleOf: 0.1, min: 1.0, max: 9.0 })
+  const paper2Score = faker.number.float({ multipleOf: 0.1, min: 1.0, max: 9.0 })
+  const overallScore = _.round((paper1Score + paper2Score) / 2, 1)
+  return {
+    ...applicant,
+    'TMUA Paper 1 Score': paper1Score,
+    'TMUA Paper 2 Score': paper2Score,
+    'TMUA Overall Score': overallScore
+  }
 }
 
-const df = new DataFrame(rows)
+const createApplicants = (cycle: number, quantity: number, withTmua: boolean) => {
+  const rows: any[] = _.times(quantity, () =>
+    withTmua ? applicantWithTmua(cycle) : applicantNoTmua(cycle)
+  )
+  const df = new DataFrame(rows)
+  df.toCSV(true, `generated-applicants-${withTmua ? 'with-tmua' : 'no-tmua'}-${quantity}.csv`)
+}
 
-// absolute pathname to the desired save location
-const pathname = '/my/absolute/path/dataframe.csv'
-df.toCSV(true, pathname)
+createApplicants(2024, 100, true)

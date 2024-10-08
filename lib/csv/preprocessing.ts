@@ -75,7 +75,10 @@ function processApplicantData(objects: unknown[]): unknown[] {
     ['WP flag', 'wideningParticipation'],
     ['Sent to department', 'applicationDate'],
     ['Extenuating circumstances notes', 'extenuatingCircumstances'],
-    ['Academic eligibility notes', 'academicEligibilityNotes']
+    ['Academic eligibility notes', 'academicEligibilityNotes'],
+    ['TMUA Paper 1 Score', 'tmuaPaper1Score'],
+    ['TMUA Paper 2 Score', 'tmuaPaper2Score'],
+    ['TMUA Overall Score', 'tmuaOverallScore']
   ]
   columnsToRename.forEach(([oldName, newName]) => {
     df = df.rename(oldName, newName)
