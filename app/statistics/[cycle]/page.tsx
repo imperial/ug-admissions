@@ -1,6 +1,7 @@
 import AdmissionsCycleStatistics from '@/components/AdmissionsCycleStatistics'
 import prisma from '@/db'
 import { Decision, NextAction } from '@prisma/client'
+import _ from 'lodash'
 
 export const dynamic = 'force-dynamic'
 
@@ -33,12 +34,12 @@ export default async function AdmissionsCycleStatisticsPage({
     }
   })
 
-  const nextActionCounts: { name: string; quantity: number }[] = Object.keys(NextAction).map(
-    (na) => ({
+  const nextActionCounts: { name: string; quantity: number }[] = _.map(NextAction, (na) => {
+    return {
       name: na,
-      quantity: nextActionCountsQuery.find((i) => i.nextAction === na)?._count.nextAction ?? 0
-    })
-  )
+      quantity: nextActionCountsQuery.find((i) => i.nextAction === na)?._count.nextAction || 0
+    }
+  })
 
   return (
     <AdmissionsCycleStatistics
