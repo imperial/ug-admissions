@@ -1,9 +1,9 @@
 'use client'
 
 import Dropdown from '@/components/Dropdown'
+import { ApplicationsLinkButton, StatisticsLinkButton } from '@/components/LinkButton'
 import { ExclamationTriangleIcon } from '@radix-ui/react-icons'
-import { Button, Callout, Flex, Heading } from '@radix-ui/themes'
-import { useRouter } from 'next/navigation'
+import { Callout, Flex, Heading } from '@radix-ui/themes'
 import { FC, useState } from 'react'
 
 interface SelectAdmissionsCycleProps {
@@ -12,8 +12,6 @@ interface SelectAdmissionsCycleProps {
 
 // Choose an applications cycle for which the user has a role.
 const SelectAdmissionsCycle: FC<SelectAdmissionsCycleProps> = ({ admissionsCycles }) => {
-  const router = useRouter()
-
   const [selectedCycle, setSelectedCycle] = useState<string | null>(null)
 
   return admissionsCycles.length > 0 ? (
@@ -23,9 +21,10 @@ const SelectAdmissionsCycle: FC<SelectAdmissionsCycleProps> = ({ admissionsCycle
       </Heading>
       <Dropdown values={admissionsCycles} onValueChange={setSelectedCycle} className="mb-2" />
       {selectedCycle && (
-        <Button color="green" onClick={() => router.push(`/applications/${selectedCycle}`)}>
-          Take me to application page for {selectedCycle}
-        </Button>
+        <Flex direction="column" gap="3">
+          <ApplicationsLinkButton admissionsCycle={selectedCycle} />
+          <StatisticsLinkButton admissionsCycle={selectedCycle} />
+        </Flex>
       )}
     </Flex>
   ) : (

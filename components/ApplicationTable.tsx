@@ -1,6 +1,7 @@
 'use client'
 
 import AdminScoringDialog from '@/components/AdminScoringDialog'
+import { HomepageLinkButton, StatisticsLinkButton } from '@/components/LinkButton'
 import ReviewerScoringDialog from '@/components/ReviewerScoringDialog'
 import UgTutorDialog from '@/components/UgTutorDialog'
 import {
@@ -40,12 +41,14 @@ interface ApplicationTableProps {
   applications: ApplicationRow[]
   reviewerIds: string[]
   user: { email: string; role: Role }
+  cycle: string
 }
 
 const ApplicationTable: FC<ApplicationTableProps> = ({
   applications,
   reviewerIds,
-  user: { email, role }
+  user: { email, role },
+  cycle
 }) => {
   // ensure login
   useSession()
@@ -146,9 +149,13 @@ const ApplicationTable: FC<ApplicationTableProps> = ({
         <Heading>Undergraduate Admissions Portal</Heading>
         <Card className="bg-cyan-200">
           <Text>
-            Logged in as: <strong>{email}</strong>
+            <strong>Role:</strong> {role}
           </Text>
         </Card>
+        <Flex align="end" gapX="2">
+          <HomepageLinkButton />
+          <StatisticsLinkButton admissionsCycle={cycle} />
+        </Flex>
       </Flex>
       <Card className="mb-2 bg-amber-200">
         <Flex justify="between">
