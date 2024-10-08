@@ -79,7 +79,7 @@ function upsertApplication(applications: z.infer<typeof schemaApplication>[]) {
       application.tmuaOverallScore
     ].every(isNumber)
 
-    let nextNextAction = calculateNextAction(currentNextAction, isTmuaPresent)
+    const nextNextAction = calculateNextAction(currentNextAction, isTmuaPresent)
 
     return prisma.application.upsert({
       where: {
