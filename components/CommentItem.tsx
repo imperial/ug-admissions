@@ -1,7 +1,6 @@
 import { CommentType, Comment as PrismaComment } from '@prisma/client'
-import { Pencil2Icon } from '@radix-ui/react-icons'
 import { Badge, Card, Flex, Text } from '@radix-ui/themes'
-import { formatDistanceToNow } from 'date-fns'
+import { format } from 'date-fns'
 import { FC } from 'react'
 
 interface CommentProps {
@@ -17,26 +16,20 @@ const CommentTypeBadgeMap = {
 const CommentItem: FC<CommentProps> = ({ comment }) => {
   return (
     <Card>
-      <Flex>
-        <Flex className="basis-1/6">
-          <Pencil2Icon className="w-6 h-6" />
+      <Flex direction="column">
+        <Flex justify="between">
+          {CommentTypeBadgeMap[comment.type]}
+          <Text size="2" color="gray">
+            {format(new Date(comment.madeOn), 'HH:mm dd/MM/yyyy')}
+          </Text>
         </Flex>
-
-        <Flex className="basis-5/6" direction="column">
-          <Flex justify="between" align="center">
-            <Flex align="center" gap="2">
-              <Text weight="bold" size="3">
-                {comment.authorLogin}
-              </Text>
-              <Text size="1" weight="light">
-                {`${formatDistanceToNow(comment.madeOn)} ago`}
-              </Text>
-            </Flex>
-            {CommentTypeBadgeMap[comment.type]}
-          </Flex>
-          <Text size="2">{comment.text}</Text>
-        </Flex>
+        <Text weight="medium" size="3" className="ml-1">
+          {comment.authorLogin}
+        </Text>
       </Flex>
+      <Text size="2" className="ml-2">
+        {comment.text}
+      </Text>
     </Card>
   )
 }
