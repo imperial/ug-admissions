@@ -1,3 +1,4 @@
+import { NextAction } from '@prisma/client'
 import { Decimal } from '@prisma/client/runtime/binary'
 
 // null and undefined are converted to NaN
@@ -11,4 +12,11 @@ export function decimalToString(value: Decimal | null, defaultString: string = '
     return defaultString
   }
   return converted.toString()
+}
+
+const orderedActions: NextAction[] = Object.values(NextAction)
+
+// Define a numerical order on Prisma enum, ordinarily done by string comparison
+export function ord(nextAction: NextAction): number {
+  return orderedActions.indexOf(nextAction)
 }
