@@ -3,9 +3,10 @@ import { CsvError, parse } from 'csv-parse/sync'
 import DataFrame from 'dataframe-js'
 
 const uploadTypeProcessFunctionMap = {
-  [DataUploadEnum.APPLICANT]: processApplicantData,
-  [DataUploadEnum.TMUA_SCORES]: processTMUAData,
-  [DataUploadEnum.USER_ROLES]: processUserData
+  [DataUploadEnum.APPLICATION]: processApplication,
+  [DataUploadEnum.TMUA_SCORES]: processTMUAScores,
+  [DataUploadEnum.ADMIN_SCORING]: processAdminScoring,
+  [DataUploadEnum.USER_ROLES]: processUserRoles
 }
 
 /**
@@ -54,11 +55,11 @@ export async function preprocessCsvData(
  * @param objects
  * @returns an array of objects with nested applicant and application objects
  */
-function processApplicantData(objects: unknown[]): unknown[] {
+function processApplication(objects: unknown[]): unknown[] {
   let df = new DataFrame(objects)
   df = df.replace('', null)
 
-  const columnsToRename = [
+  df = renameColumns(df, [
     ['College ID (Applicant) (Contact)', 'cid'],
     ['UCAS ID (Applicant) (Contact)', 'ucasNumber'],
     ['Programme code (Programme) (Programme)', 'degreeCode'],
@@ -79,10 +80,7 @@ function processApplicantData(objects: unknown[]): unknown[] {
     ['TMUA Paper 1 Score', 'tmuaPaper1Score'],
     ['TMUA Paper 2 Score', 'tmuaPaper2Score'],
     ['TMUA Overall Score', 'tmuaOverallScore']
-  ]
-  columnsToRename.forEach(([oldName, newName]) => {
-    df = df.rename(oldName, newName)
-  })
+  ])
 
   // transform admissionsCycle column to a number
   // ts-ignore is used because the type of DataFrame.withColumn() does not match the docs or implementation
@@ -155,10 +153,47 @@ function processApplicantData(objects: unknown[]): unknown[] {
   }))
 }
 
-function processTMUAData(objects: unknown[]): unknown[] {
-  return objects
+function processTMUAScores(objects: unknown[]): unknown[] {
+  let df = new DataFrame(objects)
+  df = renameColumns(df, [
+    ['CID', 'cid'],
+    ['Admissions Cycle', 'admissionsCycle'],
+    ['Paper 1 Score', 'tmuaPaper1Score'],
+    ['Paper 2 Score', 'tmuaPaper2Score'],
+    ['Overall Score', 'tmuaOverallScore']
+  ])
+  return df.toCollection()
 }
 
-function processUserData(objects: unknown[]): unknown[] {
-  return objects
+function processAdminScoring(objects: unknown[]): unknown[] {
+  let df = new DataFrame(objects)
+  df = renameColumns(df, [
+    ['CID', 'cid'],
+    ['Admissions Cycle', 'admissionsCycle'],
+    ['Age 16 Qualification Type', 'gcseQualification'],
+    ['Age 16 Qualification Score', 'gcseQualificationScore'],
+    ['Age 18 Qualification Type', 'aLevelQualification'],
+    ['Age 18 Qualification Score', 'aLevelQualificationScore'],
+    ['Motivation Score', 'motivationAdminScore'],
+    ['Extracurricular Score', 'extracurricularAdminScore'],
+    ['Exam Comments', 'examComments']
+  ])
+  return df.toCollection()
+}
+
+function processUserRoles(objects: unknown[]): unknown[] {
+  let df = new DataFrame(objects)
+  df = renameColumns(df, [
+    ['Admissions Cycle', 'admissionsCycle'],
+    ['Email', 'login'],
+    ['Role', 'role']
+  ])
+  return df.toCollection()
+}
+
+function renameColumns(df: DataFrame, columnsToRename: [string, string][]): DataFrame {
+  columnsToRename.forEach(([oldName, newName]) => {
+    df = df.rename(oldName, newName)
+  })
+  return df
 }

@@ -2,8 +2,14 @@
 
 import prisma from '@/db'
 import { preprocessCsvData } from '@/lib/csv/preprocessing'
-import { parseWithSchema, schemaApplication, schemaTMUAScores, schemaUser } from '@/lib/csv/schema'
 import { allocateApplications } from '@/lib/reviewerAllocation'
+import {
+  csvAdminScoringSchema,
+  csvApplicationSchema,
+  csvTmuaScoresSchema,
+  csvUserRolesSchema,
+  parseWithSchema
+} from '@/lib/schema'
 import { ord } from '@/lib/utils'
 import { Application, NextAction, Prisma, type User } from '@prisma/client'
 import { isNumber } from 'lodash'
@@ -57,7 +63,7 @@ async function getCurrentNextAction(
  *   - updates the outcome if degree code is the same or creates a new outcome if it is different
  * @param applications - an array of schema objects with a nested applicant and application object
  */
-function upsertApplication(applications: z.infer<typeof schemaApplication>[]) {
+function upsertApplication(applications: z.infer<typeof csvApplicationSchema>[]) {
   function calculateNextAction(currentNextAction: NextAction | undefined, isTmuaPresent: boolean) {
     if (!currentNextAction)
       return isTmuaPresent
@@ -139,7 +145,7 @@ function upsertApplication(applications: z.infer<typeof schemaApplication>[]) {
  *
  * @param scores - an array of schema objects containing TMUA scores
  */
-function updateTmuaScores(scores: z.infer<typeof schemaTMUAScores>[]) {
+function updateTmuaScores(scores: z.infer<typeof csvTmuaScoresSchema>[]) {
   return scores.map(async (s) => {
     const currentNextAction = await getCurrentNextAction(s.admissionsCycle, s.cid)
     // cannot update non-existent application
@@ -170,10 +176,52 @@ function updateTmuaScores(scores: z.infer<typeof schemaTMUAScores>[]) {
   })
 }
 
+// application must already exist
+function updateAdminScoring(
+  assessments: z.infer<typeof csvAdminScoringSchema>[],
+  userEmail: string
+) {
+  return assessments.map(async (a) => {
+    const currentNextAction = await getCurrentNextAction(a.admissionsCycle, a.cid)
+    if (!currentNextAction) return
+
+    let nextNextAction: NextAction = currentNextAction
+    if (currentNextAction === NextAction.ADMIN_SCORING_MISSING_TMUA)
+      nextNextAction = NextAction.PENDING_TMUA
+    if (currentNextAction === NextAction.ADMIN_SCORING_WITH_TMUA)
+      nextNextAction = NextAction.REVIEWER_SCORING
+
+    return prisma.application.update({
+      where: {
+        admissionsCycle_applicantCid: {
+          admissionsCycle: a.admissionsCycle,
+          applicantCid: a.cid
+        }
+      },
+      data: {
+        nextAction: nextNextAction,
+        gcseQualification: a.gcseQualification,
+        gcseQualificationScore: a.gcseQualificationScore,
+        aLevelQualification: a.aLevelQualification,
+        aLevelQualificationScore: a.aLevelQualificationScore,
+        internalReview: {
+          update: {
+            motivationAdminScore: a.motivationAdminScore,
+            extracurricularAdminScore: a.extracurricularAdminScore,
+            examComments: a.examComments,
+            lastAdminEditBy: userEmail,
+            lastAdminEditOn: new Date()
+          }
+        }
+      }
+    })
+  })
+}
+
 /**
  * Inserts roles as specified for the users
  */
-function upsertUsers(users: z.infer<typeof schemaUser>[]): Promise<User>[] {
+function upsertUsers(users: z.infer<typeof csvUserRolesSchema>[]): Promise<User>[] {
   return users.map((u) => {
     return prisma.user.upsert({
       where: {
@@ -192,10 +240,12 @@ function upsertUsers(users: z.infer<typeof schemaUser>[]): Promise<User>[] {
  * Process a CSV upload and upsert the data into the database
  * @param _ - unused form passback state
  * @param formData - the form data containing the CSV file and the dataUploadType
+ * @param userEmail - the email of the user uploading the data for logging
  */
 export const processCsvUpload = async (
   _: FormPassbackState,
-  formData: FormData
+  formData: FormData,
+  userEmail: string
 ): Promise<FormPassbackState> => {
   const dataUploadTypeParseResult = z
     .nativeEnum(DataUploadEnum)
@@ -216,20 +266,26 @@ export const processCsvUpload = async (
   let noParsingErrors: number
 
   switch (dataUploadType) {
-    case DataUploadEnum.APPLICANT: {
-      const { data: parsedApplicantData, noErrors } = parseWithSchema(objects, schemaApplication)
+    case DataUploadEnum.APPLICATION: {
+      const { data: parsedApplicantData, noErrors } = parseWithSchema(objects, csvApplicationSchema)
       noParsingErrors = noErrors
       upsertPromises = upsertApplication(parsedApplicantData)
       break
     }
     case DataUploadEnum.TMUA_SCORES: {
-      const { data: parsedTMUAData, noErrors } = parseWithSchema(objects, schemaTMUAScores)
+      const { data: parsedTMUAData, noErrors } = parseWithSchema(objects, csvTmuaScoresSchema)
       noParsingErrors = noErrors
       upsertPromises = updateTmuaScores(parsedTMUAData)
       break
     }
+    case DataUploadEnum.ADMIN_SCORING: {
+      const { data: parsedAdminData, noErrors } = parseWithSchema(objects, csvAdminScoringSchema)
+      noParsingErrors = noErrors
+      upsertPromises = updateAdminScoring(parsedAdminData, userEmail)
+      break
+    }
     case DataUploadEnum.USER_ROLES: {
-      const { data: parsedUserData, noErrors } = parseWithSchema(objects, schemaUser)
+      const { data: parsedUserData, noErrors } = parseWithSchema(objects, csvUserRolesSchema)
       noParsingErrors = noErrors
       upsertPromises = upsertUsers(parsedUserData)
       break
@@ -238,7 +294,7 @@ export const processCsvUpload = async (
 
   const successfulUpserts = await executePromises(upsertPromises)
   // Assign reviewers to applications
-  if (dataUploadType === DataUploadEnum.APPLICANT) {
+  if (dataUploadType === DataUploadEnum.APPLICATION) {
     try {
       await allocateApplications(successfulUpserts as Application[])
     } catch (e: any) {
