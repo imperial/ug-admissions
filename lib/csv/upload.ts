@@ -4,11 +4,11 @@ import prisma from '@/db'
 import { preprocessCsvData } from '@/lib/csv/preprocessing'
 import { allocateApplications } from '@/lib/reviewerAllocation'
 import {
-  parseWithSchema,
-  schemaCsvAdminScoring,
-  schemaCsvApplication,
-  schemaCsvTmuaScores,
-  schemaCsvUserRoles
+  csvAdminScoringSchema,
+  csvApplicationSchema,
+  csvTmuaScoresSchema,
+  csvUserRolesSchema,
+  parseWithSchema
 } from '@/lib/schema'
 import { ord } from '@/lib/utils'
 import { Application, NextAction, Prisma, type User } from '@prisma/client'
@@ -63,7 +63,7 @@ async function getCurrentNextAction(
  *   - updates the outcome if degree code is the same or creates a new outcome if it is different
  * @param applications - an array of schema objects with a nested applicant and application object
  */
-function upsertApplication(applications: z.infer<typeof schemaCsvApplication>[]) {
+function upsertApplication(applications: z.infer<typeof csvApplicationSchema>[]) {
   function calculateNextAction(currentNextAction: NextAction | undefined, isTmuaPresent: boolean) {
     if (!currentNextAction)
       return isTmuaPresent
@@ -145,7 +145,7 @@ function upsertApplication(applications: z.infer<typeof schemaCsvApplication>[])
  *
  * @param scores - an array of schema objects containing TMUA scores
  */
-function updateTmuaScores(scores: z.infer<typeof schemaCsvTmuaScores>[]) {
+function updateTmuaScores(scores: z.infer<typeof csvTmuaScoresSchema>[]) {
   return scores.map(async (s) => {
     const currentNextAction = await getCurrentNextAction(s.admissionsCycle, s.cid)
     // cannot update non-existent application
@@ -178,7 +178,7 @@ function updateTmuaScores(scores: z.infer<typeof schemaCsvTmuaScores>[]) {
 
 // application must already exist
 function updateAdminScoring(
-  assessments: z.infer<typeof schemaCsvAdminScoring>[],
+  assessments: z.infer<typeof csvAdminScoringSchema>[],
   userEmail: string
 ) {
   return assessments.map(async (a) => {
@@ -221,7 +221,7 @@ function updateAdminScoring(
 /**
  * Inserts roles as specified for the users
  */
-function upsertUsers(users: z.infer<typeof schemaCsvUserRoles>[]): Promise<User>[] {
+function upsertUsers(users: z.infer<typeof csvUserRolesSchema>[]): Promise<User>[] {
   return users.map((u) => {
     return prisma.user.upsert({
       where: {
@@ -267,25 +267,25 @@ export const processCsvUpload = async (
 
   switch (dataUploadType) {
     case DataUploadEnum.APPLICATION: {
-      const { data: parsedApplicantData, noErrors } = parseWithSchema(objects, schemaCsvApplication)
+      const { data: parsedApplicantData, noErrors } = parseWithSchema(objects, csvApplicationSchema)
       noParsingErrors = noErrors
       upsertPromises = upsertApplication(parsedApplicantData)
       break
     }
     case DataUploadEnum.TMUA_SCORES: {
-      const { data: parsedTMUAData, noErrors } = parseWithSchema(objects, schemaCsvTmuaScores)
+      const { data: parsedTMUAData, noErrors } = parseWithSchema(objects, csvTmuaScoresSchema)
       noParsingErrors = noErrors
       upsertPromises = updateTmuaScores(parsedTMUAData)
       break
     }
     case DataUploadEnum.ADMIN_SCORING: {
-      const { data: parsedAdminData, noErrors } = parseWithSchema(objects, schemaCsvAdminScoring)
+      const { data: parsedAdminData, noErrors } = parseWithSchema(objects, csvAdminScoringSchema)
       noParsingErrors = noErrors
       upsertPromises = updateAdminScoring(parsedAdminData, userEmail)
       break
     }
     case DataUploadEnum.USER_ROLES: {
-      const { data: parsedUserData, noErrors } = parseWithSchema(objects, schemaCsvUserRoles)
+      const { data: parsedUserData, noErrors } = parseWithSchema(objects, csvUserRolesSchema)
       noParsingErrors = noErrors
       upsertPromises = upsertUsers(parsedUserData)
       break

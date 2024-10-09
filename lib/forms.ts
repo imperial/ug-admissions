@@ -2,11 +2,11 @@
 
 import prisma from '@/db'
 import {
-  schemaFormAdmin,
-  schemaFormComment,
-  schemaFormOutcome,
-  schemaFormReviewer,
-  schemaNextAction
+  formAdminSchema,
+  formCommentSchema,
+  formOutcomeSchema,
+  formReviewerSchema,
+  nextActionField
 } from '@/lib/schema'
 import { Decision, NextAction } from '@prisma/client'
 import { includes } from 'lodash'
@@ -21,7 +21,7 @@ export const upsertAdminScoring = async (
   _: FormPassbackState,
   formData: FormData
 ): Promise<FormPassbackState> => {
-  const result = schemaFormAdmin.safeParse(Object.fromEntries(formData))
+  const result = formAdminSchema.safeParse(Object.fromEntries(formData))
   if (!result.success) return { status: 'error', message: result.error.issues[0].message }
   const {
     gcseQualification,
@@ -80,7 +80,7 @@ export const upsertReviewerScoring = async (
   _: FormPassbackState,
   formData: FormData
 ): Promise<FormPassbackState> => {
-  const result = schemaFormReviewer.safeParse(Object.fromEntries(formData))
+  const result = formReviewerSchema.safeParse(Object.fromEntries(formData))
   if (!result.success) return { status: 'error', message: result.error.issues[0].message }
   const {
     motivationReviewerScore,
@@ -122,11 +122,11 @@ export const upsertOutcome = async (
     const offerCode = formData.get('offerCode-'.concat(degreeCode))
     const offerText = formData.get('offerText-'.concat(degreeCode))
     const decision = formData.get('decision-'.concat(degreeCode)) as Decision
-    const parsedOutcome = schemaFormOutcome.parse({ offerCode, offerText, decision })
+    const parsedOutcome = formOutcomeSchema.parse({ offerCode, offerText, decision })
     return { id, ...parsedOutcome }
   })
 
-  const nextAction = schemaNextAction.parse(formData.get('nextAction'))
+  const nextAction = nextActionField.parse(formData.get('nextAction'))
   await prisma.application.update({
     where: { id: applicationId },
     data: {
@@ -159,7 +159,7 @@ export const insertComment = async (
 ): Promise<FormPassbackState> => {
   formData.set('authorLogin', ugTutorEmail)
 
-  const result = schemaFormComment.safeParse(Object.fromEntries(formData))
+  const result = formCommentSchema.safeParse(Object.fromEntries(formData))
   if (!result.success) return { status: 'error', message: result.error.issues[0].message }
 
   await prisma.comment.create({
