@@ -46,14 +46,14 @@ const ReviewerScoringForm: FC<ReviewerScoringFormProps> = ({ data, readOnly }) =
       <Callout.Root>
         <DataList.Root>
           <DataList.Item align="center">
-            <DataList.Label color={MOTIVATION_COLOUR}>Admin Motivation Assessment:</DataList.Label>
+            <DataList.Label color={MOTIVATION_COLOUR}>Admin Motivation Score:</DataList.Label>
             <DataList.Value className="font-bold">
               {String(internalReview?.motivationAdminScore ?? 'Missing')}
             </DataList.Value>
           </DataList.Item>
           <DataList.Item align="center">
             <DataList.Label color={EXTRACURRICULAR_COLOUR}>
-              Admin Extracurricular Assessment:
+              Admin Extracurricular Score:
             </DataList.Label>
             <DataList.Value className="font-bold">
               {String(internalReview?.extracurricularAdminScore ?? 'Missing')}

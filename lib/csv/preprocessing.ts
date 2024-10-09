@@ -3,10 +3,10 @@ import { CsvError, parse } from 'csv-parse/sync'
 import DataFrame from 'dataframe-js'
 
 const uploadTypeProcessFunctionMap = {
-  [DataUploadEnum.APPLICANT]: processApplicantData,
-  [DataUploadEnum.TMUA_SCORES]: processTMUAData,
-  [DataUploadEnum.ADMIN_ASSESSMENTS]: processAdminAssessmentData,
-  [DataUploadEnum.USER_ROLES]: processUserData
+  [DataUploadEnum.APPLICATION]: processApplication,
+  [DataUploadEnum.TMUA_SCORES]: processTMUAScores,
+  [DataUploadEnum.ADMIN_SCORING]: processAdminScoring,
+  [DataUploadEnum.USER_ROLES]: processUser
 }
 
 /**
@@ -55,7 +55,7 @@ export async function preprocessCsvData(
  * @param objects
  * @returns an array of objects with nested applicant and application objects
  */
-function processApplicantData(objects: unknown[]): unknown[] {
+function processApplication(objects: unknown[]): unknown[] {
   let df = new DataFrame(objects)
   df = df.replace('', null)
 
@@ -156,14 +156,29 @@ function processApplicantData(objects: unknown[]): unknown[] {
   }))
 }
 
-function processTMUAData(objects: unknown[]): unknown[] {
+function processTMUAScores(objects: unknown[]): unknown[] {
   return objects
 }
 
-function processAdminAssessmentData(objects: unknown[]): unknown[] {
-  return objects
+function processAdminScoring(objects: unknown[]): unknown[] {
+  let df = new DataFrame(objects)
+  const columnsToRename = [
+    ['CID', 'cid'],
+    ['Admissions Cycle', 'admissionsCycle'],
+    ['Age 16 Qualification', 'gcseQualification'],
+    ['Age 16 Qualification Score', 'gcseQualificationScore'],
+    ['Age 18 Qualification', 'aLevelQualification'],
+    ['Age 18 Qualification Score', 'aLevelQualificationScore'],
+    ['Motivation Score', 'motivationAdminScore'],
+    ['Extracurricular Score', 'extracurricularAdminScore'],
+    ['Exam Comments', 'examComments']
+  ]
+  columnsToRename.forEach(([oldName, newName]) => {
+    df = df.rename(oldName, newName)
+  })
+  return df.toCollection()
 }
 
-function processUserData(objects: unknown[]): unknown[] {
+function processUser(objects: unknown[]): unknown[] {
   return objects
 }

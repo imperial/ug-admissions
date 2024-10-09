@@ -35,8 +35,8 @@ const adminFormSchema = z
     gcseQualificationScore: numberSchema(0, 10, 'Age 16 exam score'),
     aLevelQualification: aLevelQualificationEnum,
     aLevelQualificationScore: numberSchema(0, 10, 'Age 18 exam score'),
-    motivationAdminScore: numberSchema(0, 10, 'Motivation Assessments', true),
-    extracurricularAdminScore: numberSchema(0, 10, 'Extracurricular Assessments', true),
+    motivationAdminScore: numberSchema(0, 10, 'Motivation Score', true),
+    extracurricularAdminScore: numberSchema(0, 10, 'Extracurricular Score', true),
     examComments: z.string()
   })
   .partial()

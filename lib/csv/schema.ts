@@ -57,19 +57,19 @@ export const schemaTMUAScores = z.object({
   tmuaOverallScore: z.coerce.number().min(1).max(9).optional()
 })
 
-export const schemaAdminAssessments = z.object({
+export const schemaAdminScoring = z.object({
   cid: z.string().length(8, { message: 'CID must be exactly 8 characters' }),
   admissionsCycle: z.coerce.number().int().positive(),
   gcseQualification: z.nativeEnum(GCSEQualification),
   gcseQualificationScore: z.coerce.number().min(0).max(10),
   aLevelQualification: z.nativeEnum(AlevelQualification),
   aLevelQualificationScore: z.coerce.number().min(0).max(10),
-  // dpn't parse empty strings as 0
-  motivationAssessments: z.preprocess(
+  // don't parse empty strings as 0
+  motivationAdminScore: z.preprocess(
     (value) => (value === '' ? null : value),
     z.coerce.number().min(0).max(10).nullable()
   ),
-  extracurricularAssessments: z.preprocess(
+  extracurricularAdminScore: z.preprocess(
     (value) => (value === '' ? null : value),
     z.coerce.number().min(0).max(10).nullable()
   ),

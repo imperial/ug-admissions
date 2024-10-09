@@ -4,7 +4,7 @@ import prisma from '@/db'
 import { preprocessCsvData } from '@/lib/csv/preprocessing'
 import {
   parseWithSchema,
-  schemaAdminAssessments,
+  schemaAdminScoring,
   schemaApplication,
   schemaTMUAScores,
   schemaUser
@@ -176,10 +176,7 @@ function updateTmuaScores(scores: z.infer<typeof schemaTMUAScores>[]) {
 }
 
 // application must already exist
-function updateAdminAssessments(
-  assessments: z.infer<typeof schemaAdminAssessments>[],
-  userEmail: string
-) {
+function updateAdminScoring(assessments: z.infer<typeof schemaAdminScoring>[], userEmail: string) {
   return assessments.map(async (a) => {
     const currentNextAction = await getCurrentNextAction(a.admissionsCycle, a.cid)
     if (!currentNextAction) return
@@ -205,8 +202,8 @@ function updateAdminAssessments(
         aLevelQualificationScore: a.aLevelQualificationScore,
         internalReview: {
           update: {
-            motivationAdminScore: a.motivationAssessments,
-            extracurricularAdminScore: a.extracurricularAssessments,
+            motivationAdminScore: a.motivationAdminScore,
+            extracurricularAdminScore: a.extracurricularAdminScore,
             examComments: a.examComments,
             lastAdminEditBy: userEmail,
             lastAdminEditOn: new Date()
@@ -265,7 +262,7 @@ export const processCsvUpload = async (
   let noParsingErrors: number
 
   switch (dataUploadType) {
-    case DataUploadEnum.APPLICANT: {
+    case DataUploadEnum.APPLICATION: {
       const { data: parsedApplicantData, noErrors } = parseWithSchema(objects, schemaApplication)
       noParsingErrors = noErrors
       upsertPromises = upsertApplication(parsedApplicantData)
@@ -277,10 +274,10 @@ export const processCsvUpload = async (
       upsertPromises = updateTmuaScores(parsedTMUAData)
       break
     }
-    case DataUploadEnum.ADMIN_ASSESSMENTS: {
-      const { data: parsedAdminData, noErrors } = parseWithSchema(objects, schemaAdminAssessments)
+    case DataUploadEnum.ADMIN_SCORING: {
+      const { data: parsedAdminData, noErrors } = parseWithSchema(objects, schemaAdminScoring)
       noParsingErrors = noErrors
-      upsertPromises = updateAdminAssessments(parsedAdminData, userEmail)
+      upsertPromises = updateAdminScoring(parsedAdminData, userEmail)
       break
     }
     case DataUploadEnum.USER_ROLES: {
@@ -293,7 +290,7 @@ export const processCsvUpload = async (
 
   const successfulUpserts = await executePromises(upsertPromises)
   // Assign reviewers to applications
-  if (dataUploadType === DataUploadEnum.APPLICANT) {
+  if (dataUploadType === DataUploadEnum.APPLICATION) {
     try {
       await allocateApplications(successfulUpserts as Application[])
     } catch (e: any) {

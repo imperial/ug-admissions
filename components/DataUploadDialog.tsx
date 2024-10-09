@@ -18,7 +18,7 @@ interface DataUploadFormProps {
 }
 
 const DataUploadForm: FC<DataUploadFormProps> = ({ file, setFile }) => {
-  const [dataUploadChoice, setDataUploadChoice] = useState(DataUploadEnum.APPLICANT)
+  const [dataUploadChoice, setDataUploadChoice] = useState(DataUploadEnum.APPLICATION)
   return (
     <Flex direction="column" gap="3">
       <LabelledInput label="Data regarding">
