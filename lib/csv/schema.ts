@@ -1,19 +1,75 @@
 import {
   AlevelQualification,
+  CommentType,
+  Decision,
   DegreeCode,
   FeeStatus,
   GCSEQualification,
   Gender,
+  NextAction,
   Role
 } from '@prisma/client'
 import { formatISO } from 'date-fns'
 import { parse as parseDate } from 'date-fns/parse'
 import { ZodSchema, z } from 'zod'
 
+function numberSchema(from: number, to: number, fieldName: string, isNullable: boolean = false) {
+  let schema = z
+    .number()
+    .gte(from, { message: `${fieldName} must be ≥ ${from}` })
+    .lte(to, { message: `${fieldName} must be ≤ ${to}` })
+
+  return z.preprocess(
+    (val) => (val === '' ? null : Number(val)),
+    isNullable ? schema.nullable() : schema
+  )
+}
+
+const schemaCid = z.string().length(8, { message: 'CID must be exactly 8 characters' })
+const schemaAdmissionsCycle = z.coerce.number().int().positive()
+
+export const schemaNextAction = z.nativeEnum(NextAction)
+
+// Schemas for forms
+export const schemaFormAdmin = z
+  .object({
+    gcseQualification: z.nativeEnum(GCSEQualification),
+    gcseQualificationScore: numberSchema(0, 10, 'Age 16 exam score'),
+    aLevelQualification: z.nativeEnum(AlevelQualification),
+    aLevelQualificationScore: numberSchema(0, 10, 'Age 18 exam score'),
+    motivationAdminScore: numberSchema(0, 10, 'Motivation score', true),
+    extracurricularAdminScore: numberSchema(0, 10, 'Extracurricular score', true),
+    examComments: z.string()
+  })
+  .partial()
+
+export const schemaFormReviewer = z.object({
+  motivationReviewerScore: numberSchema(0, 10, 'Motivation score'),
+  extracurricularReviewerScore: numberSchema(0, 10, 'Extracurricular score'),
+  referenceReviewerScore: numberSchema(0, 10, 'Reference score'),
+  academicComments: z.string()
+})
+
+export const schemaFormOutcome = z.object({
+  offerCode: z.string(),
+  offerText: z.string(),
+  decision: z.nativeEnum(Decision)
+})
+
+export const schemaFormComment = z.object({
+  text: z.string(),
+  authorLogin: z.string(),
+  type: z.nativeEnum(CommentType)
+})
+
+// ----------------------------
+// Schemas for CSV uploads
+
 // nested schema for upserting an applicant and creating a new application
-export const schemaApplication = z.object({
+
+export const schemaCsvApplication = z.object({
   applicant: z.object({
-    cid: z.string().length(8, { message: 'CID must be exactly 8 characters' }),
+    cid: schemaCid,
     ucasNumber: z.string().length(10, { message: 'UCAS number must be exactly 10 digits' }),
     gender: z.nativeEnum(Gender),
     firstName: z.string(),
@@ -28,7 +84,7 @@ export const schemaApplication = z.object({
   }),
   application: z.object({
     hasDisability: z.preprocess((value) => String(value).toLowerCase() === 'true', z.boolean()),
-    admissionsCycle: z.coerce.number().int().positive(),
+    admissionsCycle: schemaAdmissionsCycle,
     feeStatus: z.nativeEnum(FeeStatus).optional().default(FeeStatus.UNKNOWN),
     wideningParticipation: z.preprocess(
       (value) => String(value).toLowerCase() === 'true',
@@ -49,35 +105,28 @@ export const schemaApplication = z.object({
 })
 
 // used to insert TMUA grades
-export const schemaTMUAScores = z.object({
-  cid: z.string().length(8, { message: 'CID must be exactly 8 characters' }),
-  admissionsCycle: z.coerce.number().int().positive(),
+export const schemaCsvTmuaScores = z.object({
+  cid: schemaCid,
+  admissionsCycle: schemaAdmissionsCycle,
   tmuaPaper1Score: z.coerce.number().min(1).max(9).optional(),
   tmuaPaper2Score: z.coerce.number().min(1).max(9).optional(),
   tmuaOverallScore: z.coerce.number().min(1).max(9).optional()
 })
 
-export const schemaAdminScoring = z.object({
-  cid: z.string().length(8, { message: 'CID must be exactly 8 characters' }),
-  admissionsCycle: z.coerce.number().int().positive(),
+export const schemaCsvAdminScoring = z.object({
+  cid: schemaCid,
+  admissionsCycle: schemaAdmissionsCycle,
   gcseQualification: z.nativeEnum(GCSEQualification),
-  gcseQualificationScore: z.coerce.number().min(0).max(10),
+  gcseQualificationScore: numberSchema(0, 10, 'Age 16 exam score'),
   aLevelQualification: z.nativeEnum(AlevelQualification),
-  aLevelQualificationScore: z.coerce.number().min(0).max(10),
-  // don't parse empty strings as 0
-  motivationAdminScore: z.preprocess(
-    (value) => (value === '' ? null : value),
-    z.coerce.number().min(0).max(10).nullable()
-  ),
-  extracurricularAdminScore: z.preprocess(
-    (value) => (value === '' ? null : value),
-    z.coerce.number().min(0).max(10).nullable()
-  ),
+  aLevelQualificationScore: numberSchema(0, 10, 'Age 18 exam score'),
+  motivationAdminScore: numberSchema(0, 10, 'Motivation score', true),
+  extracurricularAdminScore: numberSchema(0, 10, 'Extracurricular score', true),
   examComments: z.string().nullable()
 })
 
-export const schemaUser = z.object({
-  admissionsCycle: z.coerce.number().int().positive(),
+export const schemaCsvUser = z.object({
+  admissionsCycle: schemaAdmissionsCycle,
   login: z.string(),
   role: z.nativeEnum(Role)
 })
