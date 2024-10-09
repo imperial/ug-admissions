@@ -7,7 +7,7 @@ import {
   schemaFormOutcome,
   schemaFormReviewer,
   schemaNextAction
-} from '@/lib/csv/schema'
+} from '@/lib/schema'
 import { Decision, NextAction } from '@prisma/client'
 import { includes } from 'lodash'
 import { revalidatePath } from 'next/cache'

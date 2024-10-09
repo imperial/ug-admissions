@@ -26,7 +26,10 @@ function numberSchema(from: number, to: number, fieldName: string, isNullable: b
 }
 
 const schemaCid = z.string().length(8, { message: 'CID must be exactly 8 characters' })
-const schemaAdmissionsCycle = z.coerce.number().int().positive()
+const schemaAdmissionsCycle = z.coerce
+  .number()
+  .int()
+  .min(2020, { message: 'Admissions cycle must be in the 2020s or later' })
 
 export const schemaNextAction = z.nativeEnum(NextAction)
 

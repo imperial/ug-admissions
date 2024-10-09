@@ -2,14 +2,14 @@
 
 import prisma from '@/db'
 import { preprocessCsvData } from '@/lib/csv/preprocessing'
+import { allocateApplications } from '@/lib/reviewerAllocation'
 import {
   parseWithSchema,
   schemaCsvAdminScoring,
   schemaCsvApplication,
   schemaCsvTmuaScores,
   schemaCsvUser
-} from '@/lib/csv/schema'
-import { allocateApplications } from '@/lib/reviewerAllocation'
+} from '@/lib/schema'
 import { Application, NextAction, Prisma, type User } from '@prisma/client'
 import { isNumber } from 'lodash'
 import { z } from 'zod'
