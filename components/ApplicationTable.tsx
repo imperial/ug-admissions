@@ -3,6 +3,7 @@
 import AdminScoringDialog from '@/components/AdminScoringDialog'
 import { HomepageLinkButton, StatisticsLinkButton } from '@/components/LinkButton'
 import ReviewerScoringDialog from '@/components/ReviewerScoringDialog'
+import TanstackTable from '@/components/TanstackTable'
 import UgTutorDialog from '@/components/UgTutorDialog'
 import {
   Applicant,
@@ -14,7 +15,8 @@ import {
   Role,
   User
 } from '@prisma/client'
-import { Card, Flex, Heading, Text } from '@radix-ui/themes'
+import { MagnifyingGlassIcon } from '@radix-ui/react-icons'
+import { Card, Flex, Heading, Text, TextField } from '@radix-ui/themes'
 import { ColumnFiltersState, createColumnHelper } from '@tanstack/react-table'
 import { useSession } from 'next-auth/react'
 import { usePathname, useRouter, useSearchParams } from 'next/navigation'
@@ -22,7 +24,6 @@ import React, { FC, useEffect, useState } from 'react'
 
 import DataUploadDialog from './DataUploadDialog'
 import Dropdown from './Dropdown'
-import TanstackTable from './TanstackTable'
 
 export type ApplicationRow = Application & {
   applicant: Applicant
@@ -57,6 +58,7 @@ const ApplicationTable: FC<ApplicationTableProps> = ({
   const pathname = usePathname()
   const searchParams = useSearchParams()
   const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([])
+  const [globalFilter, setGlobalFilter] = useState('')
   const [nextActionFilterValue, setNextActionFilterValue] = useState(ALL_DROPDOWN_OPTION)
   const [reviewerFilterValue, setReviewerFilterValue] = useState(ALL_DROPDOWN_OPTION)
 
@@ -177,6 +179,20 @@ const ApplicationTable: FC<ApplicationTableProps> = ({
               />
             </Flex>
           </Flex>
+
+          <Flex align="center">
+            <TextField.Root
+              placeholder="Search application…"
+              onChange={(e) => setGlobalFilter(e.target.value)}
+              value={globalFilter}
+              size="3"
+            >
+              <TextField.Slot>
+                <MagnifyingGlassIcon height="24" width="24" />
+              </TextField.Slot>
+            </TextField.Root>
+          </Flex>
+
           <DataUploadDialog disabled={role !== Role.UG_TUTOR && role !== Role.ADMIN} />
         </Flex>
       </Card>
@@ -185,6 +201,8 @@ const ApplicationTable: FC<ApplicationTableProps> = ({
         columns={columns}
         columnFilters={columnFilters}
         setColumnFilters={setColumnFilters}
+        globalFilter={globalFilter}
+        setGlobalFilter={setGlobalFilter}
       />
     </>
   )

@@ -20,13 +20,17 @@ interface TanstackTableProps<T> {
   columns: ColumnDef<T, any>[]
   columnFilters: ColumnFiltersState
   setColumnFilters: OnChangeFn<ColumnFiltersState>
+  globalFilter: any
+  setGlobalFilter: OnChangeFn<any>
 }
 
 const TanstackTable = <T,>({
   data,
   columns,
   columnFilters,
-  setColumnFilters
+  setColumnFilters,
+  globalFilter,
+  setGlobalFilter
 }: TanstackTableProps<T>) => {
   const [pagination, setPagination] = useState({ pageIndex: 0, pageSize: 10 })
 
@@ -38,8 +42,10 @@ const TanstackTable = <T,>({
     getFilteredRowModel: getFilteredRowModel(),
     onPaginationChange: setPagination,
     onColumnFiltersChange: setColumnFilters,
+    onGlobalFilterChange: setGlobalFilter,
     state: {
       pagination,
+      globalFilter,
       columnFilters
     }
   })
