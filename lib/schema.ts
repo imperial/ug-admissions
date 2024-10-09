@@ -127,7 +127,7 @@ export const schemaCsvAdminScoring = z.object({
   examComments: z.string().nullable()
 })
 
-export const schemaCsvUser = z.object({
+export const schemaCsvUserRoles = z.object({
   admissionsCycle: schemaAdmissionsCycle,
   login: z.string().email(),
   role: z.nativeEnum(Role)

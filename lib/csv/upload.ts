@@ -8,7 +8,7 @@ import {
   schemaCsvAdminScoring,
   schemaCsvApplication,
   schemaCsvTmuaScores,
-  schemaCsvUser
+  schemaCsvUserRoles
 } from '@/lib/schema'
 import { Application, NextAction, Prisma, type User } from '@prisma/client'
 import { isNumber } from 'lodash'
@@ -220,7 +220,7 @@ function updateAdminScoring(
 /**
  * Inserts roles as specified for the users
  */
-function upsertUsers(users: z.infer<typeof schemaCsvUser>[]): Promise<User>[] {
+function upsertUsers(users: z.infer<typeof schemaCsvUserRoles>[]): Promise<User>[] {
   return users.map((u) => {
     return prisma.user.upsert({
       where: {
@@ -284,7 +284,7 @@ export const processCsvUpload = async (
       break
     }
     case DataUploadEnum.USER_ROLES: {
-      const { data: parsedUserData, noErrors } = parseWithSchema(objects, schemaCsvUser)
+      const { data: parsedUserData, noErrors } = parseWithSchema(objects, schemaCsvUserRoles)
       noParsingErrors = noErrors
       upsertPromises = upsertUsers(parsedUserData)
       break
