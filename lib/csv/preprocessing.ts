@@ -59,7 +59,7 @@ function processApplication(objects: unknown[]): unknown[] {
   let df = new DataFrame(objects)
   df = df.replace('', null)
 
-  const columnsToRename = [
+  df = renameColumns(df, [
     ['College ID (Applicant) (Contact)', 'cid'],
     ['UCAS ID (Applicant) (Contact)', 'ucasNumber'],
     ['Programme code (Programme) (Programme)', 'degreeCode'],
@@ -80,10 +80,7 @@ function processApplication(objects: unknown[]): unknown[] {
     ['TMUA Paper 1 Score', 'tmuaPaper1Score'],
     ['TMUA Paper 2 Score', 'tmuaPaper2Score'],
     ['TMUA Overall Score', 'tmuaOverallScore']
-  ]
-  columnsToRename.forEach(([oldName, newName]) => {
-    df = df.rename(oldName, newName)
-  })
+  ])
 
   // transform admissionsCycle column to a number
   // ts-ignore is used because the type of DataFrame.withColumn() does not match the docs or implementation
@@ -157,12 +154,20 @@ function processApplication(objects: unknown[]): unknown[] {
 }
 
 function processTMUAScores(objects: unknown[]): unknown[] {
-  return objects
+  let df = new DataFrame(objects)
+  df = renameColumns(df, [
+    ['CID', 'cid'],
+    ['Admissions Cycle', 'admissionsCycle'],
+    ['Paper 1 Score', 'tmuaPaper1Score'],
+    ['Paper 2 Score', 'tmuaPaper2Score'],
+    ['Overall Score', 'tmuaOverallScore']
+  ])
+  return df.toCollection()
 }
 
 function processAdminScoring(objects: unknown[]): unknown[] {
   let df = new DataFrame(objects)
-  const columnsToRename = [
+  df = renameColumns(df, [
     ['CID', 'cid'],
     ['Admissions Cycle', 'admissionsCycle'],
     ['Age 16 Qualification', 'gcseQualification'],
@@ -172,13 +177,23 @@ function processAdminScoring(objects: unknown[]): unknown[] {
     ['Motivation Score', 'motivationAdminScore'],
     ['Extracurricular Score', 'extracurricularAdminScore'],
     ['Exam Comments', 'examComments']
-  ]
-  columnsToRename.forEach(([oldName, newName]) => {
-    df = df.rename(oldName, newName)
-  })
+  ])
   return df.toCollection()
 }
 
 function processUser(objects: unknown[]): unknown[] {
-  return objects
+  let df = new DataFrame(objects)
+  df = renameColumns(df, [
+    ['Admissions Cycle', 'admissionsCycle'],
+    ['Email', 'login'],
+    ['Role', 'role']
+  ])
+  return df.toCollection()
+}
+
+function renameColumns(df: DataFrame, columnsToRename: [string, string][]): DataFrame {
+  columnsToRename.forEach(([oldName, newName]) => {
+    df = df.rename(oldName, newName)
+  })
+  return df
 }

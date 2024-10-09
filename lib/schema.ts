@@ -69,7 +69,6 @@ export const schemaFormComment = z.object({
 // Schemas for CSV uploads
 
 // nested schema for upserting an applicant and creating a new application
-
 export const schemaCsvApplication = z.object({
   applicant: z.object({
     cid: schemaCid,
@@ -111,9 +110,9 @@ export const schemaCsvApplication = z.object({
 export const schemaCsvTmuaScores = z.object({
   cid: schemaCid,
   admissionsCycle: schemaAdmissionsCycle,
-  tmuaPaper1Score: z.coerce.number().min(1).max(9).optional(),
-  tmuaPaper2Score: z.coerce.number().min(1).max(9).optional(),
-  tmuaOverallScore: z.coerce.number().min(1).max(9).optional()
+  tmuaPaper1Score: numberSchema(1, 9, 'TMUA Paper 1 score'),
+  tmuaPaper2Score: numberSchema(1, 9, 'TMUA Paper 2 score'),
+  tmuaOverallScore: numberSchema(1, 9, 'TMUA overall score')
 })
 
 export const schemaCsvAdminScoring = z.object({
@@ -130,7 +129,7 @@ export const schemaCsvAdminScoring = z.object({
 
 export const schemaCsvUser = z.object({
   admissionsCycle: schemaAdmissionsCycle,
-  login: z.string(),
+  login: z.string().email(),
   role: z.nativeEnum(Role)
 })
 
