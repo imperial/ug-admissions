@@ -170,9 +170,9 @@ function processAdminScoring(objects: unknown[]): unknown[] {
   df = renameColumns(df, [
     ['CID', 'cid'],
     ['Admissions Cycle', 'admissionsCycle'],
-    ['Age 16 Qualification', 'gcseQualification'],
+    ['Age 16 Qualification Type', 'gcseQualification'],
     ['Age 16 Qualification Score', 'gcseQualificationScore'],
-    ['Age 18 Qualification', 'aLevelQualification'],
+    ['Age 18 Qualification Type', 'aLevelQualification'],
     ['Age 18 Qualification Score', 'aLevelQualificationScore'],
     ['Motivation Score', 'motivationAdminScore'],
     ['Extracurricular Score', 'extracurricularAdminScore'],

@@ -106,7 +106,6 @@ export const schemaCsvApplication = z.object({
   })
 })
 
-// used to insert TMUA grades
 export const schemaCsvTmuaScores = z.object({
   cid: schemaCid,
   admissionsCycle: schemaAdmissionsCycle,
