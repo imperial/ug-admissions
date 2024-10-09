@@ -6,7 +6,7 @@ const uploadTypeProcessFunctionMap = {
   [DataUploadEnum.APPLICATION]: processApplication,
   [DataUploadEnum.TMUA_SCORES]: processTMUAScores,
   [DataUploadEnum.ADMIN_SCORING]: processAdminScoring,
-  [DataUploadEnum.USER_ROLES]: processUser
+  [DataUploadEnum.USER_ROLES]: processUserRoles
 }
 
 /**
@@ -181,7 +181,7 @@ function processAdminScoring(objects: unknown[]): unknown[] {
   return df.toCollection()
 }
 
-function processUser(objects: unknown[]): unknown[] {
+function processUserRoles(objects: unknown[]): unknown[] {
   let df = new DataFrame(objects)
   df = renameColumns(df, [
     ['Admissions Cycle', 'admissionsCycle'],
