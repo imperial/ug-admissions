@@ -1,3 +1,4 @@
+import { prettifyOption } from '@/lib/utils'
 import { Select } from '@radix-ui/themes'
 import React, { FC } from 'react'
 
@@ -7,6 +8,7 @@ interface DropdownProps {
   currentValue?: string
   placeholder?: string
   disabled?: boolean
+  valueFormatter?: (value: string) => string
   className?: string
 }
 
@@ -16,6 +18,7 @@ const Dropdown: FC<DropdownProps> = ({
   currentValue,
   placeholder,
   disabled = false,
+  valueFormatter = prettifyOption,
   className
 }) => {
   return (
@@ -24,7 +27,7 @@ const Dropdown: FC<DropdownProps> = ({
       <Select.Content>
         {values.map((value) => (
           <Select.Item key={value} value={value}>
-            {value}
+            {valueFormatter(value)}
           </Select.Item>
         ))}
       </Select.Content>

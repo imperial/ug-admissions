@@ -205,12 +205,12 @@ const AdminScoringDialog: FC<AdminScoringDialogProps> = ({ data, user }) => {
 
   return (
     <GenericDialog
-      title="Admin Scoring Form"
+      title="Admin Scoring"
       isOpen={isOpen}
       onOpenChange={setIsOpen}
       trigger={
         <Button className="min-h-10" color="cyan">
-          Admin Scoring Form
+          Admin Scoring
         </Button>
       }
     >
