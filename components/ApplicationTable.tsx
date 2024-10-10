@@ -145,23 +145,23 @@ const ApplicationTable: FC<ApplicationTableProps> = ({
   ]
 
   return (
-    <>
-      <Flex align="center" justify="between" gapX="5" className="mb-2">
-        <Heading>Applications Table: {cycle}</Heading>
-        <Card className="bg-cyan-200">
-          <Text>
-            <strong>Role:</strong> {role}
-          </Text>
-        </Card>
-        <Flex align="end" gapX="2">
+    <Flex direction="column" gap="2">
+      <Flex justify="between" align="center" className="mb-3">
+        <Heading> Applications Table: {cycle}</Heading>
+        <Flex gap="1">
           <HomepageLinkButton />
           <StatisticsLinkButton admissionsCycle={cycle} />
+          <DataUploadDialog
+            disabled={role !== Role.UG_TUTOR && role !== Role.ADMIN}
+            userEmail={email}
+          />
         </Flex>
       </Flex>
-      <Card className="mb-2 bg-amber-200">
-        <Flex justify="between">
-          <Flex gapX="5">
-            <Flex gapX="2" align="center">
+
+      <Card className="bg-indigo-200">
+        <Flex justify="start">
+          <Flex gap="5" direction="row" justify="start">
+            <Flex align="center" gap="2">
               <Text>Next Action: </Text>
               <Dropdown
                 values={[ALL_DROPDOWN_OPTION, ...Object.keys(NextAction)]}
@@ -169,7 +169,8 @@ const ApplicationTable: FC<ApplicationTableProps> = ({
                 onValueChange={(value) => onFilterDropdownChange(SEARCH_PARAM_NEXT_ACTION, value)}
               />
             </Flex>
-            <Flex gapX="2" align="center">
+
+            <Flex align="center" gap="2">
               <Text>Reviewer: </Text>
               <Dropdown
                 values={[ALL_DROPDOWN_OPTION, ...reviewerIds]}
@@ -179,7 +180,7 @@ const ApplicationTable: FC<ApplicationTableProps> = ({
             </Flex>
           </Flex>
 
-          <Flex align="center">
+          <Flex align="center" className="ml-16">
             <TextField.Root
               placeholder="Search application…"
               onChange={(e) => setGlobalFilter(e.target.value)}
@@ -191,13 +192,9 @@ const ApplicationTable: FC<ApplicationTableProps> = ({
               </TextField.Slot>
             </TextField.Root>
           </Flex>
-
-          <DataUploadDialog
-            disabled={role !== Role.UG_TUTOR && role !== Role.ADMIN}
-            userEmail={email}
-          />
         </Flex>
       </Card>
+
       <TanstackTable
         data={applications}
         columns={columns}
@@ -206,7 +203,7 @@ const ApplicationTable: FC<ApplicationTableProps> = ({
         globalFilter={globalFilter}
         setGlobalFilter={setGlobalFilter}
       />
-    </>
+    </Flex>
   )
 }
 

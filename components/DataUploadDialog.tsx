@@ -79,9 +79,9 @@ const DataUploadDialog: FC<DataUploadDialogProps> = ({ disabled, userEmail }) =>
     <GenericDialog
       title={'Data Upload'}
       trigger={
-        <Button className="min-h-10" disabled={disabled}>
+        <Button disabled={disabled}>
           <FilePlusIcon />
-          Upload data
+          Upload
         </Button>
       }
       isOpen={isDialogOpen}
