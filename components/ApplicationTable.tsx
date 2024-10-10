@@ -5,6 +5,7 @@ import { HomepageLinkButton, StatisticsLinkButton } from '@/components/LinkButto
 import ReviewerScoringDialog from '@/components/ReviewerScoringDialog'
 import TanstackTable from '@/components/TanstackTable'
 import UgTutorDialog from '@/components/UgTutorDialog'
+import { prettifyEnum } from '@/lib/utils'
 import {
   Applicant,
   Application,
@@ -110,7 +111,7 @@ const ApplicationTable: FC<ApplicationTableProps> = ({
       id: 'applicant.surname'
     }),
     columnHelper.accessor('feeStatus', {
-      cell: (info) => info.getValue(),
+      cell: (info) => prettifyEnum(info.getValue()),
       header: 'Fee Status',
       id: 'feeStatus'
     }),
@@ -120,7 +121,7 @@ const ApplicationTable: FC<ApplicationTableProps> = ({
       id: 'wideningParticipation'
     }),
     columnHelper.accessor('nextAction', {
-      cell: (info) => info.getValue(),
+      cell: (info) => prettifyEnum(info.getValue()),
       header: 'Next Action',
       id: SEARCH_PARAM_NEXT_ACTION
     }),
@@ -168,6 +169,7 @@ const ApplicationTable: FC<ApplicationTableProps> = ({
                 values={[ALL_DROPDOWN_OPTION, ...Object.keys(NextAction)]}
                 currentValue={nextActionFilterValue}
                 onValueChange={(value) => onFilterDropdownChange(SEARCH_PARAM_NEXT_ACTION, value)}
+                valueFormatter={prettifyEnum}
               />
             </Flex>
             <Flex gapX="2" align="center">

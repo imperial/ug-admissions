@@ -7,6 +7,7 @@ interface DropdownProps {
   currentValue?: string
   placeholder?: string
   disabled?: boolean
+  valueFormatter?: (value: string) => string
   className?: string
 }
 
@@ -16,6 +17,7 @@ const Dropdown: FC<DropdownProps> = ({
   currentValue,
   placeholder,
   disabled = false,
+  valueFormatter = (s) => s,
   className
 }) => {
   return (
@@ -24,7 +26,7 @@ const Dropdown: FC<DropdownProps> = ({
       <Select.Content>
         {values.map((value) => (
           <Select.Item key={value} value={value}>
-            {value}
+            {valueFormatter(value)}
           </Select.Item>
         ))}
       </Select.Content>
