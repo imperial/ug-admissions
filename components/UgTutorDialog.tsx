@@ -214,12 +214,12 @@ const UgTutorDialog: FC<UgTutorDialogProps> = ({ data, user }) => {
 
   return (
     <GenericDialog
-      title="UG Tutor Form"
+      title="UG Tutor"
       isOpen={isOpen}
       onOpenChange={setIsOpen}
       trigger={
         <Button className="min-h-10" color="ruby">
-          UG Tutor Form
+          UG Tutor
         </Button>
       }
     >

@@ -135,7 +135,7 @@ const ReviewerScoringDialog: FC<ReviewerScoringDialogProps> = ({ data, userEmail
 
   return (
     <GenericDialog
-      title="Reviewer Scoring Form"
+      title="Reviewer Scoring"
       isOpen={isOpen}
       onOpenChange={setIsOpen}
       trigger={
@@ -144,7 +144,7 @@ const ReviewerScoringDialog: FC<ReviewerScoringDialogProps> = ({ data, userEmail
           className="min-h-10"
           disabled={ord(data.nextAction) < ord(NextAction.REVIEWER_SCORING)}
         >
-          Reviewer Scoring Form
+          Reviewer Scoring
         </Button>
       }
     >

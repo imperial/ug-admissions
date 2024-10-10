@@ -116,8 +116,9 @@ const ApplicationTable: FC<ApplicationTableProps> = ({
       id: 'feeStatus'
     }),
     columnHelper.accessor('wideningParticipation', {
-      cell: (info) => info.getValue().toString(),
-      header: 'Widening Participation',
+      cell: (info) =>
+        info.getValue() ? <Text color="grass">Yes</Text> : <Text color="red">No</Text>,
+      header: 'WP',
       id: 'wideningParticipation'
     }),
     columnHelper.accessor('nextAction', {
@@ -131,18 +132,15 @@ const ApplicationTable: FC<ApplicationTableProps> = ({
       id: SEARCH_PARAM_REVIEWER
     }),
     columnHelper.display({
-      id: 'adminFormButton',
+      id: 'forms',
+      header: 'Forms',
       cell: (info) => (
-        <AdminScoringDialog data={info.row.original} user={{ email: email, role: role }} />
+        <Flex gap="4">
+          <AdminScoringDialog data={info.row.original} user={{ email: email, role: role }} />
+          <ReviewerScoringDialog data={info.row.original} userEmail={email} />
+          <UgTutorDialog data={info.row.original} user={{ email: email, role: role }} />
+        </Flex>
       )
-    }),
-    columnHelper.display({
-      id: 'reviewerFormButton',
-      cell: (info) => <ReviewerScoringDialog data={info.row.original} userEmail={email} />
-    }),
-    columnHelper.display({
-      id: 'ugTutorFormButton',
-      cell: (info) => <UgTutorDialog data={info.row.original} user={{ email: email, role: role }} />
     })
   ]
 
