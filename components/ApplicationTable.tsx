@@ -179,10 +179,6 @@ const ApplicationTable: FC<ApplicationTableProps> = ({
               />
             </Flex>
           </Flex>
-          <DataUploadDialog
-            disabled={role !== Role.UG_TUTOR && role !== Role.ADMIN}
-            userEmail={email}
-          />
 
           <Flex align="center">
             <TextField.Root
@@ -197,7 +193,10 @@ const ApplicationTable: FC<ApplicationTableProps> = ({
             </TextField.Root>
           </Flex>
 
-          <DataUploadDialog disabled={role !== Role.UG_TUTOR && role !== Role.ADMIN} />
+          <DataUploadDialog
+            disabled={role !== Role.UG_TUTOR && role !== Role.ADMIN}
+            userEmail={email}
+          />
         </Flex>
       </Card>
       <TanstackTable
