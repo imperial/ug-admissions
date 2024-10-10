@@ -38,7 +38,8 @@ type Tab = 'outcomes' | 'comments'
 
 interface UgTutorFormProps {
   data: ApplicationRow
-  readOnly: boolean
+  outcomesReadOnly: boolean
+  commentsReadOnly: boolean
   setCurrentTab: (tab: Tab) => void
 }
 
@@ -48,7 +49,12 @@ const decisionColourMap = {
   [Decision.PENDING]: 'bg-amber-200'
 }
 
-const UgTutorForm: FC<UgTutorFormProps> = ({ data, readOnly, setCurrentTab }) => {
+const UgTutorForm: FC<UgTutorFormProps> = ({
+  data,
+  outcomesReadOnly,
+  commentsReadOnly,
+  setCurrentTab
+}) => {
   const { applicant, internalReview } = data
   const [outcomes, setOutcomes] = useState(data.outcomes)
   const [nextAction, setNextAction] = useState(data.nextAction.toString())
@@ -73,7 +79,7 @@ const UgTutorForm: FC<UgTutorFormProps> = ({ data, readOnly, setCurrentTab }) =>
       />
 
       {/* Reviewers should not be able to see TMUA grades */}
-      {!readOnly && (
+      {!commentsReadOnly && (
         <TmuaGradeBox
           paper1Score={data.tmuaPaper1Score}
           paper2Score={data.tmuaPaper2Score}
@@ -103,14 +109,14 @@ const UgTutorForm: FC<UgTutorFormProps> = ({ data, readOnly, setCurrentTab }) =>
                     <TextField.Root
                       name={'offerCode'.concat('-', outcome.degreeCode)}
                       defaultValue={outcome.offerCode ?? ''}
-                      disabled={readOnly}
+                      disabled={outcomesReadOnly}
                     />
                   </LabelText>
                   <LabelText label="Offer Text" weight="medium">
                     <TextField.Root
                       name={'offerText'.concat('-', outcome.degreeCode)}
                       defaultValue={outcome.offerText ?? ''}
-                      disabled={readOnly}
+                      disabled={outcomesReadOnly}
                     />
                   </LabelText>
                   <LabelText label="Decision" weight="medium">
@@ -124,7 +130,7 @@ const UgTutorForm: FC<UgTutorFormProps> = ({ data, readOnly, setCurrentTab }) =>
                           return newOutcomes
                         })
                       }}
-                      disabled={readOnly}
+                      disabled={outcomesReadOnly}
                       className="flex-grow"
                     />
                     <input
@@ -145,7 +151,7 @@ const UgTutorForm: FC<UgTutorFormProps> = ({ data, readOnly, setCurrentTab }) =>
                 ]}
                 currentValue={nextAction}
                 onValueChange={setNextAction}
-                disabled={readOnly}
+                disabled={outcomesReadOnly}
               />
             </LabelText>
             <input name="nextAction" type="hidden" value={nextAction} />
@@ -163,13 +169,13 @@ const UgTutorForm: FC<UgTutorFormProps> = ({ data, readOnly, setCurrentTab }) =>
                     values={Object.keys(CommentType)}
                     currentValue={commentType}
                     onValueChange={setCommentType}
-                    disabled={readOnly}
+                    disabled={commentsReadOnly}
                   />
                   <input name="type" type="hidden" value={commentType} />
                 </LabelText>
               </Flex>
               <LabelText label="Comment">
-                <TextArea name={'text'} defaultValue={''} disabled={readOnly} />
+                <TextArea name={'text'} defaultValue={''} disabled={commentsReadOnly} />
               </LabelText>
             </Flex>
           </Tabs.Content>
@@ -228,7 +234,12 @@ const UgTutorDialog: FC<UgTutorDialogProps> = ({ data, user }) => {
         onSuccess={handleFormSuccess}
         submitButtonText={currentTab === 'outcomes' ? 'Save' : 'Add Comment'}
       >
-        <UgTutorForm data={data} setCurrentTab={setCurrentTab} readOnly={role !== Role.UG_TUTOR} />
+        <UgTutorForm
+          data={data}
+          outcomesReadOnly={role !== Role.UG_TUTOR}
+          commentsReadOnly={role !== Role.UG_TUTOR && role !== Role.ADMIN}
+          setCurrentTab={setCurrentTab}
+        />
       </FormWrapper>
     </GenericDialog>
   )

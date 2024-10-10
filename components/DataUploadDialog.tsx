@@ -18,7 +18,7 @@ interface DataUploadFormProps {
 }
 
 const DataUploadForm: FC<DataUploadFormProps> = ({ file, setFile }) => {
-  const [dataUploadChoice, setDataUploadChoice] = useState(DataUploadEnum.APPLICANT)
+  const [dataUploadChoice, setDataUploadChoice] = useState(DataUploadEnum.APPLICATION)
   return (
     <Flex direction="column" gap="3">
       <LabelledInput label="Data regarding">
@@ -62,16 +62,17 @@ const DataUploadForm: FC<DataUploadFormProps> = ({ file, setFile }) => {
 
 interface DataUploadDialogProps {
   disabled: boolean
+  userEmail: string
 }
 
-const DataUploadDialog: FC<DataUploadDialogProps> = ({ disabled }) => {
+const DataUploadDialog: FC<DataUploadDialogProps> = ({ disabled, userEmail }) => {
   const [isDialogOpen, setIsDialogOpen] = useState(false)
   const [file, setFile] = useState<File | null>(null)
 
   const processCsvUploadWrapped = async (prevState: FormPassbackState, formData: FormData) => {
     if (!file) return { message: 'No CSV file uploaded', status: 'error' }
     formData.append('csv', file)
-    return await processCsvUpload(prevState, formData)
+    return await processCsvUpload(prevState, formData, userEmail)
   }
 
   return (
