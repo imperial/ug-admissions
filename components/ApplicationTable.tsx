@@ -3,6 +3,7 @@
 import AdminScoringDialog from '@/components/AdminScoringDialog'
 import { HomepageLinkButton, StatisticsLinkButton } from '@/components/LinkButton'
 import ReviewerScoringDialog from '@/components/ReviewerScoringDialog'
+import { roleBadge } from '@/components/RoleBadge'
 import UgTutorDialog from '@/components/UgTutorDialog'
 import {
   Applicant,
@@ -146,12 +147,12 @@ const ApplicationTable: FC<ApplicationTableProps> = ({
   return (
     <>
       <Flex align="center" justify="between" gapX="5" className="mb-2">
-        <Heading>Undergraduate Admissions Portal</Heading>
-        <Card className="bg-cyan-200">
-          <Text>
-            <strong>Role:</strong> {role}
-          </Text>
-        </Card>
+        <Flex direction="column" gap="1">
+          <Flex>
+            <Heading>Undergraduate Admissions Portal</Heading>
+          </Flex>
+          <Flex>{roleBadge({ role })}</Flex>
+        </Flex>
         <Flex align="end" gapX="2">
           <HomepageLinkButton />
           <StatisticsLinkButton admissionsCycle={cycle} />
