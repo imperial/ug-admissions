@@ -25,6 +25,7 @@ interface TanstackTableProps<T> {
 }
 
 const PAGE_SIZE = 10
+const border = 'border-r border-gray-300'
 
 const TanstackTable = <T,>({
   data,
@@ -59,7 +60,7 @@ const TanstackTable = <T,>({
           {table.getHeaderGroups().map((headerGroup) => (
             <Table.Row key={headerGroup.id}>
               {headerGroup.headers.map((header) => (
-                <Table.ColumnHeaderCell key={header.id}>
+                <Table.ColumnHeaderCell key={header.id} className={border}>
                   {flexRender(header.column.columnDef.header, header.getContext())}
                 </Table.ColumnHeaderCell>
               ))}
@@ -74,7 +75,7 @@ const TanstackTable = <T,>({
               className={`align-middle ${i % 2 == 0 ? 'bg-gray-100' : 'bg-white'}`}
             >
               {row.getVisibleCells().map((cell, id) => (
-                <Table.Cell key={id}>
+                <Table.Cell key={id} className={border}>
                   {flexRender(cell.column.columnDef.cell, cell.getContext())}
                 </Table.Cell>
               ))}
