@@ -24,6 +24,8 @@ interface TanstackTableProps<T> {
   setGlobalFilter: OnChangeFn<any>
 }
 
+const PAGE_SIZE = 10
+
 const TanstackTable = <T,>({
   data,
   columns,
@@ -32,7 +34,7 @@ const TanstackTable = <T,>({
   globalFilter,
   setGlobalFilter
 }: TanstackTableProps<T>) => {
-  const [pagination, setPagination] = useState({ pageIndex: 0, pageSize: 10 })
+  const [pagination, setPagination] = useState({ pageIndex: 0, pageSize: PAGE_SIZE })
 
   const table = useReactTable({
     data,
@@ -82,9 +84,11 @@ const TanstackTable = <T,>({
       </Table.Root>
 
       <Pagination
-        page={table.getState().pagination.pageIndex}
+        pageIndex={table.getState().pagination.pageIndex}
         setPage={table.setPageIndex}
         totalPages={table.getPageCount()}
+        totalRows={table.getRowCount()}
+        visibleRows={table.getRowModel().rows.length}
       />
     </>
   )

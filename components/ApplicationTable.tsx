@@ -149,7 +149,7 @@ const ApplicationTable: FC<ApplicationTableProps> = ({
   return (
     <>
       <Flex align="center" justify="between" gapX="5" className="mb-2">
-        <Heading>Undergraduate Admissions Portal</Heading>
+        <Heading>Applications Table: {cycle}</Heading>
         <Card className="bg-cyan-200">
           <Text>
             <strong>Role:</strong> {role}
