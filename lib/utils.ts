@@ -23,7 +23,9 @@ export function ord(nextAction: NextAction): number {
 }
 
 // convert to title case and replace '_ 'with ' '
-export function prettifyEnum(value: string): string {
+export function prettifyOption(value: string): string {
+  // leave emails untouched
+  if (value.includes('@')) return value
   const ACRONYMS = ['Tmua', 'Ug', 'Gcse', 'Xii']
   return value
     .split('_')

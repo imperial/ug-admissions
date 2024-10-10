@@ -5,7 +5,7 @@ import { HomepageLinkButton, StatisticsLinkButton } from '@/components/LinkButto
 import ReviewerScoringDialog from '@/components/ReviewerScoringDialog'
 import TanstackTable from '@/components/TanstackTable'
 import UgTutorDialog from '@/components/UgTutorDialog'
-import { prettifyEnum, trimEmail } from '@/lib/utils'
+import { prettifyOption, trimEmail } from '@/lib/utils'
 import {
   Applicant,
   Application,
@@ -111,7 +111,7 @@ const ApplicationTable: FC<ApplicationTableProps> = ({
       id: 'applicant.surname'
     }),
     columnHelper.accessor('feeStatus', {
-      cell: (info) => prettifyEnum(info.getValue()),
+      cell: (info) => prettifyOption(info.getValue()),
       header: 'Fee Status',
       id: 'feeStatus'
     }),
@@ -122,7 +122,7 @@ const ApplicationTable: FC<ApplicationTableProps> = ({
       id: 'wideningParticipation'
     }),
     columnHelper.accessor('nextAction', {
-      cell: (info) => prettifyEnum(info.getValue()),
+      cell: (info) => prettifyOption(info.getValue()),
       header: 'Next Action',
       id: SEARCH_PARAM_NEXT_ACTION
     }),

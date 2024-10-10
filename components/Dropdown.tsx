@@ -1,4 +1,4 @@
-import { prettifyEnum } from '@/lib/utils'
+import { prettifyOption } from '@/lib/utils'
 import { Select } from '@radix-ui/themes'
 import React, { FC } from 'react'
 
@@ -18,7 +18,7 @@ const Dropdown: FC<DropdownProps> = ({
   currentValue,
   placeholder,
   disabled = false,
-  valueFormatter = prettifyEnum,
+  valueFormatter = prettifyOption,
   className
 }) => {
   return (
