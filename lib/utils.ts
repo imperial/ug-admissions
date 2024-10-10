@@ -24,7 +24,7 @@ export function ord(nextAction: NextAction): number {
 
 // convert to title case and replace '_ 'with ' '
 export function prettifyEnum(value: string): string {
-  const ACRONYMS = ['Tmua', 'Ug']
+  const ACRONYMS = ['Tmua', 'Ug', 'Gcse', 'Xii']
   return value
     .split('_')
     .map(_.capitalize)

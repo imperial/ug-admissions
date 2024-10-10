@@ -4,7 +4,6 @@ import FormWrapper from '@/components/FormWrapper'
 import GenericDialog from '@/components/GenericDialog'
 import { processCsvUpload } from '@/lib/csv/upload'
 import { DataUploadEnum, FormPassbackState } from '@/lib/types'
-import { prettifyEnum } from '@/lib/utils'
 import { FilePlusIcon } from '@radix-ui/react-icons'
 import { Button, Flex, Text } from '@radix-ui/themes'
 import React, { FC, useState } from 'react'
@@ -27,7 +26,6 @@ const DataUploadForm: FC<DataUploadFormProps> = ({ file, setFile }) => {
           values={Object.keys(DataUploadEnum)}
           currentValue={dataUploadChoice}
           onValueChange={(value) => setDataUploadChoice(value as DataUploadEnum)}
-          valueFormatter={prettifyEnum}
         />
         <input type="hidden" name="dataUploadType" value={dataUploadChoice} />
       </LabelledInput>

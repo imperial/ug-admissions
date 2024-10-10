@@ -167,7 +167,6 @@ const ApplicationTable: FC<ApplicationTableProps> = ({
                 values={[ALL_DROPDOWN_OPTION, ...Object.keys(NextAction)]}
                 currentValue={nextActionFilterValue}
                 onValueChange={(value) => onFilterDropdownChange(SEARCH_PARAM_NEXT_ACTION, value)}
-                valueFormatter={prettifyEnum}
               />
             </Flex>
             <Flex gapX="2" align="center">
