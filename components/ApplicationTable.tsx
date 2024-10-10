@@ -5,7 +5,7 @@ import { HomepageLinkButton, StatisticsLinkButton } from '@/components/LinkButto
 import ReviewerScoringDialog from '@/components/ReviewerScoringDialog'
 import TanstackTable from '@/components/TanstackTable'
 import UgTutorDialog from '@/components/UgTutorDialog'
-import { prettifyEnum } from '@/lib/utils'
+import { prettifyEnum, trimEmail } from '@/lib/utils'
 import {
   Applicant,
   Application,
@@ -127,7 +127,7 @@ const ApplicationTable: FC<ApplicationTableProps> = ({
       id: SEARCH_PARAM_NEXT_ACTION
     }),
     columnHelper.accessor('reviewer.login', {
-      cell: (info) => info.getValue(),
+      cell: (info) => trimEmail(info.getValue()),
       header: 'Reviewer',
       id: SEARCH_PARAM_REVIEWER
     }),

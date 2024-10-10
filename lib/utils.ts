@@ -31,3 +31,8 @@ export function prettifyEnum(value: string): string {
     .map((s) => (ACRONYMS.includes(s) ? s.toUpperCase() : s))
     .join(' ')
 }
+
+// remove shared suffix from email addresses to save space
+export function trimEmail(email: string): string {
+  return email.replace(/@.*$/, '')
+}
