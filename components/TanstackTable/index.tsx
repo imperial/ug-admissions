@@ -24,8 +24,8 @@ interface TanstackTableProps<T> {
   setGlobalFilter: OnChangeFn<any>
 }
 
-const PAGE_SIZE = 10
-const border = 'border-r border-gray-300'
+const PAGE_SIZE = 8
+const border = 'border-r border-gray-300 border'
 
 const TanstackTable = <T,>({
   data,
@@ -55,7 +55,7 @@ const TanstackTable = <T,>({
 
   return (
     <>
-      <Table.Root>
+      <Table.Root className="border-2 border-gray-300">
         <Table.Header>
           {table.getHeaderGroups().map((headerGroup) => (
             <Table.Row key={headerGroup.id}>
