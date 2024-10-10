@@ -96,7 +96,7 @@ const ApplicationTable: FC<ApplicationTableProps> = ({
     }),
     columnHelper.accessor('applicant.ucasNumber', {
       cell: (info) => info.getValue(),
-      header: 'UCAS number',
+      header: 'UCAS Number',
       id: 'applicant.ucasNumber'
     }),
     columnHelper.accessor('applicant.firstName', {
