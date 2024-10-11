@@ -5,10 +5,12 @@ import {
   ColumnDef,
   ColumnFiltersState,
   OnChangeFn,
+  SortingState,
   flexRender,
   getCoreRowModel,
   getFilteredRowModel,
   getPaginationRowModel,
+  getSortedRowModel,
   useReactTable
 } from '@tanstack/react-table'
 import { useState } from 'react'
@@ -36,6 +38,7 @@ const TanstackTable = <T,>({
   setGlobalFilter
 }: TanstackTableProps<T>) => {
   const [pagination, setPagination] = useState({ pageIndex: 0, pageSize: PAGE_SIZE })
+  const [sorting, setSorting] = useState<SortingState>([])
 
   const table = useReactTable({
     data,
@@ -43,13 +46,16 @@ const TanstackTable = <T,>({
     getCoreRowModel: getCoreRowModel(),
     getPaginationRowModel: getPaginationRowModel(),
     getFilteredRowModel: getFilteredRowModel(),
+    getSortedRowModel: getSortedRowModel(),
     onPaginationChange: setPagination,
     onColumnFiltersChange: setColumnFilters,
     onGlobalFilterChange: setGlobalFilter,
+    onSortingChange: setSorting,
     state: {
       pagination,
       globalFilter,
-      columnFilters
+      columnFilters,
+      sorting
     }
   })
 
@@ -58,10 +64,23 @@ const TanstackTable = <T,>({
       <Table.Root className="border-2 border-gray-300">
         <Table.Header>
           {table.getHeaderGroups().map((headerGroup) => (
-            <Table.Row key={headerGroup.id} className="bg-yellow-100 border-b-2 border-black">
+            <Table.Row key={headerGroup.id}>
               {headerGroup.headers.map((header) => (
-                <Table.ColumnHeaderCell key={header.id} className={RIGHT_BORDER}>
+                <Table.ColumnHeaderCell
+                  key={header.id}
+                  className="bg-yellow-100 border-b-2 border-black border-r-1 border"
+                  onClick={() => {
+                    const isSorted = header.column.getIsSorted()
+                    header.column.toggleSorting(isSorted === 'asc')
+                  }}
+                  style={{ cursor: 'pointer' }} // Add pointer cursor
+                >
                   {flexRender(header.column.columnDef.header, header.getContext())}
+                  {header.column.getIsSorted()
+                    ? header.column.getIsSorted() === 'asc'
+                      ? ' 🔼'
+                      : ' 🔽'
+                    : ''}
                 </Table.ColumnHeaderCell>
               ))}
             </Table.Row>
