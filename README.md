@@ -1,36 +1,13 @@
-This is a [Next.js](https://nextjs.org/) project bootstrapped with [`create-next-app`](https://github.com/vercel/next.js/tree/canary/packages/create-next-app).
+# Undergraduate Admissions Portal
 
-## Getting Started
+This repository holds all code for Imperial's Department of Computing's Undergraduate Admissions Portal. This is an internal system used to process and manage all undergraduate applications.
 
-First, run the development server:
+For information about using the system, check out the [Wiki](https://github.com/imperial/ug-admissions/wiki).
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
-```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
-
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
-
-This project uses [`next/font`](https://nextjs.org/docs/basic-features/font-optimization) to automatically optimize and load Inter, a custom Google Font.
-
-## Learn More
-
-To learn more about Next.js, take a look at the following resources:
-
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
-
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js/) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/deployment) for more details.
+## Tech stack
+- [Next.js](https://nextjs.org/): a [React](https://react.dev/) framework designed for high-performance, server-rendered web applications
+- [TypeScript](https://www.typescriptlang.org/): a statically typed JavaScript syntax
+- [Radix UI (Themes)](https://www.radix-ui.com/): an open-source pre-styled component library
+- [Prisma ORM](https://www.prisma.io/orm): an intuitive data model for working with databases
+- [PostgreSQL](https://www.postgresql.org/): an SQL-compliant and extended object-relational database system
