@@ -1,6 +1,6 @@
 import { NextAction } from '@prisma/client'
 import { Decimal } from '@prisma/client/runtime/binary'
-import _ from 'lodash'
+import { capitalize } from 'lodash'
 
 // null and undefined are converted to NaN
 export function decimalToNumber(value: Decimal | null | undefined): number {
@@ -29,7 +29,7 @@ export function prettifyOption(value: string): string {
   const ACRONYMS = ['Tmua', 'Ug', 'Gcse', 'Xii']
   return value
     .split('_')
-    .map(_.capitalize)
+    .map(capitalize)
     .map((s) => (ACRONYMS.includes(s) ? s.toUpperCase() : s))
     .join(' ')
 }
