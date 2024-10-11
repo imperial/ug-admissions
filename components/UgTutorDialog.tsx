@@ -105,20 +105,6 @@ const UgTutorForm: FC<UgTutorFormProps> = ({
                 <Heading size={'3'}>{outcome.degreeCode}</Heading>
                 <Separator className="w-full my-1" />
                 <Flex direction="column" gap="3">
-                  <LabelText label="Offer Code" weight="medium">
-                    <TextField.Root
-                      name={'offerCode'.concat('-', outcome.degreeCode)}
-                      defaultValue={outcome.offerCode ?? ''}
-                      disabled={outcomesReadOnly}
-                    />
-                  </LabelText>
-                  <LabelText label="Offer Text" weight="medium">
-                    <TextField.Root
-                      name={'offerText'.concat('-', outcome.degreeCode)}
-                      defaultValue={outcome.offerText ?? ''}
-                      disabled={outcomesReadOnly}
-                    />
-                  </LabelText>
                   <LabelText label="Decision" weight="medium">
                     <Dropdown
                       values={Object.keys(Decision)}
@@ -137,6 +123,20 @@ const UgTutorForm: FC<UgTutorFormProps> = ({
                       name={'decision'.concat('-', outcome.degreeCode)}
                       type="hidden"
                       value={outcome.decision.toString()}
+                    />
+                  </LabelText>
+                  <LabelText label="Offer Code" weight="medium">
+                    <TextField.Root
+                      name={'offerCode'.concat('-', outcome.degreeCode)}
+                      defaultValue={outcome.offerCode ?? ''}
+                      disabled={outcomesReadOnly}
+                    />
+                  </LabelText>
+                  <LabelText label="Offer Text" weight="medium">
+                    <TextField.Root
+                      name={'offerText'.concat('-', outcome.degreeCode)}
+                      defaultValue={outcome.offerText ?? ''}
+                      disabled={outcomesReadOnly}
                     />
                   </LabelText>
                 </Flex>
@@ -220,12 +220,12 @@ const UgTutorDialog: FC<UgTutorDialogProps> = ({ data, user }) => {
 
   return (
     <GenericDialog
-      title="UG Tutor Form"
+      title="UG Tutor"
       isOpen={isOpen}
       onOpenChange={setIsOpen}
       trigger={
         <Button className="min-h-10" color="ruby">
-          UG Tutor Form
+          UG Tutor
         </Button>
       }
     >

@@ -4,7 +4,9 @@ import AdminScoringDialog from '@/components/AdminScoringDialog'
 import { HomepageLinkButton, StatisticsLinkButton } from '@/components/LinkButton'
 import ReviewerScoringDialog from '@/components/ReviewerScoringDialog'
 import { roleBadge } from '@/components/RoleBadge'
+import TanstackTable from '@/components/TanstackTable'
 import UgTutorDialog from '@/components/UgTutorDialog'
+import { prettifyOption, trimEmail } from '@/lib/utils'
 import {
   Applicant,
   Application,
@@ -15,7 +17,8 @@ import {
   Role,
   User
 } from '@prisma/client'
-import { Card, Flex, Heading, Text } from '@radix-ui/themes'
+import { MagnifyingGlassIcon } from '@radix-ui/react-icons'
+import { Card, Flex, Heading, Text, TextField } from '@radix-ui/themes'
 import { ColumnFiltersState, createColumnHelper } from '@tanstack/react-table'
 import { useSession } from 'next-auth/react'
 import { usePathname, useRouter, useSearchParams } from 'next/navigation'
@@ -23,7 +26,6 @@ import React, { FC, useEffect, useState } from 'react'
 
 import DataUploadDialog from './DataUploadDialog'
 import Dropdown from './Dropdown'
-import TanstackTable from './TanstackTable'
 
 export type ApplicationRow = Application & {
   applicant: Applicant
@@ -58,6 +60,7 @@ const ApplicationTable: FC<ApplicationTableProps> = ({
   const pathname = usePathname()
   const searchParams = useSearchParams()
   const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([])
+  const [globalFilter, setGlobalFilter] = useState('')
   const [nextActionFilterValue, setNextActionFilterValue] = useState(ALL_DROPDOWN_OPTION)
   const [reviewerFilterValue, setReviewerFilterValue] = useState(ALL_DROPDOWN_OPTION)
 
@@ -95,7 +98,7 @@ const ApplicationTable: FC<ApplicationTableProps> = ({
     }),
     columnHelper.accessor('applicant.ucasNumber', {
       cell: (info) => info.getValue(),
-      header: 'UCAS number',
+      header: 'UCAS Number',
       id: 'applicant.ucasNumber'
     }),
     columnHelper.accessor('applicant.firstName', {
@@ -109,59 +112,62 @@ const ApplicationTable: FC<ApplicationTableProps> = ({
       id: 'applicant.surname'
     }),
     columnHelper.accessor('feeStatus', {
-      cell: (info) => info.getValue(),
+      cell: (info) => prettifyOption(info.getValue()),
       header: 'Fee Status',
       id: 'feeStatus'
     }),
     columnHelper.accessor('wideningParticipation', {
-      cell: (info) => info.getValue().toString(),
-      header: 'Widening Participation',
+      cell: (info) =>
+        info.getValue() ? <Text color="grass">Yes</Text> : <Text color="red">No</Text>,
+      header: 'WP',
       id: 'wideningParticipation'
     }),
     columnHelper.accessor('nextAction', {
-      cell: (info) => info.getValue(),
+      cell: (info) => prettifyOption(info.getValue()),
       header: 'Next Action',
       id: SEARCH_PARAM_NEXT_ACTION
     }),
     columnHelper.accessor('reviewer.login', {
-      cell: (info) => info.getValue(),
+      cell: (info) => trimEmail(info.getValue()),
       header: 'Reviewer',
       id: SEARCH_PARAM_REVIEWER
     }),
     columnHelper.display({
-      id: 'adminFormButton',
+      id: 'forms',
+      header: 'Forms',
       cell: (info) => (
-        <AdminScoringDialog data={info.row.original} user={{ email: email, role: role }} />
+        <Flex gap="4">
+          <AdminScoringDialog data={info.row.original} user={{ email: email, role: role }} />
+          <ReviewerScoringDialog data={info.row.original} userEmail={email} />
+          <UgTutorDialog data={info.row.original} user={{ email: email, role: role }} />
+        </Flex>
       )
-    }),
-    columnHelper.display({
-      id: 'reviewerFormButton',
-      cell: (info) => <ReviewerScoringDialog data={info.row.original} userEmail={email} />
-    }),
-    columnHelper.display({
-      id: 'ugTutorFormButton',
-      cell: (info) => <UgTutorDialog data={info.row.original} user={{ email: email, role: role }} />
     })
   ]
 
   return (
-    <>
-      <Flex align="center" justify="between" gapX="5" className="mb-2">
+    <Flex direction="column" gap="2">
+      <Flex justify="between" align="center" className="mb-3">
         <Flex direction="column" gap="1">
           <Flex>
             <Heading>Undergraduate Admissions Portal</Heading>
           </Flex>
           <Flex>{roleBadge({ role })}</Flex>
         </Flex>
-        <Flex align="end" gapX="2">
+        <Flex gap="1">
           <HomepageLinkButton />
           <StatisticsLinkButton admissionsCycle={cycle} />
+          <DataUploadDialog
+            disabled={role !== Role.UG_TUTOR && role !== Role.ADMIN}
+            userEmail={email}
+          />
         </Flex>
       </Flex>
-      <Card className="mb-2 bg-amber-200">
-        <Flex justify="between">
-          <Flex gapX="5">
-            <Flex gapX="2" align="center">
+
+      <Card className="bg-indigo-200">
+        <Flex justify="start">
+          <Flex gap="5" direction="row" justify="start">
+            <Flex align="center" gap="2">
               <Text>Next Action: </Text>
               <Dropdown
                 values={[ALL_DROPDOWN_OPTION, ...Object.keys(NextAction)]}
@@ -169,7 +175,8 @@ const ApplicationTable: FC<ApplicationTableProps> = ({
                 onValueChange={(value) => onFilterDropdownChange(SEARCH_PARAM_NEXT_ACTION, value)}
               />
             </Flex>
-            <Flex gapX="2" align="center">
+
+            <Flex align="center" gap="2">
               <Text>Reviewer: </Text>
               <Dropdown
                 values={[ALL_DROPDOWN_OPTION, ...reviewerIds]}
@@ -178,19 +185,31 @@ const ApplicationTable: FC<ApplicationTableProps> = ({
               />
             </Flex>
           </Flex>
-          <DataUploadDialog
-            disabled={role !== Role.UG_TUTOR && role !== Role.ADMIN}
-            userEmail={email}
-          />
+
+          <Flex align="center" className="ml-16">
+            <TextField.Root
+              placeholder="Search application…"
+              onChange={(e) => setGlobalFilter(e.target.value)}
+              value={globalFilter}
+              size="3"
+            >
+              <TextField.Slot>
+                <MagnifyingGlassIcon height="24" width="24" />
+              </TextField.Slot>
+            </TextField.Root>
+          </Flex>
         </Flex>
       </Card>
+
       <TanstackTable
         data={applications}
         columns={columns}
         columnFilters={columnFilters}
         setColumnFilters={setColumnFilters}
+        globalFilter={globalFilter}
+        setGlobalFilter={setGlobalFilter}
       />
-    </>
+    </Flex>
   )
 }
 
