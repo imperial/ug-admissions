@@ -1,10 +1,15 @@
 import { auth } from '@/auth'
 import ApplicationTable from '@/components/ApplicationTable'
+import DataUploadDialog from '@/components/DataUploadDialog'
+import { HomepageLinkButton, StatisticsLinkButton } from '@/components/LinkButton'
 import NotFoundPage from '@/components/NotFoundPage'
+import { RoleBadge } from '@/components/RoleBadge'
 import prisma from '@/db'
 import { Role } from '@prisma/client'
+import { Flex, Heading } from '@radix-ui/themes'
 import { SessionProvider } from 'next-auth/react'
 import { redirect } from 'next/navigation'
+import React from 'react'
 
 export const dynamic = 'force-dynamic'
 
@@ -58,7 +63,7 @@ export default async function AdmissionsCycleApplicationsPage({
     })
   ).map((user) => user.login)
 
-  const userRole = await prisma.user.findUnique({
+  const user = await prisma.user.findUnique({
     where: {
       admissionsCycle_login: {
         admissionsCycle: cycle,
@@ -67,19 +72,38 @@ export default async function AdmissionsCycleApplicationsPage({
     }
   })
 
-  return userRole ? (
+  return user ? (
     <SessionProvider>
-      <ApplicationTable
-        applications={JSON.parse(JSON.stringify(applications))}
-        reviewerIds={reviewerIds}
-        user={{ email: userEmail, role: userRole.role }}
-        cycle={params.cycle}
-      />
+      <Flex direction="column" gap="1">
+        <Flex justify="between" className="mb-3">
+          <Flex direction="column" gap="1">
+            <Flex>
+              <Heading>Applications Table: {cycle}</Heading>
+            </Flex>
+            <Flex>
+              <RoleBadge role={user.role} />
+            </Flex>
+          </Flex>
+          <Flex gap="1">
+            <HomepageLinkButton />
+            <StatisticsLinkButton admissionsCycle={params.cycle} />
+            <DataUploadDialog
+              disabled={user.role !== Role.UG_TUTOR && user.role !== Role.ADMIN}
+              userEmail={user.login}
+            />
+          </Flex>
+        </Flex>
+        <ApplicationTable
+          applications={JSON.parse(JSON.stringify(applications))}
+          reviewerIds={reviewerIds}
+          user={{ email: userEmail, role: user.role }}
+        />
+      </Flex>
     </SessionProvider>
   ) : (
     <NotFoundPage
-      btnName={'Return to homepage'}
-      btnUrl={'/'}
+      btnName="Return to homepage"
+      btnUrl="/"
       explanation={`Admissions cycle ${params.cycle} does not exist or ${userEmail} has no role in this admissions cycle`}
     />
   )

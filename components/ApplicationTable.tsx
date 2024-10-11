@@ -1,9 +1,7 @@
 'use client'
 
 import AdminScoringDialog from '@/components/AdminScoringDialog'
-import { HomepageLinkButton, StatisticsLinkButton } from '@/components/LinkButton'
 import ReviewerScoringDialog from '@/components/ReviewerScoringDialog'
-import { RoleBadge } from '@/components/RoleBadge'
 import TanstackTable from '@/components/TanstackTable'
 import UgTutorDialog from '@/components/UgTutorDialog'
 import { prettifyOption, trimEmail } from '@/lib/utils'
@@ -18,13 +16,12 @@ import {
   User
 } from '@prisma/client'
 import { MagnifyingGlassIcon } from '@radix-ui/react-icons'
-import { Card, Flex, Heading, Text, TextField } from '@radix-ui/themes'
+import { Card, Flex, Text, TextField } from '@radix-ui/themes'
 import { ColumnFiltersState, createColumnHelper } from '@tanstack/react-table'
 import { useSession } from 'next-auth/react'
 import { usePathname, useRouter, useSearchParams } from 'next/navigation'
 import React, { FC, useEffect, useState } from 'react'
 
-import DataUploadDialog from './DataUploadDialog'
 import Dropdown from './Dropdown'
 
 export type ApplicationRow = Application & {
@@ -44,14 +41,12 @@ interface ApplicationTableProps {
   applications: ApplicationRow[]
   reviewerIds: string[]
   user: { email: string; role: Role }
-  cycle: string
 }
 
 const ApplicationTable: FC<ApplicationTableProps> = ({
   applications,
   reviewerIds,
-  user: { email, role },
-  cycle
+  user: { email, role }
 }) => {
   // ensure login
   useSession()
@@ -146,26 +141,7 @@ const ApplicationTable: FC<ApplicationTableProps> = ({
   ]
 
   return (
-    <Flex direction="column" gap="2">
-      <Flex justify="between" className="mb-3">
-        <Flex direction="column" gap="1">
-          <Flex>
-            <Heading>Undergraduate Admissions Portal</Heading>
-          </Flex>
-          <Flex>
-            <RoleBadge role={role} />
-          </Flex>
-        </Flex>
-        <Flex gap="1">
-          <HomepageLinkButton />
-          <StatisticsLinkButton admissionsCycle={cycle} />
-          <DataUploadDialog
-            disabled={role !== Role.UG_TUTOR && role !== Role.ADMIN}
-            userEmail={email}
-          />
-        </Flex>
-      </Flex>
-
+    <Flex direction="column" gap="1">
       <Card className="bg-indigo-200">
         <Flex justify="start">
           <Flex gap="5" direction="row" justify="start">
