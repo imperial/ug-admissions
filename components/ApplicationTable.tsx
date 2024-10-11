@@ -3,7 +3,7 @@
 import AdminScoringDialog from '@/components/AdminScoringDialog'
 import { HomepageLinkButton, StatisticsLinkButton } from '@/components/LinkButton'
 import ReviewerScoringDialog from '@/components/ReviewerScoringDialog'
-import { roleBadge } from '@/components/RoleBadge'
+import { RoleBadge } from '@/components/RoleBadge'
 import TanstackTable from '@/components/TanstackTable'
 import UgTutorDialog from '@/components/UgTutorDialog'
 import { prettifyOption, trimEmail } from '@/lib/utils'
@@ -147,12 +147,14 @@ const ApplicationTable: FC<ApplicationTableProps> = ({
 
   return (
     <Flex direction="column" gap="2">
-      <Flex justify="between" align="center" className="mb-3">
+      <Flex justify="between" className="mb-3">
         <Flex direction="column" gap="1">
           <Flex>
             <Heading>Undergraduate Admissions Portal</Heading>
           </Flex>
-          <Flex>{roleBadge({ role })}</Flex>
+          <Flex>
+            <RoleBadge role={role} />
+          </Flex>
         </Flex>
         <Flex gap="1">
           <HomepageLinkButton />
