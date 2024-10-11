@@ -1,7 +1,8 @@
 import { BarChartIcon, HomeIcon, ReaderIcon } from '@radix-ui/react-icons'
-import { Button, Flex } from '@radix-ui/themes'
+import { Button, Flex, Spinner } from '@radix-ui/themes'
 import Link from 'next/link'
-import React, { FC } from 'react'
+import { useRouter } from 'next/navigation'
+import React, { FC, useState } from 'react'
 
 interface LinkButtonProps {
   destination: string
@@ -11,11 +12,20 @@ interface LinkButtonProps {
 }
 
 const LinkButton: FC<LinkButtonProps> = ({ destination, color, icon, text }) => {
+  const [loading, setLoading] = useState(false)
+  const router = useRouter()
+
+  const handleClick = (e: React.MouseEvent<HTMLAnchorElement, MouseEvent>) => {
+    e.preventDefault()
+    setLoading(true)
+    router.push(destination)
+  }
+
   return (
-    <Link href={destination}>
+    <Link href={destination} onClick={handleClick}>
       <Button className="w-full" color={color}>
         <Flex align="center" justify="center" gap="2">
-          {icon} {text}
+          {loading ? <Spinner /> : icon} {text}
         </Flex>
       </Button>
     </Link>

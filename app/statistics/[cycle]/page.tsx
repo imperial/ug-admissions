@@ -1,5 +1,6 @@
 import AdmissionsCycleStatistics from '@/components/AdmissionsCycleStatistics'
 import prisma from '@/db'
+import { prettifyOption } from '@/lib/utils'
 import { Decision, NextAction } from '@prisma/client'
 import _ from 'lodash'
 
@@ -36,7 +37,7 @@ export default async function AdmissionsCycleStatisticsPage({
 
   const nextActionCounts: { name: string; quantity: number }[] = _.map(NextAction, (na) => {
     return {
-      name: na,
+      name: prettifyOption(na),
       quantity: nextActionCountsQuery.find((i) => i.nextAction === na)?._count.nextAction || 0
     }
   })
