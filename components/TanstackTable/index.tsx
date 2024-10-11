@@ -24,8 +24,8 @@ interface TanstackTableProps<T> {
   setGlobalFilter: OnChangeFn<any>
 }
 
-const PAGE_SIZE = 8
-const border = 'border-r border-gray-300 border'
+const PAGE_SIZE = 6
+const RIGHT_BORDER = 'border-r-1 border-gray-400 border'
 
 const TanstackTable = <T,>({
   data,
@@ -58,9 +58,9 @@ const TanstackTable = <T,>({
       <Table.Root className="border-2 border-gray-300">
         <Table.Header>
           {table.getHeaderGroups().map((headerGroup) => (
-            <Table.Row key={headerGroup.id}>
+            <Table.Row key={headerGroup.id} className="bg-yellow-100 border-b-2 border-black">
               {headerGroup.headers.map((header) => (
-                <Table.ColumnHeaderCell key={header.id} className={border}>
+                <Table.ColumnHeaderCell key={header.id} className={RIGHT_BORDER}>
                   {flexRender(header.column.columnDef.header, header.getContext())}
                 </Table.ColumnHeaderCell>
               ))}
@@ -72,10 +72,10 @@ const TanstackTable = <T,>({
           {table.getRowModel().rows.map((row, i) => (
             <Table.Row
               key={row.id}
-              className={`align-middle ${i % 2 == 0 ? 'bg-gray-100' : 'bg-white'}`}
+              className={`align-middle ${i % 2 == 0 ? 'bg-gray-200' : 'bg-white'}`}
             >
               {row.getVisibleCells().map((cell, id) => (
-                <Table.Cell key={id} className={border}>
+                <Table.Cell key={id} className={RIGHT_BORDER}>
                   {flexRender(cell.column.columnDef.cell, cell.getContext())}
                 </Table.Cell>
               ))}
