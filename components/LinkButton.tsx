@@ -1,3 +1,5 @@
+'use client'
+
 import { BarChartIcon, HomeIcon, ReaderIcon } from '@radix-ui/react-icons'
 import { Button, Flex, Spinner } from '@radix-ui/themes'
 import Link from 'next/link'
