@@ -4,7 +4,7 @@ import FormWrapper from '@/components/FormWrapper'
 import GenericDialog from '@/components/GenericDialog'
 import { processCsvUpload } from '@/lib/csv/upload'
 import { DataUploadEnum, FormPassbackState } from '@/lib/types'
-import { FilePlusIcon } from '@radix-ui/react-icons'
+import { FilePlusIcon, MixerVerticalIcon } from '@radix-ui/react-icons'
 import { Button, Flex, Text } from '@radix-ui/themes'
 import Link from 'next/link'
 import React, { FC, useState } from 'react'
@@ -21,7 +21,7 @@ interface DataUploadFormProps {
 const DataUploadForm: FC<DataUploadFormProps> = ({ file, setFile }) => {
   const [dataUploadChoice, setDataUploadChoice] = useState(DataUploadEnum.APPLICATION)
   return (
-    <Flex direction="column" gap="3">
+    <Flex direction="column" gap="2">
       <LabelledInput label="Data regarding">
         <Dropdown
           values={Object.keys(DataUploadEnum)}
@@ -33,6 +33,7 @@ const DataUploadForm: FC<DataUploadFormProps> = ({ file, setFile }) => {
 
       <Link href={dataUploadExampleFileMap[dataUploadChoice]} download="example">
         <Button color="gray" className="w-full">
+          <MixerVerticalIcon />
           Download example CSV
         </Button>
       </Link>

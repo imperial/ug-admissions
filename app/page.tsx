@@ -44,9 +44,9 @@ export default async function Home() {
   ).map((user) => user.admissionsCycle.toString())
 
   return (
-    <Flex direction="column">
+    <Flex direction="column" gap="3" justify="between">
       <Flex align="center" justify="between" gapX="5" className="mb-2">
-        <Heading>Undergraduate Admissions Portal</Heading>
+        <Heading size="8">Undergraduate Admissions Portal</Heading>
         <Card className="bg-cyan-200">
           <Text>
             Logged in as: <strong>{userEmail}</strong>
