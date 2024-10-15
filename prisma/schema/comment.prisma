@@ -6,13 +6,12 @@ enum CommentType {
 
 model Comment {
   commentNo        Int            @id @default(autoincrement())
-  cid              String
-  admissionsCycle  Int
-  text             String
-  authorLogin      String
-  madeBy           User           @relation(fields: [authorLogin, admissionsCycle], references: [login, admissionsCycle])
-  madeOn           DateTime       @updatedAt
-  type             CommentType
   internalReview   InternalReview @relation(fields: [internalReviewId], references: [id])
   internalReviewId Int
+  madeBy           User           @relation(fields: [authorLogin, admissionsCycle], references: [login, admissionsCycle])
+  admissionsCycle  Int
+  authorLogin      String
+  text             String
+  madeOn           DateTime       @updatedAt
+  type             CommentType
 }

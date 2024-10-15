@@ -12,4 +12,4 @@ ALTER TABLE "Applicant" DROP CONSTRAINT "Applicant_pkey",
 ADD CONSTRAINT "Applicant_pkey" PRIMARY KEY ("cid");
 
 -- AddForeignKey
-ALTER TABLE "Application" ADD CONSTRAINT "Application_applicantCid_fkey" FOREIGN KEY ("applicantCid") REFERENCES "Applicant"("cid") ON DELETE RESTRICT ON UPDATE CASCADE;
+ALTER TABLE "Application" ADD CONSTRAINT "Application_cid_fkey" FOREIGN KEY ("cid") REFERENCES "Applicant"("cid") ON DELETE RESTRICT ON UPDATE CASCADE;

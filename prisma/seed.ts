@@ -87,7 +87,7 @@ const createReview = (application: Application) => {
 
 const createOutcome = (application: Application) => {
   return {
-    cid: application.applicantCid,
+    cid: application.cid,
     admissionsCycle: application.admissionsCycle,
     degreeCode: faker.helpers.arrayElement(Object.keys(DegreeCode)) as DegreeCode
   }

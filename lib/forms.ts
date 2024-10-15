@@ -150,7 +150,6 @@ export const upsertOutcome = async (
 }
 
 export const insertComment = async (
-  cid: string,
   admissionsCycle: number,
   ugTutorEmail: string,
   internalReviewId: number,
@@ -164,7 +163,6 @@ export const insertComment = async (
 
   await prisma.comment.create({
     data: {
-      cid,
       admissionsCycle,
       internalReviewId,
       ...result.data

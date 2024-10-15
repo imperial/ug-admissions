@@ -190,7 +190,7 @@ const UgTutorDialog: FC<UgTutorDialogProps> = ({ data, user }) => {
   const handleFormSuccess = () => setIsOpen(false)
   const [currentTab, setCurrentTab] = useState<Tab>('outcomes')
 
-  const { id, applicantCid, admissionsCycle, internalReview } = data
+  const { id, admissionsCycle, internalReview } = data
   const { email, role } = user
 
   const upsertOutcomeWithId = async (prevState: FormPassbackState, formData: FormData) => {
@@ -208,14 +208,7 @@ const UgTutorDialog: FC<UgTutorDialogProps> = ({ data, user }) => {
   const addCommentWithId = async (prevState: FormPassbackState, formData: FormData) => {
     if (!internalReview)
       return { status: 'error', message: 'Admin scoring form must be completed first!' }
-    return await insertComment(
-      applicantCid,
-      admissionsCycle,
-      email,
-      internalReview.id,
-      prevState,
-      formData
-    )
+    return await insertComment(admissionsCycle, email, internalReview.id, prevState, formData)
   }
 
   return (

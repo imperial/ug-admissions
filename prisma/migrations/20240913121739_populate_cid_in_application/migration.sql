@@ -1,6 +1,6 @@
--- Populate "Application".applicantCid
+-- Populate "Application".cid
 UPDATE "Application"
-SET "applicantCid" = (
+SET "cid" = (
   SELECT cid
   FROM "Applicant"
   WHERE id = "Application"."applicantId"
