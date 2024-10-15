@@ -44,9 +44,9 @@ async function getCurrentNextAction(
   return prisma.application
     .findUnique({
       where: {
-        admissionsCycle_applicantCid: {
-          admissionsCycle: admissionsCycle,
-          applicantCid: cid
+        admissionsCycle_cid: {
+          admissionsCycle,
+          cid
         }
       }
     })
@@ -90,9 +90,9 @@ function upsertApplication(applications: z.infer<typeof csvApplicationSchema>[])
 
     return prisma.application.upsert({
       where: {
-        admissionsCycle_applicantCid: {
+        admissionsCycle_cid: {
           admissionsCycle: application.admissionsCycle,
-          applicantCid: applicant.cid
+          cid: applicant.cid
         }
       },
       update: {
@@ -161,9 +161,9 @@ function updateTmuaScores(scores: z.infer<typeof csvTmuaScoresSchema>[]) {
 
     return prisma.application.update({
       where: {
-        admissionsCycle_applicantCid: {
+        admissionsCycle_cid: {
           admissionsCycle: s.admissionsCycle,
-          applicantCid: s.cid
+          cid: s.cid
         }
       },
       data: {
@@ -193,9 +193,9 @@ function updateAdminScoring(
 
     return prisma.application.update({
       where: {
-        admissionsCycle_applicantCid: {
+        admissionsCycle_cid: {
           admissionsCycle: a.admissionsCycle,
-          applicantCid: a.cid
+          cid: a.cid
         }
       },
       data: {

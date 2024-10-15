@@ -21,4 +21,4 @@ CREATE TABLE "Outcome" (
 CREATE UNIQUE INDEX "Outcome_cid_admissionsCycle_degreeCode_key" ON "Outcome"("cid", "admissionsCycle", "degreeCode");
 
 -- AddForeignKey
-ALTER TABLE "Outcome" ADD CONSTRAINT "Outcome_cid_admissionsCycle_fkey" FOREIGN KEY ("cid", "admissionsCycle") REFERENCES "Application"("applicantCid", "admissionsCycle") ON DELETE RESTRICT ON UPDATE CASCADE;
+ALTER TABLE "Outcome" ADD CONSTRAINT "Outcome_cid_admissionsCycle_fkey" FOREIGN KEY ("cid", "admissionsCycle") REFERENCES "Application"("cid", "admissionsCycle") ON DELETE RESTRICT ON UPDATE CASCADE;
