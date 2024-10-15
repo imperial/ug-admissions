@@ -33,8 +33,8 @@ enum AlevelQualification {
 
 model Application {
   id                       Int                  @id @default(autoincrement())
-  applicant                Applicant            @relation(fields: [applicantCid], references: [cid])
-  applicantCid             String
+  applicant                Applicant            @relation(fields: [cid], references: [cid])
+  cid                      String
   admissionsCycle          Int
   applicationDate          DateTime
   wideningParticipation    Boolean
@@ -59,7 +59,7 @@ model Application {
   reviewerId               Int?
   outcomes                 Outcome[]
 
-  @@unique([admissionsCycle, applicantCid])
+  @@unique([admissionsCycle, cid])
 }
 
 model InternalReview {
