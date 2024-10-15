@@ -1,4 +1,5 @@
 import { auth } from '@/auth'
+import AdminControlPanel from '@/components/AdminControlPanel'
 import SelectAdmissionsCycle from '@/components/SelectAdmissionsCycle'
 import prisma from '@/db'
 import { Card, Flex, Heading, Text } from '@radix-ui/themes'
@@ -15,6 +16,8 @@ export default async function Home() {
   }
 
   const userEmail = session?.user?.email as string
+  const UGA_ADMINS = process.env.UGA_ADMINS?.split(',')
+  const isSystemAdmin = UGA_ADMINS?.includes(userEmail)
 
   const admissionsCyclesWithRoles = (
     await prisma.user.findMany({
@@ -40,6 +43,7 @@ export default async function Home() {
           </Text>
         </Card>
       </Flex>
+      <Flex justify="center">{isSystemAdmin && <AdminControlPanel userEmail={userEmail} />}</Flex>
       <Flex align="center" justify="center" className="mt-4">
         <SelectAdmissionsCycle admissionsCycles={admissionsCyclesWithRoles} />
       </Flex>
