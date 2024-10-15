@@ -8,14 +8,14 @@ interface AdminControlPanelProps {
 
 const AdminControlPanel: FC<AdminControlPanelProps> = ({ userEmail }) => {
   return (
-    <Flex direction="column" gap="2">
-      <Card className="bg-cyan-200">
-        <Heading as="h4" size="2">
-          Admin Control Panel
-        </Heading>
+    <Card className="bg-amber-300">
+      <Heading size="3" align="center" className="mb-1">
+        Admin Control Panel
+      </Heading>
+      <Flex justify="center">
         <DataUploadDialog disabled={false} userEmail={userEmail} />
-      </Card>
-    </Flex>
+      </Flex>
+    </Card>
   )
 }
 

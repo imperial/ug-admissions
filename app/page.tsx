@@ -14,10 +14,20 @@ export default async function Home() {
   if (!session) {
     redirect('/auth/login')
   }
-
   const userEmail = session?.user?.email as string
+
   const UGA_ADMINS = process.env.UGA_ADMINS?.split(',')
-  const isSystemAdmin = UGA_ADMINS?.includes(userEmail)
+  const allAdminsAndUgTutors = (
+    await prisma.user.findMany({
+      select: {
+        login: true
+      },
+      where: {
+        OR: [{ role: 'ADMIN' }, { role: 'UG_TUTOR' }]
+      }
+    })
+  ).map((user) => user.login)
+  const isSystemAdmin = UGA_ADMINS?.includes(userEmail) || allAdminsAndUgTutors.includes(userEmail)
 
   const admissionsCyclesWithRoles = (
     await prisma.user.findMany({
