@@ -76,9 +76,7 @@ function processApplication(objects: unknown[]): unknown[] {
     ['Sent to department', 'applicationDate'],
     ['Extenuating circumstances notes', 'extenuatingCircumstances'],
     ['Academic eligibility notes', 'academicEligibilityNotes'],
-    ['TMUA Paper 1 Score', 'tmuaPaper1Score'],
-    ['TMUA Paper 2 Score', 'tmuaPaper2Score'],
-    ['TMUA Overall Score', 'tmuaOverallScore']
+    ['TMUA Score', 'tmuaScore']
   ])
 
   // transform admissionsCycle column to a number
@@ -137,14 +135,12 @@ function processApplication(objects: unknown[]): unknown[] {
     'feeStatus',
     'wideningParticipation',
     'applicationDate',
-    'tmuaPaper1Score',
-    'tmuaPaper2Score',
-    'tmuaOverallScore',
+    'tmuaScore',
     'extenuatingCircumstances',
     'academicEligibilityNotes'
   ]
 
-  // filter in case the TMUA columns don't exist
+  // filter in case columns are missing e.g. TMUA score
   const existingApplicationColumns = applicationColumns.filter((col) =>
     df.listColumns().includes(col)
   )
@@ -168,9 +164,7 @@ function processTMUAScores(objects: unknown[]): unknown[] {
   df = renameColumns(df, [
     ['CID', 'cid'],
     ['Admissions Cycle', 'admissionsCycle'],
-    ['Paper 1 Score', 'tmuaPaper1Score'],
-    ['Paper 2 Score', 'tmuaPaper2Score'],
-    ['Overall Score', 'tmuaOverallScore']
+    ['TMUA Score', 'tmuaScore']
   ])
   return df.toCollection()
 }

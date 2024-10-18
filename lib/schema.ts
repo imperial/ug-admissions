@@ -91,9 +91,7 @@ export const csvApplicationSchema = z.object({
     applicationDate: z
       .string()
       .transform((value) => formatISO(parseDate(value, 'dd/MM/yyyy HH:mm', new Date()))),
-    tmuaPaper1Score: z.coerce.number().min(1).max(9).optional(),
-    tmuaPaper2Score: z.coerce.number().min(1).max(9).optional(),
-    tmuaOverallScore: z.coerce.number().min(1).max(9).optional(),
+    tmuaScore: z.coerce.number().min(1).max(9).optional(),
     extenuatingCircumstances: z.string().nullable(),
     academicEligibilityNotes: z.string().nullable()
   }),
@@ -105,9 +103,7 @@ export const csvApplicationSchema = z.object({
 export const csvTmuaScoresSchema = z.object({
   cid: cidField,
   admissionsCycle: admissionsCycleField,
-  tmuaPaper1Score: numberSchema(1, 9, 'TMUA Paper 1 score'),
-  tmuaPaper2Score: numberSchema(1, 9, 'TMUA Paper 2 score'),
-  tmuaOverallScore: numberSchema(1, 9, 'TMUA overall score')
+  tmuaScore: numberSchema(1, 9, 'TMUA score')
 })
 
 export const csvAdminScoringSchema = z.object({

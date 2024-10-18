@@ -45,9 +45,7 @@ model Application {
   applicationDate          DateTime
   wideningParticipation    WP                   @default(NOT_CALCULATED)
   feeStatus                FeeStatus
-  tmuaPaper1Score          Decimal?             @db.Decimal(2, 1)
-  tmuaPaper2Score          Decimal?             @db.Decimal(2, 1)
-  tmuaOverallScore         Decimal?             @db.Decimal(2, 1)
+  tmuaScore                Decimal?             @db.Decimal(2, 1)
   /// gcseQualification is an enum that corresponds to age 16, GCSE-equivalent qualification type
   gcseQualification        GCSEQualification?
   gcseQualificationScore   Decimal?             @db.Decimal(3, 1)

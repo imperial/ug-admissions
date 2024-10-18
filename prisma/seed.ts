@@ -42,8 +42,6 @@ const createApplicant = () => {
 }
 
 const createApplication = (cycle: number, reviewer: User) => {
-  const paper1Score = faker.number.float({ multipleOf: 0.1, min: 1.0, max: 9.0 })
-  const paper2Score = faker.number.float({ multipleOf: 0.1, min: 1.0, max: 9.0 })
   return {
     applicant: { create: createApplicant() },
     admissionsCycle: cycle,
@@ -51,9 +49,7 @@ const createApplication = (cycle: number, reviewer: User) => {
     wideningParticipation: faker.helpers.arrayElement(Object.keys(WP)) as WP,
     feeStatus: faker.helpers.arrayElement(Object.keys(FeeStatus)) as FeeStatus,
     nextAction: faker.helpers.arrayElement(Object.keys(NextAction)) as NextAction,
-    tmuaPaper1Score: paper1Score,
-    tmuaPaper2Score: paper2Score,
-    tmuaOverallScore: (paper1Score + paper2Score) / 2,
+    tmuaScore: faker.number.float({ multipleOf: 0.1, min: 1.0, max: 9.0 }),
     gcseQualification: faker.helpers.arrayElement(
       Object.keys(GCSEQualification)
     ) as GCSEQualification,
