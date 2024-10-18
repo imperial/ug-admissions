@@ -136,7 +136,7 @@ const ApplicationTable: FC<ApplicationTableProps> = ({
       id: 'forms',
       header: 'Forms',
       cell: (info) => (
-        <Flex gap="4">
+        <Flex gap="1">
           <AdminScoringDialog data={info.row.original} user={{ email: email, role: role }} />
           <ReviewerScoringDialog data={info.row.original} userEmail={email} />
           <UgTutorDialog data={info.row.original} user={{ email: email, role: role }} />

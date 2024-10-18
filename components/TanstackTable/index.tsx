@@ -26,7 +26,7 @@ interface TanstackTableProps<T> {
   setGlobalFilter: OnChangeFn<any>
 }
 
-const PAGE_SIZE = 6
+const PAGE_SIZE = 5
 const RIGHT_BORDER = 'border-r-1 border-gray-400 border'
 
 const TanstackTable = <T,>({
