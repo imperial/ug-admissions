@@ -7,7 +7,8 @@ import {
   GCSEQualification,
   Gender,
   NextAction,
-  Role
+  Role,
+  WP
 } from '@prisma/client'
 import { formatISO } from 'date-fns'
 import { parse as parseDate } from 'date-fns/parse'
@@ -81,23 +82,16 @@ export const csvApplicationSchema = z.object({
       .string()
       .transform((value) => formatISO(parseDate(value, 'dd/MM/yyyy', new Date()))),
     email: z.string().email(),
-    primaryNationality: z.string(),
-    otherNationality: z.string().nullable()
+    primaryNationality: z.string()
   }),
   application: z.object({
-    hasDisability: z.preprocess((value) => String(value).toLowerCase() === 'true', z.boolean()),
     admissionsCycle: admissionsCycleField,
     feeStatus: z.nativeEnum(FeeStatus).optional().default(FeeStatus.UNKNOWN),
-    wideningParticipation: z.preprocess(
-      (value) => String(value).toLowerCase() === 'true',
-      z.boolean()
-    ),
+    wideningParticipation: z.nativeEnum(WP).optional().default(WP.NOT_CALCULATED),
     applicationDate: z
       .string()
       .transform((value) => formatISO(parseDate(value, 'dd/MM/yyyy HH:mm', new Date()))),
-    tmuaPaper1Score: z.coerce.number().min(1).max(9).optional(),
-    tmuaPaper2Score: z.coerce.number().min(1).max(9).optional(),
-    tmuaOverallScore: z.coerce.number().min(1).max(9).optional(),
+    tmuaScore: z.coerce.number().min(1).max(9).optional(),
     extenuatingCircumstances: z.string().nullable(),
     academicEligibilityNotes: z.string().nullable()
   }),
@@ -109,9 +103,7 @@ export const csvApplicationSchema = z.object({
 export const csvTmuaScoresSchema = z.object({
   cid: cidField,
   admissionsCycle: admissionsCycleField,
-  tmuaPaper1Score: numberSchema(1, 9, 'TMUA Paper 1 score'),
-  tmuaPaper2Score: numberSchema(1, 9, 'TMUA Paper 2 score'),
-  tmuaOverallScore: numberSchema(1, 9, 'TMUA overall score')
+  tmuaScore: numberSchema(1, 9, 'TMUA score')
 })
 
 export const csvAdminScoringSchema = z.object({

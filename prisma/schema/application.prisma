@@ -4,6 +4,12 @@ enum FeeStatus {
   UNKNOWN
 }
 
+enum WP {
+  YES
+  NO
+  NOT_CALCULATED
+}
+
 enum NextAction {
   ADMIN_SCORING_MISSING_TMUA
   ADMIN_SCORING_WITH_TMUA
@@ -37,12 +43,9 @@ model Application {
   cid                      String
   admissionsCycle          Int
   applicationDate          DateTime
-  wideningParticipation    Boolean
-  hasDisability            Boolean
+  wideningParticipation    WP                   @default(NOT_CALCULATED)
   feeStatus                FeeStatus
-  tmuaPaper1Score          Decimal?             @db.Decimal(2, 1)
-  tmuaPaper2Score          Decimal?             @db.Decimal(2, 1)
-  tmuaOverallScore         Decimal?             @db.Decimal(2, 1)
+  tmuaScore                Decimal?             @db.Decimal(2, 1)
   /// gcseQualification is an enum that corresponds to age 16, GCSE-equivalent qualification type
   gcseQualification        GCSEQualification?
   gcseQualificationScore   Decimal?             @db.Decimal(3, 1)

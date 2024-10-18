@@ -9,15 +9,15 @@ import {
   NextAction,
   PrismaClient,
   Role,
-  User
+  User,
+  WP
 } from '@prisma/client'
 
 const prisma = new PrismaClient()
 
 const createUser = (
   role: Role,
-  login: string = faker.string.alpha({ length: 2 }).toLowerCase() +
-    faker.string.numeric({ length: 3 }),
+  login: string = faker.internet.email(),
   admissionsCycle: number = faker.date.future().getFullYear()
 ) => {
   return {
@@ -40,20 +40,15 @@ const createApplicant = () => {
   }
 }
 
-const createApplication = (reviewer: User) => {
-  const paper1Score = faker.number.float({ multipleOf: 0.1, min: 1.0, max: 9.0 })
-  const paper2Score = faker.number.float({ multipleOf: 0.1, min: 1.0, max: 9.0 })
+const createApplication = (cycle: number, reviewer: User) => {
   return {
     applicant: { create: createApplicant() },
-    admissionsCycle: faker.date.future().getFullYear(),
+    admissionsCycle: cycle,
     applicationDate: faker.date.past(),
-    wideningParticipation: faker.datatype.boolean(),
-    hasDisability: faker.datatype.boolean(),
+    wideningParticipation: faker.helpers.arrayElement(Object.keys(WP)) as WP,
     feeStatus: faker.helpers.arrayElement(Object.keys(FeeStatus)) as FeeStatus,
     nextAction: faker.helpers.arrayElement(Object.keys(NextAction)) as NextAction,
-    tmuaPaper1Score: paper1Score,
-    tmuaPaper2Score: paper2Score,
-    tmuaOverallScore: (paper1Score + paper2Score) / 2,
+    tmuaScore: faker.number.float({ multipleOf: 0.1, min: 1.0, max: 9.0 }),
     gcseQualification: faker.helpers.arrayElement(
       Object.keys(GCSEQualification)
     ) as GCSEQualification,
@@ -95,26 +90,22 @@ const createOutcome = (application: Application) => {
 
 async function main() {
   // create 10 reviewers with 20 applications each
+  const CYCLE = 2526
   for (let i = 0; i < 10; i++) {
-    const user = await prisma.user.create({ data: createUser(Role.REVIEWER) })
+    const user = await prisma.user.create({ data: createUser(Role.REVIEWER, undefined, CYCLE) })
 
     for (let j = 0; j < 20; j++) {
-      const application = await prisma.application.create({ data: createApplication(user) })
+      const application = await prisma.application.create({ data: createApplication(CYCLE, user) })
       await prisma.internalReview.create({ data: createReview(application) })
       await prisma.outcome.create({ data: createOutcome(application) })
     }
   }
   await prisma.user.create({
-    data: createUser(Role.ADMIN, 'zaki.amin20@imperial.ac.uk', 2024)
+    data: createUser(Role.UG_TUTOR, 'zaki.amin20@imperial.ac.uk', CYCLE)
   })
+  // this reviewer will have no applications assigned
   await prisma.user.create({
-    data: createUser(Role.REVIEWER, 'reviewer@imperial.ac.uk', 2024)
-  })
-  await prisma.user.create({
-    data: createUser(Role.UG_TUTOR, 'zaki.amin20@imperial.ac.uk', 2025)
-  })
-  await prisma.user.create({
-    data: createUser(Role.REVIEWER, 'reviewer@imperial.ac.uk', 2025)
+    data: createUser(Role.REVIEWER, 'reviewer@imperial.ac.uk', CYCLE)
   })
 }
 

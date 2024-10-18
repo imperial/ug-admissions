@@ -1,6 +1,7 @@
 'use client'
 
 import { ApplicationsLinkButton, HomepageLinkButton } from '@/components/LinkButton'
+import { formatCycle } from '@/lib/utils'
 import { DataList, Flex, Heading } from '@radix-ui/themes'
 import React, { FC } from 'react'
 import {
@@ -16,7 +17,7 @@ import {
 } from 'recharts'
 
 interface AdmissionsCycleStatisticsProps {
-  cycle: string
+  cycle: number
   applicationsCount: number
   offersCount: number
   rejectionsCount: number
@@ -34,11 +35,11 @@ const AdmissionsCycleStatistics: FC<AdmissionsCycleStatisticsProps> = ({
     <Flex direction="column" gap="5">
       <Flex justify="between">
         <Heading as="h1" size="6">
-          {`Admissions Cycle Statistics: ${cycle}`}
+          Admissions Cycle Statistics: {formatCycle(cycle)}
         </Heading>
         <Flex gapX="2">
           <HomepageLinkButton />
-          <ApplicationsLinkButton admissionsCycle={cycle} />
+          <ApplicationsLinkButton admissionsCycle={cycle.toString()} />
         </Flex>
       </Flex>
 

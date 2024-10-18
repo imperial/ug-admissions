@@ -44,7 +44,7 @@ export default async function AdmissionsCycleStatisticsPage({
 
   return (
     <AdmissionsCycleStatistics
-      cycle={params.cycle}
+      cycle={cycle}
       applicationsCount={applicationsCount}
       offersCount={offersCount}
       rejectionsCount={rejectionsCount}

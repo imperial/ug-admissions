@@ -38,3 +38,8 @@ export function prettifyOption(value: string): string {
 export function trimEmail(email: string): string {
   return email.replace(/@.*$/, '')
 }
+
+export function formatCycle(cycle: number): string {
+  const s = cycle.toString()
+  return s.slice(0, 2) + '/' + s.slice(2)
+}

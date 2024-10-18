@@ -46,14 +46,9 @@ const applicantNoTmua = (admissionCycle: number) => {
 
 const applicantWithTmua = (admissionCycle: number) => {
   const applicant = applicantNoTmua(admissionCycle)
-  const paper1Score = faker.number.float({ multipleOf: 0.1, min: 1.0, max: 9.0 })
-  const paper2Score = faker.number.float({ multipleOf: 0.1, min: 1.0, max: 9.0 })
-  const overallScore = _.round((paper1Score + paper2Score) / 2, 1)
   return {
     ...applicant,
-    'TMUA Paper 1 Score': paper1Score,
-    'TMUA Paper 2 Score': paper2Score,
-    'TMUA Overall Score': overallScore
+    'TMUA Score': faker.number.float({ multipleOf: 0.1, min: 1.0, max: 9.0 })
   }
 }
 

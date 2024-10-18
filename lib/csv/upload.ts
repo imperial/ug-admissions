@@ -80,13 +80,7 @@ function upsertApplication(applications: z.infer<typeof csvApplicationSchema>[])
 
   return applications.map(async ({ applicant, application, outcome }) => {
     const currentNextAction = await getCurrentNextAction(application.admissionsCycle, applicant.cid)
-    const isTmuaPresent = [
-      application.tmuaPaper1Score,
-      application.tmuaPaper2Score,
-      application.tmuaOverallScore
-    ].every(isNumber)
-
-    const nextNextAction = calculateNextAction(currentNextAction, isTmuaPresent)
+    const nextNextAction = calculateNextAction(currentNextAction, isNumber(application.tmuaScore))
 
     return prisma.application.upsert({
       where: {
@@ -167,9 +161,7 @@ function updateTmuaScores(scores: z.infer<typeof csvTmuaScoresSchema>[]) {
         }
       },
       data: {
-        tmuaPaper1Score: s.tmuaPaper1Score,
-        tmuaPaper2Score: s.tmuaPaper2Score,
-        tmuaOverallScore: s.tmuaOverallScore,
+        tmuaScore: s.tmuaScore,
         nextAction: nextNextAction
       }
     })
