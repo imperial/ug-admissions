@@ -68,18 +68,15 @@ function processApplication(objects: unknown[]): unknown[] {
     ['Nationality (Applicant) (Contact)', 'primaryNationality'],
     ['Primary email address (Applicant) (Contact)', 'email'],
     ['Gender (Applicant) (Contact)', 'gender'],
-    ['Date of birth (Applicant) (Contact)', 'dateOfBirth'],
-    ['Preferred first name', 'preferredName'],
-    ['Disability flag', 'hasDisability'], // TODO, we do not have a column in the CSV for this as of now
+    ['Date of birth', 'dateOfBirth'],
+    ['Preferred first name (Applicant) (Contact)', 'preferredName'],
     ['Entry term', 'admissionsCycle'],
     ['Fee status', 'feeStatus'],
     ['WP flag', 'wideningParticipation'],
     ['Sent to department', 'applicationDate'],
     ['Extenuating circumstances notes', 'extenuatingCircumstances'],
     ['Academic eligibility notes', 'academicEligibilityNotes'],
-    ['TMUA Paper 1 Score', 'tmuaPaper1Score'],
-    ['TMUA Paper 2 Score', 'tmuaPaper2Score'],
-    ['TMUA Overall Score', 'tmuaOverallScore']
+    ['TMUA Score', 'tmuaScore']
   ])
 
   // transform admissionsCycle column to a number
@@ -87,9 +84,11 @@ function processApplication(objects: unknown[]): unknown[] {
   df = df.withColumn(
     'admissionsCycle',
     // @ts-ignore
-    (row: any) =>
-      // format is 'Autumn 2024-2025' so extract 2024
-      row.get('admissionsCycle')?.split(' ').at(1)?.split('-')[0]
+    (row: any) => {
+      // format is 'Autumn 2025-2026' so extract '2526'
+      const [year1, year2] = row.get('admissionsCycle')?.split(' ').at(1)?.split('-')
+      return year1.slice(-2) + year2.slice(-2)
+    }
   )
 
   df = df.withColumn(
@@ -102,7 +101,17 @@ function processApplication(objects: unknown[]): unknown[] {
 
   // capitalise enums so they validate
   // @ts-ignore
-  df = df.withColumn('gender', (row: any) => row.get('gender')?.toUpperCase())
+  df = df.withColumn('gender', (row: any) => {
+    const gender = row.get('gender')
+    if (gender === 'Other gender not listed') return 'OTHER'
+    return gender?.toUpperCase()
+  })
+  // @ts-ignore
+  df = df.withColumn('wideningParticipation', (row: any) => {
+    const wp = row.get('wideningParticipation')
+    if (wp === 'Not calculated') return 'NOT_CALCULATED'
+    return wp?.toUpperCase()
+  })
   // @ts-ignore
   df = df.withColumn('feeStatus', (row: any) => row.get('feeStatus')?.toUpperCase())
 
@@ -115,8 +124,7 @@ function processApplication(objects: unknown[]): unknown[] {
     'preferredName',
     'dateOfBirth',
     'email',
-    'primaryNationality',
-    'otherNationality'
+    'primaryNationality'
   ]
   const applicantDf = df.select(...applicantColumns)
   const applicantObjects = applicantDf.toCollection()
@@ -127,14 +135,12 @@ function processApplication(objects: unknown[]): unknown[] {
     'feeStatus',
     'wideningParticipation',
     'applicationDate',
-    'tmuaPaper1Score',
-    'tmuaPaper2Score',
-    'tmuaOverallScore',
+    'tmuaScore',
     'extenuatingCircumstances',
     'academicEligibilityNotes'
   ]
 
-  // filter in case the TMUA columns don't exist
+  // filter in case columns are missing e.g. TMUA score
   const existingApplicationColumns = applicationColumns.filter((col) =>
     df.listColumns().includes(col)
   )
@@ -158,9 +164,7 @@ function processTMUAScores(objects: unknown[]): unknown[] {
   df = renameColumns(df, [
     ['CID', 'cid'],
     ['Admissions Cycle', 'admissionsCycle'],
-    ['Paper 1 Score', 'tmuaPaper1Score'],
-    ['Paper 2 Score', 'tmuaPaper2Score'],
-    ['Overall Score', 'tmuaOverallScore']
+    ['TMUA Score', 'tmuaScore']
   ])
   return df.toCollection()
 }
