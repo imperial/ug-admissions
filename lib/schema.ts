@@ -7,7 +7,8 @@ import {
   GCSEQualification,
   Gender,
   NextAction,
-  Role
+  Role,
+  WP
 } from '@prisma/client'
 import { formatISO } from 'date-fns'
 import { parse as parseDate } from 'date-fns/parse'
@@ -81,17 +82,12 @@ export const csvApplicationSchema = z.object({
       .string()
       .transform((value) => formatISO(parseDate(value, 'dd/MM/yyyy', new Date()))),
     email: z.string().email(),
-    primaryNationality: z.string(),
-    otherNationality: z.string().nullable()
+    primaryNationality: z.string()
   }),
   application: z.object({
-    hasDisability: z.preprocess((value) => String(value).toLowerCase() === 'true', z.boolean()),
     admissionsCycle: admissionsCycleField,
     feeStatus: z.nativeEnum(FeeStatus).optional().default(FeeStatus.UNKNOWN),
-    wideningParticipation: z.preprocess(
-      (value) => String(value).toLowerCase() === 'true',
-      z.boolean()
-    ),
+    wideningParticipation: z.nativeEnum(WP).optional().default(WP.NOT_CALCULATED),
     applicationDate: z
       .string()
       .transform((value) => formatISO(parseDate(value, 'dd/MM/yyyy HH:mm', new Date()))),

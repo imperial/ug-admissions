@@ -13,7 +13,8 @@ import {
   NextAction,
   Outcome,
   Role,
-  User
+  User,
+  WP
 } from '@prisma/client'
 import { MagnifyingGlassIcon } from '@radix-ui/react-icons'
 import { Card, Flex, Text, TextField } from '@radix-ui/themes'
@@ -112,8 +113,9 @@ const ApplicationTable: FC<ApplicationTableProps> = ({
       id: 'feeStatus'
     }),
     columnHelper.accessor('wideningParticipation', {
-      cell: (info) =>
-        info.getValue() ? <Text color="grass">Yes</Text> : <Text color="red">No</Text>,
+      cell: (info) => (
+        <Text color={WPColourMap[info.getValue()]}>{prettifyOption(info.getValue())}</Text>
+      ),
       header: 'WP',
       id: 'wideningParticipation'
     }),
@@ -189,6 +191,12 @@ const ApplicationTable: FC<ApplicationTableProps> = ({
       />
     </Flex>
   )
+}
+
+const WPColourMap: Record<WP, 'green' | 'red' | 'yellow'> = {
+  [WP.YES]: 'green',
+  [WP.NO]: 'red',
+  [WP.NOT_CALCULATED]: 'yellow'
 }
 
 export default ApplicationTable
