@@ -142,7 +142,9 @@ const ReviewerScoringDialog: FC<ReviewerScoringDialogProps> = ({ data, userEmail
         <Button
           color="jade"
           className="min-h-10"
-          disabled={ord(data.nextAction) < ord(NextAction.REVIEWER_SCORING)}
+          disabled={
+            ord(data.nextAction) < ord(NextAction.REVIEWER_SCORING) || data?.reviewer == null
+          }
         >
           Reviewer Scoring
         </Button>

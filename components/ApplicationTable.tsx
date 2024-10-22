@@ -4,7 +4,7 @@ import AdminScoringDialog from '@/components/AdminScoringDialog'
 import ReviewerScoringDialog from '@/components/ReviewerScoringDialog'
 import TanstackTable from '@/components/TanstackTable'
 import UgTutorDialog from '@/components/UgTutorDialog'
-import { prettifyOption, trimEmail } from '@/lib/utils'
+import { prettifyOption, prettifyReviewerEmail } from '@/lib/utils'
 import {
   Applicant,
   Application,
@@ -128,7 +128,7 @@ const ApplicationTable: FC<ApplicationTableProps> = ({
       id: SEARCH_PARAM_NEXT_ACTION
     }),
     columnHelper.accessor('reviewer.login', {
-      cell: (info) => trimEmail(info.getValue()),
+      cell: (info) => prettifyReviewerEmail(info.getValue()),
       header: 'Reviewer',
       id: SEARCH_PARAM_REVIEWER
     }),
