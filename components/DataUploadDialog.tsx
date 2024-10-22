@@ -69,11 +69,11 @@ const DataUploadForm: FC<DataUploadFormProps> = ({ file, setFile }) => {
 }
 
 interface DataUploadDialogProps {
-  disabled: boolean
+  disabled?: boolean
   userEmail: string
 }
 
-const DataUploadDialog: FC<DataUploadDialogProps> = ({ disabled, userEmail }) => {
+const DataUploadDialog: FC<DataUploadDialogProps> = ({ disabled = false, userEmail }) => {
   const [isDialogOpen, setIsDialogOpen] = useState(false)
   const [file, setFile] = useState<File | null>(null)
 

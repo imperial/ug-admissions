@@ -13,7 +13,7 @@ const AdminControlPanel: FC<AdminControlPanelProps> = ({ userEmail }) => {
         Admin Control Panel
       </Heading>
       <Flex justify="center">
-        <DataUploadDialog disabled={false} userEmail={userEmail} />
+        <DataUploadDialog userEmail={userEmail} />
       </Flex>
     </Card>
   )
