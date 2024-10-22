@@ -21,7 +21,7 @@ const SelectAdmissionsCycle: FC<SelectAdmissionsCycleProps> = ({ admissionsCycle
       </Heading>
       <Dropdown values={admissionsCycles} onValueChange={setSelectedCycle} className="mb-2" />
       {selectedCycle && (
-        <Flex direction="column" gap="3">
+        <Flex direction="column" gap="1">
           <ApplicationsLinkButton admissionsCycle={selectedCycle} />
           <StatisticsLinkButton admissionsCycle={selectedCycle} />
         </Flex>

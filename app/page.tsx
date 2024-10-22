@@ -53,7 +53,11 @@ export default async function Home() {
           </Text>
         </Card>
       </Flex>
-      <Flex justify="center">{isSystemAdmin && <AdminControlPanel userEmail={userEmail} />}</Flex>
+      {isSystemAdmin && (
+        <Flex justify="center">
+          <AdminControlPanel userEmail={userEmail} />
+        </Flex>
+      )}
       <Flex align="center" justify="center" className="mt-4">
         <SelectAdmissionsCycle admissionsCycles={admissionsCyclesWithRoles} />
       </Flex>
