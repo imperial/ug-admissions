@@ -79,13 +79,7 @@ const UgTutorForm: FC<UgTutorFormProps> = ({
       />
 
       {/* Reviewers should not be able to see TMUA grades */}
-      {!commentsReadOnly && (
-        <TmuaGradeBox
-          paper1Score={data.tmuaPaper1Score}
-          paper2Score={data.tmuaPaper2Score}
-          overallScore={data.tmuaOverallScore}
-        />
-      )}
+      {!commentsReadOnly && <TmuaGradeBox score={data.tmuaScore} />}
 
       <Tabs.Root defaultValue="outcomes" onValueChange={(tabName) => setCurrentTab(tabName as Tab)}>
         <Tabs.List>

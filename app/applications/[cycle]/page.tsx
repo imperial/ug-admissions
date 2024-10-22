@@ -5,6 +5,7 @@ import { HomepageLinkButton, StatisticsLinkButton } from '@/components/LinkButto
 import NotFoundPage from '@/components/NotFoundPage'
 import { RoleBadge } from '@/components/RoleBadge'
 import prisma from '@/db'
+import { formatCycle } from '@/lib/utils'
 import { Role } from '@prisma/client'
 import { Flex, Heading } from '@radix-ui/themes'
 import { SessionProvider } from 'next-auth/react'
@@ -78,7 +79,7 @@ export default async function AdmissionsCycleApplicationsPage({
         <Flex justify="between" className="mb-3">
           <Flex direction="column" gap="1">
             <Flex>
-              <Heading>Applications Table: {cycle}</Heading>
+              <Heading>Applications Table: {formatCycle(cycle)}</Heading>
             </Flex>
             <Flex>
               <RoleBadge role={user.role} />

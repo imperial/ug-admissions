@@ -9,11 +9,13 @@ import {
   Applicant,
   Application,
   Comment as ApplicationComment,
+  FeeStatus,
   InternalReview,
   NextAction,
   Outcome,
   Role,
-  User
+  User,
+  WP
 } from '@prisma/client'
 import { MagnifyingGlassIcon } from '@radix-ui/react-icons'
 import { Card, Flex, Text, TextField } from '@radix-ui/themes'
@@ -107,13 +109,16 @@ const ApplicationTable: FC<ApplicationTableProps> = ({
       id: 'applicant.surname'
     }),
     columnHelper.accessor('feeStatus', {
-      cell: (info) => prettifyOption(info.getValue()),
+      cell: (info) => (
+        <Text color={FeeStatusColourMap[info.getValue()]}>{prettifyOption(info.getValue())}</Text>
+      ),
       header: 'Fee Status',
       id: 'feeStatus'
     }),
     columnHelper.accessor('wideningParticipation', {
-      cell: (info) =>
-        info.getValue() ? <Text color="grass">Yes</Text> : <Text color="red">No</Text>,
+      cell: (info) => (
+        <Text color={WPColourMap[info.getValue()]}>{prettifyOption(info.getValue())}</Text>
+      ),
       header: 'WP',
       id: 'wideningParticipation'
     }),
@@ -146,7 +151,7 @@ const ApplicationTable: FC<ApplicationTableProps> = ({
         <Flex justify="start">
           <Flex gap="5" direction="row" justify="start">
             <Flex align="center" gap="2">
-              <Text>Next Action: </Text>
+              <Text weight="medium">Next Action: </Text>
               <Dropdown
                 values={[ALL_DROPDOWN_OPTION, ...Object.keys(NextAction)]}
                 currentValue={nextActionFilterValue}
@@ -155,7 +160,7 @@ const ApplicationTable: FC<ApplicationTableProps> = ({
             </Flex>
 
             <Flex align="center" gap="2">
-              <Text>Reviewer: </Text>
+              <Text weight="medium">Reviewer: </Text>
               <Dropdown
                 values={[ALL_DROPDOWN_OPTION, ...reviewerIds]}
                 currentValue={reviewerFilterValue}
@@ -189,6 +194,18 @@ const ApplicationTable: FC<ApplicationTableProps> = ({
       />
     </Flex>
   )
+}
+
+const FeeStatusColourMap: Record<FeeStatus, 'green' | 'blue' | 'yellow'> = {
+  [FeeStatus.HOME]: 'green',
+  [FeeStatus.OVERSEAS]: 'blue',
+  [FeeStatus.UNKNOWN]: 'yellow'
+}
+
+const WPColourMap: Record<WP, 'green' | 'red' | 'yellow'> = {
+  [WP.YES]: 'green',
+  [WP.NO]: 'red',
+  [WP.NOT_CALCULATED]: 'yellow'
 }
 
 export default ApplicationTable
