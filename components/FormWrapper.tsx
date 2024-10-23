@@ -1,7 +1,7 @@
 'use client'
 
 import { FormPassbackState } from '@/lib/types'
-import { CheckCircledIcon, CrossCircledIcon } from '@radix-ui/react-icons'
+import { CheckCircledIcon, CrossCircledIcon, ReloadIcon } from '@radix-ui/react-icons'
 import { Button, Callout, Flex, Spinner } from '@radix-ui/themes'
 import React, { FC, ReactNode, useState } from 'react'
 import { useFormState } from 'react-dom'
@@ -37,19 +37,21 @@ const FormWrapper: FC<FormInDialogProps> = ({
 
   const [state, formAction] = useFormState(wrappedAction, { status: '', message: '' })
   return (
-    <>
+    <Flex direction="column" gap="2">
       {!!state.message && (
-        <Callout.Root
-          size="1"
-          color={state.status === 'success' ? 'green' : 'red'}
-          className="my-2"
-        >
+        <Callout.Root size="1" color={state.status === 'success' ? 'green' : 'red'}>
           <Callout.Icon>
             {state.status === 'success' && <CheckCircledIcon />}
             {state.status === 'error' && <CrossCircledIcon />}
           </Callout.Icon>
           <Callout.Text>{state.message}</Callout.Text>
         </Callout.Root>
+      )}
+      {state.status === 'success' && (
+        <Button color="grass" onClick={() => window.location.reload()} className="w-full">
+          <ReloadIcon />
+          After uploading, refresh to see changes
+        </Button>
       )}
       <form action={formAction} onSubmit={() => setPending(true)}>
         {children}
@@ -59,7 +61,7 @@ const FormWrapper: FC<FormInDialogProps> = ({
           </Button>
         </Flex>
       </form>
-    </>
+    </Flex>
   )
 }
 

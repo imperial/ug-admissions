@@ -1,4 +1,5 @@
 import { auth } from '@/auth'
+import AdminControlPanel from '@/components/AdminControlPanel'
 import SelectAdmissionsCycle from '@/components/SelectAdmissionsCycle'
 import prisma from '@/db'
 import { Card, Flex, Heading, Text } from '@radix-ui/themes'
@@ -13,8 +14,20 @@ export default async function Home() {
   if (!session) {
     redirect('/auth/login')
   }
-
   const userEmail = session?.user?.email as string
+
+  const UGA_ADMINS = process.env.UGA_ADMINS?.split(',')
+  const allAdminsAndUgTutors = (
+    await prisma.user.findMany({
+      select: {
+        login: true
+      },
+      where: {
+        OR: [{ role: 'ADMIN' }, { role: 'UG_TUTOR' }]
+      }
+    })
+  ).map((user) => user.login)
+  const isSystemAdmin = UGA_ADMINS?.includes(userEmail) || allAdminsAndUgTutors.includes(userEmail)
 
   const admissionsCyclesWithRoles = (
     await prisma.user.findMany({
@@ -31,15 +44,20 @@ export default async function Home() {
   ).map((user) => user.admissionsCycle.toString())
 
   return (
-    <Flex direction="column">
+    <Flex direction="column" gap="3" justify="between">
       <Flex align="center" justify="between" gapX="5" className="mb-2">
-        <Heading>Undergraduate Admissions Portal</Heading>
+        <Heading size="8">Undergraduate Admissions Portal</Heading>
         <Card className="bg-cyan-200">
           <Text>
             Logged in as: <strong>{userEmail}</strong>
           </Text>
         </Card>
       </Flex>
+      {isSystemAdmin && (
+        <Flex justify="center">
+          <AdminControlPanel userEmail={userEmail} />
+        </Flex>
+      )}
       <Flex align="center" justify="center" className="mt-4">
         <SelectAdmissionsCycle admissionsCycles={admissionsCyclesWithRoles} />
       </Flex>

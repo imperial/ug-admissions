@@ -4,8 +4,9 @@ import FormWrapper from '@/components/FormWrapper'
 import GenericDialog from '@/components/GenericDialog'
 import { processCsvUpload } from '@/lib/csv/upload'
 import { DataUploadEnum, FormPassbackState } from '@/lib/types'
-import { FilePlusIcon } from '@radix-ui/react-icons'
+import { FilePlusIcon, MixerVerticalIcon } from '@radix-ui/react-icons'
 import { Button, Flex, Text } from '@radix-ui/themes'
+import Link from 'next/link'
 import React, { FC, useState } from 'react'
 import Dropzone from 'react-dropzone'
 
@@ -20,7 +21,7 @@ interface DataUploadFormProps {
 const DataUploadForm: FC<DataUploadFormProps> = ({ file, setFile }) => {
   const [dataUploadChoice, setDataUploadChoice] = useState(DataUploadEnum.APPLICATION)
   return (
-    <Flex direction="column" gap="3">
+    <Flex direction="column" gap="2">
       <LabelledInput label="Data regarding">
         <Dropdown
           values={Object.keys(DataUploadEnum)}
@@ -29,6 +30,13 @@ const DataUploadForm: FC<DataUploadFormProps> = ({ file, setFile }) => {
         />
         <input type="hidden" name="dataUploadType" value={dataUploadChoice} />
       </LabelledInput>
+
+      <Link href={dataUploadExampleFileMap[dataUploadChoice]} download="example">
+        <Button color="gray" className="w-full">
+          <MixerVerticalIcon />
+          Download example CSV
+        </Button>
+      </Link>
 
       <Dropzone
         onDrop={(acceptedFiles) => {
@@ -61,11 +69,11 @@ const DataUploadForm: FC<DataUploadFormProps> = ({ file, setFile }) => {
 }
 
 interface DataUploadDialogProps {
-  disabled: boolean
+  disabled?: boolean
   userEmail: string
 }
 
-const DataUploadDialog: FC<DataUploadDialogProps> = ({ disabled, userEmail }) => {
+const DataUploadDialog: FC<DataUploadDialogProps> = ({ disabled = false, userEmail }) => {
   const [isDialogOpen, setIsDialogOpen] = useState(false)
   const [file, setFile] = useState<File | null>(null)
 
@@ -77,7 +85,7 @@ const DataUploadDialog: FC<DataUploadDialogProps> = ({ disabled, userEmail }) =>
 
   return (
     <GenericDialog
-      title={'Data Upload'}
+      title="Upload CSV"
       trigger={
         <Button disabled={disabled}>
           <FilePlusIcon />
@@ -93,11 +101,15 @@ const DataUploadDialog: FC<DataUploadDialogProps> = ({ disabled, userEmail }) =>
       <FormWrapper action={processCsvUploadWrapped} submitButtonText="Upload">
         <DataUploadForm file={file} setFile={setFile} />
       </FormWrapper>
-      <Button color="teal" onClick={() => window.location.reload()}>
-        <em>After uploading, refresh to see changes</em>
-      </Button>
     </GenericDialog>
   )
+}
+
+const dataUploadExampleFileMap: Record<DataUploadEnum, string> = {
+  [DataUploadEnum.APPLICATION]: '/example-applications.csv',
+  [DataUploadEnum.TMUA_SCORES]: '/example-tmua-scores.csv',
+  [DataUploadEnum.ADMIN_SCORING]: '/example-admin-scoring.csv',
+  [DataUploadEnum.USER_ROLES]: '/example-user-roles.csv'
 }
 
 export default DataUploadDialog

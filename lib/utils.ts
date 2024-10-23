@@ -34,9 +34,9 @@ export function prettifyOption(value: string): string {
     .join(' ')
 }
 
-// remove shared suffix from email addresses to save space
-export function trimEmail(email: string): string {
-  return email.replace(/@.*$/, '')
+export function prettifyReviewerEmail(email: string | undefined): string {
+  // strip domain from email to save space
+  return email ? email.replace(/@.*$/, '') : 'Not allocated'
 }
 
 export function formatCycle(cycle: number): string {

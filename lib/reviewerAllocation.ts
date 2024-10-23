@@ -154,7 +154,7 @@ export const allocateApplications = async (applications: Application[]) => {
   )
   if (reviewersWithCount.length === 0)
     throw new Error(
-      'Reviewer allocation failed because no reviewers were found. Please upload reviewers and try again.'
+      'Applications uploaded but reviewer allocation failed: there are no reviewers in this admissions cycle.'
     )
 
   const slices = allocateApplicationRanges(
