@@ -17,7 +17,7 @@ const SelectAdmissionsCycle: FC<SelectAdmissionsCycleProps> = ({ admissionsCycle
   return admissionsCycles.length > 0 ? (
     <Flex direction="column" gap="2" align="center" justify="center">
       <Heading as="h4" size="2">
-        Select an admissions cycle you play a role in:
+        Select an admissions cycle:
       </Heading>
       <Dropdown values={admissionsCycles} onValueChange={setSelectedCycle} className="mb-2" />
       {selectedCycle && (

@@ -5,6 +5,7 @@ import { HomepageLinkButton, StatisticsLinkButton } from '@/components/LinkButto
 import NotFoundPage from '@/components/NotFoundPage'
 import { RoleBadge } from '@/components/RoleBadge'
 import prisma from '@/db'
+import { adminAccess } from '@/lib/access'
 import { formatCycle } from '@/lib/utils'
 import { Role } from '@prisma/client'
 import { Flex, Heading } from '@radix-ui/themes'
@@ -82,14 +83,14 @@ export default async function AdmissionsCycleApplicationsPage({
               <Heading>Applications Table: {formatCycle(cycle)}</Heading>
             </Flex>
             <Flex>
-              <RoleBadge role={user.role} />
+              <RoleBadge email={userEmail} role={user.role} />
             </Flex>
           </Flex>
           <Flex gap="1">
             <HomepageLinkButton />
             <StatisticsLinkButton admissionsCycle={params.cycle} />
             <DataUploadDialog
-              disabled={user.role !== Role.UG_TUTOR && user.role !== Role.ADMIN}
+              disabled={!adminAccess(user.login, user.role)}
               userEmail={user.login}
             />
           </Flex>
