@@ -20,7 +20,7 @@ import { ApplicationRow } from './ApplicationTable'
 
 interface AdminScoringDialogProps {
   data: ApplicationRow
-  user: { email: string; role: Role }
+  user: { email: string; role?: Role }
 }
 
 interface AdminScoringFormProps {

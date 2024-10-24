@@ -2,16 +2,18 @@
 
 import Dropdown from '@/components/Dropdown'
 import { ApplicationsLinkButton, StatisticsLinkButton } from '@/components/LinkButton'
+import { isSuperUser } from '@/lib/access'
 import { ExclamationTriangleIcon } from '@radix-ui/react-icons'
 import { Callout, Flex, Heading } from '@radix-ui/themes'
 import { FC, useState } from 'react'
 
 interface SelectAdmissionsCycleProps {
   admissionsCycles: string[]
+  userEmail: string
 }
 
 // Choose an applications cycle for which the user has a role.
-const SelectAdmissionsCycle: FC<SelectAdmissionsCycleProps> = ({ admissionsCycles }) => {
+const SelectAdmissionsCycle: FC<SelectAdmissionsCycleProps> = ({ admissionsCycles, userEmail }) => {
   const [selectedCycle, setSelectedCycle] = useState<string | null>(null)
 
   return admissionsCycles.length > 0 ? (
@@ -27,7 +29,7 @@ const SelectAdmissionsCycle: FC<SelectAdmissionsCycleProps> = ({ admissionsCycle
         </Flex>
       )}
     </Flex>
-  ) : (
+  ) : !isSuperUser(userEmail) ? (
     <Callout.Root color="red" className="w-4/5">
       <Callout.Icon>
         <ExclamationTriangleIcon />
@@ -37,7 +39,7 @@ const SelectAdmissionsCycle: FC<SelectAdmissionsCycleProps> = ({ admissionsCycle
         team, the Undergraduate Tutor or EdTech to fix this.
       </Callout.Text>
     </Callout.Root>
-  )
+  ) : null
 }
 
 export default SelectAdmissionsCycle

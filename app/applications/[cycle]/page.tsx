@@ -5,7 +5,7 @@ import { HomepageLinkButton, StatisticsLinkButton } from '@/components/LinkButto
 import NotFoundPage from '@/components/NotFoundPage'
 import { RoleBadge } from '@/components/RoleBadge'
 import prisma from '@/db'
-import { adminAccess } from '@/lib/access'
+import { adminAccess, isSuperUser } from '@/lib/access'
 import { formatCycle } from '@/lib/utils'
 import { Role } from '@prisma/client'
 import { Flex, Heading } from '@radix-ui/themes'
@@ -74,7 +74,7 @@ export default async function AdmissionsCycleApplicationsPage({
     }
   })
 
-  return user ? (
+  return isSuperUser(userEmail) || user ? (
     <SessionProvider>
       <Flex direction="column" gap="1">
         <Flex justify="between" className="mb-3">
@@ -83,22 +83,22 @@ export default async function AdmissionsCycleApplicationsPage({
               <Heading>Applications Table: {formatCycle(cycle)}</Heading>
             </Flex>
             <Flex>
-              <RoleBadge email={userEmail} role={user.role} />
+              <RoleBadge email={userEmail} role={user?.role} />
             </Flex>
           </Flex>
           <Flex gap="1">
             <HomepageLinkButton />
             <StatisticsLinkButton admissionsCycle={params.cycle} />
             <DataUploadDialog
-              disabled={!adminAccess(user.login, user.role)}
-              userEmail={user.login}
+              disabled={!adminAccess(userEmail, user?.role)}
+              userEmail={userEmail}
             />
           </Flex>
         </Flex>
         <ApplicationTable
           applications={JSON.parse(JSON.stringify(applications))}
           reviewerIds={reviewerIds}
-          user={{ email: userEmail, role: user.role }}
+          user={{ email: userEmail, role: user?.role }}
         />
       </Flex>
     </SessionProvider>

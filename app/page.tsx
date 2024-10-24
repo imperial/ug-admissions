@@ -1,5 +1,6 @@
 import { auth } from '@/auth'
 import AdminControlPanel from '@/components/AdminControlPanel'
+import { RoleBadge } from '@/components/RoleBadge'
 import SelectAdmissionsCycle from '@/components/SelectAdmissionsCycle'
 import prisma from '@/db'
 import { isSuperUser } from '@/lib/access'
@@ -49,12 +50,18 @@ export default async function Home() {
   return (
     <Flex direction="column" gap="3" justify="between">
       <Flex align="center" justify="between" gapX="5" className="mb-2">
-        <Heading size="8">Undergraduate Admissions Portal</Heading>
-        <Card className="bg-cyan-200">
-          <Text>
-            Logged in as: <strong>{userEmail}</strong>
-          </Text>
-        </Card>
+        <Flex direction="column" gap="2">
+          <Heading size="8">Undergraduate Admissions Portal</Heading>
+          {/* only a super user will see a role on this page*/}
+          <RoleBadge email={userEmail} />
+        </Flex>
+        <Flex align="center" gap="2">
+          <Card className="bg-cyan-200">
+            <Text>
+              Logged in as: <strong>{userEmail}</strong>
+            </Text>
+          </Card>
+        </Flex>
       </Flex>
       {isSystemAdmin && (
         <Flex justify="center">
@@ -62,7 +69,7 @@ export default async function Home() {
         </Flex>
       )}
       <Flex align="center" justify="center" className="mt-4">
-        <SelectAdmissionsCycle admissionsCycles={admissionsCycles} />
+        <SelectAdmissionsCycle admissionsCycles={admissionsCycles} userEmail={userEmail} />
       </Flex>
     </Flex>
   )

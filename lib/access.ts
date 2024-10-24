@@ -5,7 +5,7 @@ export function isSuperUser(userEmail: string): boolean {
   return UGA_ADMINS.includes(userEmail)
 }
 
-export function adminAccess(userEmail: string, userRole: Role): boolean {
+export function adminAccess(userEmail: string, userRole?: Role): boolean {
   return isSuperUser(userEmail) || userRole === Role.ADMIN || userRole === Role.UG_TUTOR
 }
 
@@ -14,6 +14,6 @@ export function reviewerAccess(reviewerEmail: string | undefined, userEmail: str
   return reviewerEmail === userEmail
 }
 
-export function ugTutorOutcomeAccess(userEmail: string, userRole: Role): boolean {
+export function ugTutorOutcomeAccess(userEmail: string, userRole?: Role): boolean {
   return isSuperUser(userEmail) || userRole === Role.UG_TUTOR
 }
