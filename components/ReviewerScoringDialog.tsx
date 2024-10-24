@@ -4,6 +4,7 @@ import CandidateCallout from '@/components/CandidateCallout'
 import FormWrapper from '@/components/FormWrapper'
 import GenericDialog from '@/components/GenericDialog'
 import LabelText from '@/components/LabelText'
+import { reviewerAccess } from '@/lib/access'
 import { upsertReviewerScoring } from '@/lib/forms'
 import { FormPassbackState } from '@/lib/types'
 import { ord } from '@/lib/utils'
@@ -130,8 +131,7 @@ const ReviewerScoringDialog: FC<ReviewerScoringDialogProps> = ({ data, userEmail
   const upsertReviewerScoringWithId = (prevState: FormPassbackState, formData: FormData) =>
     upsertReviewerScoring(data.id, prevState, formData)
 
-  // only the assigned reviewer can edit the form
-  const readOnly = userEmail !== data?.reviewer?.login
+  const readOnly = !reviewerAccess(data.reviewer?.login, userEmail)
 
   return (
     <GenericDialog

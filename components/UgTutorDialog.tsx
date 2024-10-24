@@ -6,6 +6,7 @@ import FormWrapper from '@/components/FormWrapper'
 import GenericDialog from '@/components/GenericDialog'
 import LabelText from '@/components/LabelText'
 import TmuaGradeBox from '@/components/TmuaGradeBox'
+import { adminAccess, ugTutorOutcomeAccess } from '@/lib/access'
 import { insertComment, upsertOutcome } from '@/lib/forms'
 import { FormPassbackState } from '@/lib/types'
 import {
@@ -60,7 +61,7 @@ const UgTutorForm: FC<UgTutorFormProps> = ({
   const [nextAction, setNextAction] = useState(data.nextAction.toString())
   const [commentType, setCommentType] = useState(CommentType.NOTE.toString())
 
-  // sort in descending order (most recent)
+  // sort comments in descending order (most recent)
   const sortedComments = useMemo(
     () =>
       internalReview?.generalComments.toSorted(
@@ -223,8 +224,8 @@ const UgTutorDialog: FC<UgTutorDialogProps> = ({ data, user }) => {
       >
         <UgTutorForm
           data={data}
-          outcomesReadOnly={role !== Role.UG_TUTOR}
-          commentsReadOnly={role !== Role.UG_TUTOR && role !== Role.ADMIN}
+          outcomesReadOnly={!ugTutorOutcomeAccess(email, role)}
+          commentsReadOnly={!adminAccess(email, role)}
           setCurrentTab={setCurrentTab}
         />
       </FormWrapper>

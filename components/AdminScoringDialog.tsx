@@ -6,6 +6,7 @@ import FormWrapper from '@/components/FormWrapper'
 import GenericDialog from '@/components/GenericDialog'
 import LabelText from '@/components/LabelText'
 import TmuaGradeBox from '@/components/TmuaGradeBox'
+import { adminAccess } from '@/lib/access'
 import { upsertAdminScoring } from '@/lib/forms'
 import { FormPassbackState } from '@/lib/types'
 import { decimalToNumber } from '@/lib/utils'
@@ -190,7 +191,7 @@ const AdminScoringForm: FC<AdminScoringFormProps> = ({ data, readOnly }) => {
 
 const AdminScoringDialog: FC<AdminScoringDialogProps> = ({ data, user }) => {
   const { email, role } = user
-  const readOnly = role !== Role.ADMIN && role !== Role.UG_TUTOR
+  const readOnly = !adminAccess(email, role)
 
   const [isOpen, setIsOpen] = useState(false)
   const handleFormSuccess = () => setIsOpen(false)
