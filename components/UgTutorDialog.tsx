@@ -16,6 +16,7 @@ import {
   NextAction,
   Role
 } from '@prisma/client'
+import { DoubleArrowRightIcon, Pencil2Icon } from '@radix-ui/react-icons'
 import {
   Box,
   Button,
@@ -221,6 +222,7 @@ const UgTutorDialog: FC<UgTutorDialogProps> = ({ data, user }) => {
         action={currentTab === 'outcomes' ? upsertOutcomeWithId : addCommentWithId}
         onSuccess={handleFormSuccess}
         submitButtonText={currentTab === 'outcomes' ? 'Save' : 'Add Comment'}
+        submitIcon={currentTab === 'outcomes' ? <DoubleArrowRightIcon /> : <Pencil2Icon />}
       >
         <UgTutorForm
           data={data}

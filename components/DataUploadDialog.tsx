@@ -4,7 +4,7 @@ import FormWrapper from '@/components/FormWrapper'
 import GenericDialog from '@/components/GenericDialog'
 import { processCsvUpload } from '@/lib/csv/upload'
 import { DataUploadEnum, FormPassbackState } from '@/lib/types'
-import { FilePlusIcon, MixerVerticalIcon } from '@radix-ui/react-icons'
+import { DownloadIcon, FilePlusIcon, UploadIcon } from '@radix-ui/react-icons'
 import { Button, Flex, Text } from '@radix-ui/themes'
 import Link from 'next/link'
 import React, { FC, useState } from 'react'
@@ -23,20 +23,22 @@ const DataUploadForm: FC<DataUploadFormProps> = ({ file, setFile }) => {
   return (
     <Flex direction="column" gap="2">
       <LabelledInput label="Data regarding">
-        <Dropdown
-          values={Object.keys(DataUploadEnum)}
-          currentValue={dataUploadChoice}
-          onValueChange={(value) => setDataUploadChoice(value as DataUploadEnum)}
-        />
-        <input type="hidden" name="dataUploadType" value={dataUploadChoice} />
+        <Flex gap="1" justify="between">
+          <Dropdown
+            className="w-4/5"
+            values={Object.keys(DataUploadEnum)}
+            currentValue={dataUploadChoice}
+            onValueChange={(value) => setDataUploadChoice(value as DataUploadEnum)}
+          />
+          <input type="hidden" name="dataUploadType" value={dataUploadChoice} />
+          <Link href={dataUploadExampleFileMap[dataUploadChoice]} download="example">
+            <Button color="gray" className="w-full">
+              <DownloadIcon />
+              Example
+            </Button>
+          </Link>
+        </Flex>
       </LabelledInput>
-
-      <Link href={dataUploadExampleFileMap[dataUploadChoice]} download="example">
-        <Button color="gray" className="w-full">
-          <MixerVerticalIcon />
-          Download example CSV
-        </Button>
-      </Link>
 
       <Dropzone
         onDrop={(acceptedFiles) => {
@@ -60,7 +62,7 @@ const DataUploadForm: FC<DataUploadFormProps> = ({ file, setFile }) => {
                 </Text>
               </Flex>
             </Flex>
-            {file?.name && <p>Uploaded file: {file.name}</p>}
+            {file?.name && <Flex justify="center">Uploaded file: {file.name}</Flex>}
           </section>
         )}
       </Dropzone>
@@ -88,7 +90,7 @@ const DataUploadDialog: FC<DataUploadDialogProps> = ({ disabled = false, userEma
       title="Upload CSV"
       trigger={
         <Button disabled={disabled}>
-          <FilePlusIcon />
+          <UploadIcon />
           Upload
         </Button>
       }
@@ -98,7 +100,12 @@ const DataUploadDialog: FC<DataUploadDialogProps> = ({ disabled = false, userEma
         setIsDialogOpen(isOpen)
       }}
     >
-      <FormWrapper action={processCsvUploadWrapped} submitButtonText="Upload">
+      <FormWrapper
+        action={processCsvUploadWrapped}
+        submitButtonText="Upload"
+        submitIcon={<FilePlusIcon />}
+        refreshButton={true}
+      >
         <DataUploadForm file={file} setFile={setFile} />
       </FormWrapper>
     </GenericDialog>
