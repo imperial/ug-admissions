@@ -30,10 +30,14 @@ export default async function Home() {
   ).map((user) => user.login)
   // super users, admins and UG tutors should be able to view all admissions cycles
   // reviewers should only see cycles they play a role in
+  // remove all duplicates
   const isSystemAdmin = allAdminsAndUgTutors.includes(userEmail) || isSuperUser(userEmail)
   const admissionsCycles = (
     isSystemAdmin
-      ? await prisma.application.findMany({ select: { admissionsCycle: true } })
+      ? await prisma.application.findMany({
+          select: { admissionsCycle: true },
+          orderBy: { admissionsCycle: 'asc' }
+        })
       : await prisma.user.findMany({
           select: {
             admissionsCycle: true
@@ -45,7 +49,9 @@ export default async function Home() {
             login: 'asc'
           }
         })
-  ).map((user) => user.admissionsCycle.toString())
+  )
+    .map((user) => user.admissionsCycle.toString())
+    .filter((value, index, self) => self.indexOf(value) === index)
 
   return (
     <Flex direction="column" gap="3" justify="between">
