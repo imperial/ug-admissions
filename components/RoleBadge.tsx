@@ -13,7 +13,7 @@ const roleColourMap: Record<Role, 'lime' | 'blue' | 'crimson' | 'tomato'> = {
 
 interface RoleBadgeProps {
   email: string
-  role: Role
+  role?: Role
 }
 
 export const RoleBadge: FC<RoleBadgeProps> = ({ email, role }) => {
@@ -21,9 +21,9 @@ export const RoleBadge: FC<RoleBadgeProps> = ({ email, role }) => {
     <Badge color="red" size="3">
       <strong>Super User</strong>
     </Badge>
-  ) : (
+  ) : role ? (
     <Badge color={roleColourMap[role]} size="3">
       <strong>{prettifyOption(role)}</strong>
     </Badge>
-  )
+  ) : null
 }

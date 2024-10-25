@@ -32,7 +32,7 @@ import React, { FC, useMemo, useState } from 'react'
 interface UgTutorDialogProps {
   // generalComments relation does not type check otherwise
   data: ApplicationRow
-  user: { email: string; role: Role }
+  user: { email: string; role?: Role }
 }
 
 type Tab = 'outcomes' | 'comments'

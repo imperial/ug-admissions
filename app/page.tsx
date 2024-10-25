@@ -1,5 +1,6 @@
 import { auth } from '@/auth'
 import AdminControlPanel from '@/components/AdminControlPanel'
+import { RoleBadge } from '@/components/RoleBadge'
 import SelectAdmissionsCycle from '@/components/SelectAdmissionsCycle'
 import prisma from '@/db'
 import { isSuperUser } from '@/lib/access'
@@ -29,10 +30,14 @@ export default async function Home() {
   ).map((user) => user.login)
   // super users, admins and UG tutors should be able to view all admissions cycles
   // reviewers should only see cycles they play a role in
+  // remove all duplicates
   const isSystemAdmin = allAdminsAndUgTutors.includes(userEmail) || isSuperUser(userEmail)
   const admissionsCycles = (
     isSystemAdmin
-      ? await prisma.application.findMany({ select: { admissionsCycle: true } })
+      ? await prisma.application.findMany({
+          select: { admissionsCycle: true },
+          orderBy: { admissionsCycle: 'asc' }
+        })
       : await prisma.user.findMany({
           select: {
             admissionsCycle: true
@@ -44,17 +49,27 @@ export default async function Home() {
             login: 'asc'
           }
         })
-  ).map((user) => user.admissionsCycle.toString())
+  )
+    .map((user) => user.admissionsCycle.toString())
+    .filter((value, index, self) => self.indexOf(value) === index)
 
   return (
     <Flex direction="column" gap="3" justify="between">
       <Flex align="center" justify="between" gapX="5" className="mb-2">
-        <Heading size="8">Undergraduate Admissions Portal</Heading>
-        <Card className="bg-cyan-200">
-          <Text>
-            Logged in as: <strong>{userEmail}</strong>
-          </Text>
-        </Card>
+        <Flex direction="column" gap="2">
+          <Heading size="8">Undergraduate Admissions Portal</Heading>
+          <Flex>
+            {/* only a super user will see a role on this page*/}
+            <RoleBadge email={userEmail} />
+          </Flex>
+        </Flex>
+        <Flex align="center" gap="2">
+          <Card className="bg-cyan-200">
+            <Text>
+              Logged in as: <strong>{userEmail}</strong>
+            </Text>
+          </Card>
+        </Flex>
       </Flex>
       {isSystemAdmin && (
         <Flex justify="center">
@@ -62,7 +77,7 @@ export default async function Home() {
         </Flex>
       )}
       <Flex align="center" justify="center" className="mt-4">
-        <SelectAdmissionsCycle admissionsCycles={admissionsCycles} />
+        <SelectAdmissionsCycle admissionsCycles={admissionsCycles} userEmail={userEmail} />
       </Flex>
     </Flex>
   )

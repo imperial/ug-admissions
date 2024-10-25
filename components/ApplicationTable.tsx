@@ -42,7 +42,7 @@ const columnHelper = createColumnHelper<ApplicationRow>()
 interface ApplicationTableProps {
   applications: ApplicationRow[]
   reviewerIds: string[]
-  user: { email: string; role: Role }
+  user: { email: string; role?: Role }
 }
 
 const ApplicationTable: FC<ApplicationTableProps> = ({
