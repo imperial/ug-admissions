@@ -1,7 +1,12 @@
 'use client'
 
 import { FormPassbackState } from '@/lib/types'
-import { CheckCircledIcon, CrossCircledIcon, ReloadIcon } from '@radix-ui/react-icons'
+import {
+  CheckCircledIcon,
+  CrossCircledIcon,
+  DoubleArrowRightIcon,
+  UpdateIcon
+} from '@radix-ui/react-icons'
 import { Button, Callout, Flex, Spinner } from '@radix-ui/themes'
 import React, { FC, ReactNode, useState } from 'react'
 import { useFormState } from 'react-dom'
@@ -12,17 +17,21 @@ interface FormInDialogProps {
   children: ReactNode
   action: (prevState: FormPassbackState, formData: FormData) => Promise<FormPassbackState>
   submitButtonText?: string
+  submitIcon?: ReactNode
   onSuccess?: () => void
   // readOnly access disables save
   readOnly?: boolean
+  refreshButton?: boolean
 }
 
 const FormWrapper: FC<FormInDialogProps> = ({
   children,
   action,
   submitButtonText,
+  submitIcon = <DoubleArrowRightIcon />,
   onSuccess = () => {},
-  readOnly = false
+  readOnly = false,
+  refreshButton = false
 }) => {
   const [pending, setPending] = useState(false)
   const wrappedAction = async (
@@ -47,17 +56,19 @@ const FormWrapper: FC<FormInDialogProps> = ({
           <Callout.Text>{state.message}</Callout.Text>
         </Callout.Root>
       )}
-      {state.status === 'success' && (
-        <Button color="grass" onClick={() => window.location.reload()} className="w-full">
-          <ReloadIcon />
-          After uploading, refresh to see changes
-        </Button>
-      )}
+
       <form action={formAction} onSubmit={() => setPending(true)}>
         {children}
         <Flex justify="end" gap="2" mt="4">
+          {refreshButton && (
+            <Button type="button" color="bronze" onClick={() => window.location.reload()}>
+              <UpdateIcon />
+              Refresh (to load changes)
+            </Button>
+          )}
           <Button type="submit" disabled={pending || readOnly}>
             {pending ? <Spinner /> : (submitButtonText ?? DEFAULT_SUBMIT_BTN_TEXT)}
+            {submitIcon}
           </Button>
         </Flex>
       </form>
