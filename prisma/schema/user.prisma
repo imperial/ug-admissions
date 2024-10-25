@@ -2,7 +2,6 @@ enum Role {
   UG_TUTOR
   REVIEWER
   ADMIN
-  DEV
 }
 
 model User {
