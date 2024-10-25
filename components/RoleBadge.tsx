@@ -4,11 +4,10 @@ import { Role } from '@prisma/client'
 import { Badge } from '@radix-ui/themes'
 import { FC } from 'react'
 
-const roleColourMap: Record<Role, 'lime' | 'blue' | 'crimson' | 'tomato'> = {
+const roleColourMap: Record<Role, 'lime' | 'blue' | 'crimson'> = {
   [Role.ADMIN]: 'lime',
   [Role.REVIEWER]: 'blue',
-  [Role.UG_TUTOR]: 'crimson',
-  [Role.DEV]: 'tomato'
+  [Role.UG_TUTOR]: 'crimson'
 }
 
 interface RoleBadgeProps {
