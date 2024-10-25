@@ -58,8 +58,10 @@ export default async function Home() {
       <Flex align="center" justify="between" gapX="5" className="mb-2">
         <Flex direction="column" gap="2">
           <Heading size="8">Undergraduate Admissions Portal</Heading>
-          {/* only a super user will see a role on this page*/}
-          <RoleBadge email={userEmail} />
+          <Flex>
+            {/* only a super user will see a role on this page*/}
+            <RoleBadge email={userEmail} />
+          </Flex>
         </Flex>
         <Flex align="center" gap="2">
           <Card className="bg-cyan-200">
