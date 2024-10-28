@@ -6,7 +6,7 @@ import FormWrapper from '@/components/FormWrapper'
 import GenericDialog from '@/components/GenericDialog'
 import LabelText from '@/components/LabelText'
 import TmuaGradeBox from '@/components/TmuaGradeBox'
-import { adminAccess, ugTutorOutcomeAccess } from '@/lib/access'
+import { adminAccess } from '@/lib/access'
 import { insertComment, upsertOutcome } from '@/lib/forms'
 import { FormPassbackState } from '@/lib/types'
 import {
@@ -40,8 +40,7 @@ type Tab = 'outcomes' | 'comments'
 
 interface UgTutorFormProps {
   data: ApplicationRow
-  outcomesReadOnly: boolean
-  commentsReadOnly: boolean
+  readOnly: boolean
   setCurrentTab: (tab: Tab) => void
 }
 
@@ -51,12 +50,7 @@ const decisionColourMap = {
   [Decision.PENDING]: 'bg-amber-200'
 }
 
-const UgTutorForm: FC<UgTutorFormProps> = ({
-  data,
-  outcomesReadOnly,
-  commentsReadOnly,
-  setCurrentTab
-}) => {
+const UgTutorForm: FC<UgTutorFormProps> = ({ data, readOnly, setCurrentTab }) => {
   const { applicant, internalReview } = data
   const [outcomes, setOutcomes] = useState(data.outcomes)
   const [nextAction, setNextAction] = useState(data.nextAction.toString())
@@ -81,7 +75,7 @@ const UgTutorForm: FC<UgTutorFormProps> = ({
       />
 
       {/* Reviewers should not be able to see TMUA grades */}
-      {!commentsReadOnly && <TmuaGradeBox score={data.tmuaScore} />}
+      {!readOnly && <TmuaGradeBox score={data.tmuaScore} />}
 
       <Tabs.Root defaultValue="outcomes" onValueChange={(tabName) => setCurrentTab(tabName as Tab)}>
         <Tabs.List>
@@ -112,7 +106,7 @@ const UgTutorForm: FC<UgTutorFormProps> = ({
                           return newOutcomes
                         })
                       }}
-                      disabled={outcomesReadOnly}
+                      disabled={readOnly}
                       className="flex-grow"
                     />
                     <input
@@ -125,14 +119,14 @@ const UgTutorForm: FC<UgTutorFormProps> = ({
                     <TextField.Root
                       name={'offerCode'.concat('-', outcome.degreeCode)}
                       defaultValue={outcome.offerCode ?? ''}
-                      disabled={outcomesReadOnly}
+                      disabled={readOnly}
                     />
                   </LabelText>
                   <LabelText label="Offer Text" weight="medium">
                     <TextField.Root
                       name={'offerText'.concat('-', outcome.degreeCode)}
                       defaultValue={outcome.offerText ?? ''}
-                      disabled={outcomesReadOnly}
+                      disabled={readOnly}
                     />
                   </LabelText>
                 </Flex>
@@ -147,7 +141,7 @@ const UgTutorForm: FC<UgTutorFormProps> = ({
                 ]}
                 currentValue={nextAction}
                 onValueChange={setNextAction}
-                disabled={outcomesReadOnly}
+                disabled={readOnly}
               />
             </LabelText>
             <input name="nextAction" type="hidden" value={nextAction} />
@@ -165,13 +159,13 @@ const UgTutorForm: FC<UgTutorFormProps> = ({
                     values={Object.keys(CommentType)}
                     currentValue={commentType}
                     onValueChange={setCommentType}
-                    disabled={commentsReadOnly}
+                    disabled={readOnly}
                   />
                   <input name="type" type="hidden" value={commentType} />
                 </LabelText>
               </Flex>
               <LabelText label="Comment">
-                <TextArea name={'text'} defaultValue={''} disabled={commentsReadOnly} />
+                <TextArea name="text" defaultValue="" disabled={readOnly} />
               </LabelText>
             </Flex>
           </Tabs.Content>
@@ -226,8 +220,7 @@ const UgTutorDialog: FC<UgTutorDialogProps> = ({ data, user }) => {
       >
         <UgTutorForm
           data={data}
-          outcomesReadOnly={!ugTutorOutcomeAccess(email, role)}
-          commentsReadOnly={!adminAccess(email, role)}
+          readOnly={!adminAccess(email, role)}
           setCurrentTab={setCurrentTab}
         />
       </FormWrapper>
