@@ -42,6 +42,7 @@ model Application {
   applicant                Applicant            @relation(fields: [cid], references: [cid])
   cid                      String
   admissionsCycle          Int
+  entryYear                Int
   applicationDate          DateTime
   wideningParticipation    WP                   @default(NOT_CALCULATED)
   feeStatus                FeeStatus

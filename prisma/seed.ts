@@ -44,6 +44,7 @@ const createApplication = (cycle: number, reviewer: User) => {
   return {
     applicant: { create: createApplicant() },
     admissionsCycle: cycle,
+    entryYear: cycle,
     applicationDate: faker.date.past(),
     wideningParticipation: faker.helpers.arrayElement(Object.keys(WP)) as WP,
     feeStatus: faker.helpers.arrayElement(Object.keys(FeeStatus)) as FeeStatus,

@@ -27,7 +27,7 @@ function numberSchema(from: number, to: number, fieldName: string, isNullable: b
 }
 
 const cidField = z.string().length(8, { message: 'CID must be exactly 8 characters' })
-const admissionsCycleField = z.coerce
+const cycleField = z.coerce
   .number()
   .int()
   .min(2020, { message: 'Admissions cycle must be in the 2020s or later' })
@@ -85,7 +85,8 @@ export const csvApplicationSchema = z.object({
     primaryNationality: z.string()
   }),
   application: z.object({
-    admissionsCycle: admissionsCycleField,
+    admissionsCycle: cycleField,
+    entryYear: cycleField,
     feeStatus: z.nativeEnum(FeeStatus).optional().default(FeeStatus.UNKNOWN),
     wideningParticipation: z.nativeEnum(WP).optional().default(WP.NOT_CALCULATED),
     applicationDate: z
@@ -102,13 +103,13 @@ export const csvApplicationSchema = z.object({
 
 export const csvTmuaScoresSchema = z.object({
   cid: cidField,
-  admissionsCycle: admissionsCycleField,
+  admissionsCycle: cycleField,
   tmuaScore: numberSchema(1, 9, 'TMUA score')
 })
 
 export const csvAdminScoringSchema = z.object({
   cid: cidField,
-  admissionsCycle: admissionsCycleField,
+  admissionsCycle: cycleField,
   gcseQualification: z.nativeEnum(GCSEQualification),
   gcseQualificationScore: numberSchema(0, 10, 'Age 16 exam score'),
   aLevelQualification: z.nativeEnum(AlevelQualification),
@@ -119,7 +120,7 @@ export const csvAdminScoringSchema = z.object({
 })
 
 export const csvUserRolesSchema = z.object({
-  admissionsCycle: admissionsCycleField,
+  admissionsCycle: cycleField,
   login: z.string().email(),
   role: z.nativeEnum(Role)
 })

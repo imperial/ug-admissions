@@ -1,6 +1,7 @@
 import { DataUploadEnum } from '@/lib/types'
 import { CsvError, parse } from 'csv-parse/sync'
 import DataFrame from 'dataframe-js'
+import { parse as parseDate } from 'date-fns/parse'
 
 const uploadTypeProcessFunctionMap = {
   [DataUploadEnum.APPLICATION]: processApplication,
@@ -70,7 +71,7 @@ function processApplication(objects: unknown[]): unknown[] {
     ['Gender (Applicant) (Contact)', 'gender'],
     ['Date of birth', 'dateOfBirth'],
     ['Preferred first name (Applicant) (Contact)', 'preferredName'],
-    ['Entry term', 'admissionsCycle'],
+    ['Entry term', 'entryYear'],
     ['Fee status', 'feeStatus'],
     ['WP flag', 'wideningParticipation'],
     ['Sent to department', 'applicationDate'],
@@ -79,17 +80,23 @@ function processApplication(objects: unknown[]): unknown[] {
     ['TMUA Score', 'tmuaScore']
   ])
 
-  // transform admissionsCycle column to a number
-  // ts-ignore is used because the type of DataFrame.withColumn() does not match the docs or implementation
-  df = df.withColumn(
-    'admissionsCycle',
-    // @ts-ignore
-    (row: any) => {
-      // format is 'Autumn 2025-2026' so extract '2526'
-      const [year1, year2] = row.get('admissionsCycle')?.split(' ').at(1)?.split('-')
-      return year1.slice(-2) + year2.slice(-2)
-    }
-  )
+  // copy the applicationDate column and transform it to admissionsCycle
+  // @ts-ignore
+  df = df.withColumn('admissionsCycle', (row: any) => {
+    const sentDate = parseDate(row.get('applicationDate'), 'dd/MM/yyyy HH:mm', new Date())
+    // Sep to Dec 2025 is 2526, Jan to Aug 2026 is 2526
+    const currentYear = sentDate.getFullYear().toString().slice(-2)
+    return sentDate.getMonth() >= 8
+      ? currentYear + (sentDate.getFullYear() + 1).toString().slice(-2)
+      : (sentDate.getFullYear() - 1).toString().slice(-2) + currentYear
+  })
+
+  // @ts-ignore
+  df = df.withColumn('entryYear', (row: any) => {
+    // format is 'Autumn 2025-2026' so extract '2526'
+    const [year1, year2] = row.get('entryYear')?.split(' ').at(1)?.split('-')
+    return year1.slice(-2) + year2.slice(-2)
+  })
 
   df = df.withColumn(
     'degreeCode',
@@ -132,6 +139,7 @@ function processApplication(objects: unknown[]): unknown[] {
   const applicationColumns = [
     'hasDisability',
     'admissionsCycle',
+    'entryYear',
     'feeStatus',
     'wideningParticipation',
     'applicationDate',
