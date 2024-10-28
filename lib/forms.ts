@@ -126,13 +126,7 @@ export const upsertOutcome = async (
     return { id, ...parsedOutcome }
   })
 
-  const nextAction = nextActionField.parse(formData.get('nextAction'))
-  await prisma.application.update({
-    where: { id: applicationId },
-    data: {
-      nextAction
-    }
-  })
+  await updateNextAction(formData.get('nextAction'), applicationId)
 
   for (const { id, offerCode, offerText, decision } of groupedOutcomes) {
     await prisma.outcome.update({
@@ -150,16 +144,19 @@ export const upsertOutcome = async (
 }
 
 export const insertComment = async (
+  applicationId: number,
   admissionsCycle: number,
-  ugTutorEmail: string,
+  authorEmail: string,
   internalReviewId: number,
   _: FormPassbackState,
   formData: FormData
 ): Promise<FormPassbackState> => {
-  formData.set('authorLogin', ugTutorEmail)
+  formData.set('authorLogin', authorEmail)
 
   const result = formCommentSchema.safeParse(Object.fromEntries(formData))
   if (!result.success) return { status: 'error', message: result.error.issues[0].message }
+
+  await updateNextAction(formData.get('nextAction'), applicationId)
 
   await prisma.comment.create({
     data: {
@@ -171,4 +168,16 @@ export const insertComment = async (
 
   revalidatePath('/')
   return { status: 'success', message: 'UG tutor form added comment successfully.' }
+}
+
+async function updateNextAction(nextActionForm: FormDataEntryValue | null, applicationId: number) {
+  if (!nextActionForm || nextActionForm === 'Unchanged') return
+
+  const nextAction = nextActionField.parse(nextActionForm)
+  await prisma.application.update({
+    where: { id: applicationId },
+    data: {
+      nextAction
+    }
+  })
 }

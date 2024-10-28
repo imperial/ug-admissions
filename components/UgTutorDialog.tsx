@@ -53,7 +53,7 @@ const decisionColourMap = {
 const UgTutorForm: FC<UgTutorFormProps> = ({ data, readOnly, setCurrentTab }) => {
   const { applicant, internalReview } = data
   const [outcomes, setOutcomes] = useState(data.outcomes)
-  const [nextAction, setNextAction] = useState(data.nextAction.toString())
+  const [nextAction, setNextAction] = useState('Unchanged')
   const [commentType, setCommentType] = useState(CommentType.NOTE.toString())
 
   // sort comments in descending order (most recent)
@@ -132,19 +132,6 @@ const UgTutorForm: FC<UgTutorFormProps> = ({ data, readOnly, setCurrentTab }) =>
                 </Flex>
               </Card>
             ))}
-            <LabelText label="Set Next Action">
-              <Dropdown
-                values={[
-                  NextAction.UG_TUTOR_REVIEW,
-                  NextAction.INFORM_CANDIDATE,
-                  NextAction.CANDIDATE_INFORMED
-                ]}
-                currentValue={nextAction}
-                onValueChange={setNextAction}
-                disabled={readOnly}
-              />
-            </LabelText>
-            <input name="nextAction" type="hidden" value={nextAction} />
           </Tabs.Content>
 
           <Tabs.Content value="comments">
@@ -169,6 +156,21 @@ const UgTutorForm: FC<UgTutorFormProps> = ({ data, readOnly, setCurrentTab }) =>
               </LabelText>
             </Flex>
           </Tabs.Content>
+
+          <LabelText label="Set Next Action" className="mt-2">
+            <Dropdown
+              values={[
+                'Unchanged',
+                NextAction.UG_TUTOR_REVIEW,
+                NextAction.INFORM_CANDIDATE,
+                NextAction.CANDIDATE_INFORMED
+              ]}
+              currentValue={nextAction}
+              onValueChange={setNextAction}
+              disabled={readOnly}
+            />
+          </LabelText>
+          <input name="nextAction" type="hidden" value={nextAction} />
         </Box>
       </Tabs.Root>
     </Flex>
@@ -198,7 +200,7 @@ const UgTutorDialog: FC<UgTutorDialogProps> = ({ data, user }) => {
   const addCommentWithId = async (prevState: FormPassbackState, formData: FormData) => {
     if (!internalReview)
       return { status: 'error', message: 'Admin scoring form must be completed first!' }
-    return await insertComment(admissionsCycle, email, internalReview.id, prevState, formData)
+    return await insertComment(id, admissionsCycle, email, internalReview.id, prevState, formData)
   }
 
   return (
