@@ -4,6 +4,7 @@ import AdminScoringDialog from '@/components/AdminScoringDialog'
 import ReviewerScoringDialog from '@/components/ReviewerScoringDialog'
 import TanstackTable from '@/components/TanstackTable'
 import UgTutorDialog from '@/components/UgTutorDialog'
+import { updateNextAction } from '@/lib/forms'
 import { prettifyOption, prettifyReviewerEmail } from '@/lib/utils'
 import {
   Applicant,
@@ -17,8 +18,8 @@ import {
   User,
   WP
 } from '@prisma/client'
-import { MagnifyingGlassIcon } from '@radix-ui/react-icons'
-import { Card, Flex, Text, TextField } from '@radix-ui/themes'
+import { CheckboxIcon, MagnifyingGlassIcon } from '@radix-ui/react-icons'
+import { Button, Card, Flex, Text, TextField } from '@radix-ui/themes'
 import { ColumnFiltersState, createColumnHelper } from '@tanstack/react-table'
 import { useSession } from 'next-auth/react'
 import { usePathname, useRouter, useSearchParams } from 'next/navigation'
@@ -123,7 +124,9 @@ const ApplicationTable: FC<ApplicationTableProps> = ({
       id: 'wideningParticipation'
     }),
     columnHelper.accessor('nextAction', {
-      cell: (info) => prettifyOption(info.getValue()),
+      cell: (info) => (
+        <NextActionCell nextAction={info.getValue()} applicationId={info.row.original.id} />
+      ),
       header: 'Next Action',
       id: SEARCH_PARAM_NEXT_ACTION
     }),
@@ -206,6 +209,29 @@ const WPColourMap: Record<WP, 'green' | 'red' | 'yellow'> = {
   [WP.YES]: 'green',
   [WP.NO]: 'red',
   [WP.NOT_CALCULATED]: 'yellow'
+}
+
+const NextActionCell: FC<{ nextAction: NextAction; applicationId: number }> = ({
+  nextAction,
+  applicationId
+}) => {
+  return (
+    <Flex align="center" justify="between" gap="2">
+      {prettifyOption(nextAction)}
+      {nextAction === NextAction.INFORM_CANDIDATE && (
+        <Button
+          size="1"
+          color="grass"
+          onClick={() => {
+            updateNextAction(NextAction.CANDIDATE_INFORMED, applicationId)
+            window.location.reload()
+          }}
+        >
+          <CheckboxIcon />
+        </Button>
+      )}
+    </Flex>
+  )
 }
 
 export default ApplicationTable

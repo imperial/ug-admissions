@@ -170,10 +170,13 @@ export const insertComment = async (
   return { status: 'success', message: 'UG tutor form added comment successfully.' }
 }
 
-async function updateNextAction(nextActionForm: FormDataEntryValue | null, applicationId: number) {
-  if (!nextActionForm || nextActionForm === 'Unchanged') return
+export async function updateNextAction(
+  nextActionInput: FormDataEntryValue | string | null,
+  applicationId: number
+) {
+  if (!nextActionInput || nextActionInput === 'Unchanged') return
 
-  const nextAction = nextActionField.parse(nextActionForm)
+  const nextAction = nextActionField.parse(nextActionInput)
   await prisma.application.update({
     where: { id: applicationId },
     data: {
