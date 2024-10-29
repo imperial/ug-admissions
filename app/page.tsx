@@ -1,7 +1,9 @@
+import { signOutAction } from '@/actions/signOut'
 import { auth } from '@/auth'
 import AdminControlPanel from '@/components/AdminControlPanel'
 import { RoleBadge } from '@/components/RoleBadge'
 import SelectAdmissionsCycle from '@/components/SelectAdmissionsCycle'
+import SignOutButton from '@/components/SignOutButton'
 import prisma from '@/db'
 import { isSuperUser } from '@/lib/access'
 import { Card, Flex, Heading, Text } from '@radix-ui/themes'
@@ -69,6 +71,7 @@ export default async function Home() {
               Logged in as: <strong>{userEmail}</strong>
             </Text>
           </Card>
+          <SignOutButton signOutAction={signOutAction} />
         </Flex>
       </Flex>
       {isSystemAdmin && (
