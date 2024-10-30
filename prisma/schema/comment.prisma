@@ -2,6 +2,7 @@ enum CommentType {
   NOTE
   CANDIDATE_CHANGE_REQUEST
   OFFER_CONDITION
+  AMEND_OFFER
 }
 
 model Comment {

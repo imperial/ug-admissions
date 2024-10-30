@@ -10,7 +10,8 @@ interface CommentProps {
 const CommentTypeBadgeMap = {
   [CommentType.NOTE]: <Badge color="orange">Note</Badge>,
   [CommentType.CANDIDATE_CHANGE_REQUEST]: <Badge color="blue">Candidate Change Request</Badge>,
-  [CommentType.OFFER_CONDITION]: <Badge color="green">Offer Condition</Badge>
+  [CommentType.OFFER_CONDITION]: <Badge color="green">Offer Condition</Badge>,
+  [CommentType.AMEND_OFFER]: <Badge color="red">Amend Offer</Badge>
 }
 
 const CommentItem: FC<CommentProps> = ({ comment }) => {
