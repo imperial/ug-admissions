@@ -13,7 +13,3 @@ export function reviewerAccess(reviewerEmail: string | undefined, userEmail: str
   // only the assigned reviewer
   return reviewerEmail === userEmail
 }
-
-export function ugTutorOutcomeAccess(userEmail: string, userRole?: Role): boolean {
-  return isSuperUser(userEmail) || userRole === Role.UG_TUTOR
-}
