@@ -30,6 +30,9 @@ enum GCSEQualification {
 
 enum AlevelQualification {
   A_LEVEL
+  IB
+  AP
+  FRENCH_BACCALAUREATE
   INDIAN_XII
   MALAYSIAN
   SINGAPORE
