@@ -96,6 +96,7 @@ export default async function AdmissionsCycleApplicationsPage({
           </Flex>
         </Flex>
         <ApplicationTable
+          cycle={cycle}
           applications={JSON.parse(JSON.stringify(applications))}
           reviewerIds={reviewerIds}
           user={{ email: userEmail, role: user?.role }}

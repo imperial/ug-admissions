@@ -17,10 +17,11 @@ import {
   User,
   WP
 } from '@prisma/client'
-import { MagnifyingGlassIcon } from '@radix-ui/react-icons'
+import { Link2Icon, MagnifyingGlassIcon } from '@radix-ui/react-icons'
 import { Card, Flex, Text, TextField } from '@radix-ui/themes'
 import { ColumnFiltersState, createColumnHelper } from '@tanstack/react-table'
 import { useSession } from 'next-auth/react'
+import Link from 'next/link'
 import { usePathname, useRouter, useSearchParams } from 'next/navigation'
 import React, { FC, useEffect, useState } from 'react'
 
@@ -40,12 +41,14 @@ const SEARCH_PARAM_REVIEWER = 'reviewer'
 const columnHelper = createColumnHelper<ApplicationRow>()
 
 interface ApplicationTableProps {
+  cycle: number
   applications: ApplicationRow[]
   reviewerIds: string[]
   user: { email: string; role?: Role }
 }
 
 const ApplicationTable: FC<ApplicationTableProps> = ({
+  cycle,
   applications,
   reviewerIds,
   user: { email, role }
@@ -94,7 +97,7 @@ const ApplicationTable: FC<ApplicationTableProps> = ({
       id: 'applicant.cid'
     }),
     columnHelper.accessor('applicant.ucasNumber', {
-      cell: (info) => info.getValue(),
+      cell: (info) => <UcasApplicationLink admissionsCycle={cycle} ucasNumber={info.getValue()} />,
       header: 'UCAS Number',
       id: 'applicant.ucasNumber'
     }),
@@ -206,6 +209,23 @@ const WPColourMap: Record<WP, 'green' | 'red' | 'yellow'> = {
   [WP.YES]: 'green',
   [WP.NO]: 'red',
   [WP.NOT_CALCULATED]: 'yellow'
+}
+
+const UcasApplicationLink: FC<{ admissionsCycle: number; ucasNumber: string }> = ({
+  admissionsCycle,
+  ucasNumber
+}) => {
+  const transformedCycle = '20' + admissionsCycle.toString().slice(0, 2)
+  const cgiLink = `https://infosys.doc.ic.ac.uk/UGinterviews/servedocument.cgi?key=${transformedCycle}:${ucasNumber}`
+
+  return (
+    <Link href={cgiLink} target="_blank">
+      <Flex align="center" gap="1">
+        <Link2Icon />
+        {ucasNumber}
+      </Flex>
+    </Link>
+  )
 }
 
 export default ApplicationTable
