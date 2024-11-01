@@ -30,6 +30,9 @@ enum GCSEQualification {
 
 enum AlevelQualification {
   A_LEVEL
+  IB
+  AP
+  FRENCH_BACCALAUREATE
   INDIAN_XII
   MALAYSIAN
   SINGAPORE
@@ -42,6 +45,7 @@ model Application {
   applicant                Applicant            @relation(fields: [cid], references: [cid])
   cid                      String
   admissionsCycle          Int
+  entryYear                Int
   applicationDate          DateTime
   wideningParticipation    WP                   @default(NOT_CALCULATED)
   feeStatus                FeeStatus
