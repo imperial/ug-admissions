@@ -242,7 +242,7 @@ const UcasApplicationLink: FC<{ admissionsCycle: number; ucasNumber: string }> =
   ucasNumber
 }) => {
   const transformedCycle = '20' + admissionsCycle.toString().slice(0, 2)
-  const cgiLink = `https://infosys.doc.ic.ac.uk/UGinterviews/servedocument.cgi?key=${transformedCycle}:${ucasNumber}`
+  const cgiLink = `https://infosys.doc.ic.ac.uk/UGinterviews/servedocument.cgi?key=${transformedCycle}:${ucasNumber}:infosys`
 
   return (
     <Link href={cgiLink} target="_blank">
