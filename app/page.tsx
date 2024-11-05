@@ -36,7 +36,7 @@ export default async function Home() {
   const isSystemAdmin = allAdminsAndUgTutors.includes(userEmail) || isSuperUser(userEmail)
   const admissionsCycles = (
     isSystemAdmin
-      ? await prisma.application.findMany({
+      ? await prisma.user.findMany({
           select: { admissionsCycle: true },
           orderBy: { admissionsCycle: 'asc' }
         })

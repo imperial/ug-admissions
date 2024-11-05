@@ -3,6 +3,7 @@
 import Dropdown from '@/components/Dropdown'
 import { ApplicationsLinkButton, StatisticsLinkButton } from '@/components/LinkButton'
 import { isSuperUser } from '@/lib/access'
+import { formatCycle } from '@/lib/utils'
 import { ExclamationTriangleIcon } from '@radix-ui/react-icons'
 import { Callout, Flex, Heading } from '@radix-ui/themes'
 import { FC, useState } from 'react'
@@ -19,9 +20,14 @@ const SelectAdmissionsCycle: FC<SelectAdmissionsCycleProps> = ({ admissionsCycle
   return admissionsCycles.length > 0 ? (
     <Flex direction="column" gap="2" align="center" justify="center">
       <Heading as="h4" size="2">
-        Select an admissions cycle:
+        Select an admissions cycle you play a role in:
       </Heading>
-      <Dropdown values={admissionsCycles} onValueChange={setSelectedCycle} className="mb-2" />
+      <Dropdown
+        values={admissionsCycles}
+        onValueChange={setSelectedCycle}
+        valueFormatter={formatCycle}
+        className="mb-2"
+      />
       {selectedCycle && (
         <Flex direction="column" gap="1">
           <ApplicationsLinkButton admissionsCycle={selectedCycle} />
