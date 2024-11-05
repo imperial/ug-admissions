@@ -73,9 +73,14 @@ const DataUploadForm: FC<DataUploadFormProps> = ({ file, setFile }) => {
 interface DataUploadDialogProps {
   disabled?: boolean
   userEmail: string
+  className?: string
 }
 
-const DataUploadDialog: FC<DataUploadDialogProps> = ({ disabled = false, userEmail }) => {
+const DataUploadDialog: FC<DataUploadDialogProps> = ({
+  disabled = false,
+  userEmail,
+  className
+}) => {
   const [isDialogOpen, setIsDialogOpen] = useState(false)
   const [file, setFile] = useState<File | null>(null)
 
@@ -89,7 +94,7 @@ const DataUploadDialog: FC<DataUploadDialogProps> = ({ disabled = false, userEma
     <GenericDialog
       title="Upload CSV"
       trigger={
-        <Button disabled={disabled}>
+        <Button disabled={disabled} className={className}>
           <UploadIcon />
           Upload
         </Button>

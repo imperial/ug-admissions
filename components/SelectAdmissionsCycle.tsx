@@ -3,6 +3,7 @@
 import Dropdown from '@/components/Dropdown'
 import { ApplicationsLinkButton, StatisticsLinkButton } from '@/components/LinkButton'
 import { isSuperUser } from '@/lib/access'
+import { formatCycle } from '@/lib/utils'
 import { ExclamationTriangleIcon } from '@radix-ui/react-icons'
 import { Callout, Flex, Heading } from '@radix-ui/themes'
 import { FC, useState } from 'react'
@@ -14,20 +15,28 @@ interface SelectAdmissionsCycleProps {
 
 // Choose an applications cycle for which the user has a role.
 const SelectAdmissionsCycle: FC<SelectAdmissionsCycleProps> = ({ admissionsCycles, userEmail }) => {
-  const [selectedCycle, setSelectedCycle] = useState<string | null>(null)
+  const [selectedCycle, setSelectedCycle] = useState<string | undefined>(
+    admissionsCycles?.[0] ?? undefined
+  )
 
   return admissionsCycles.length > 0 ? (
-    <Flex direction="column" gap="2" align="center" justify="center">
-      <Heading as="h4" size="2">
-        Select an admissions cycle:
-      </Heading>
-      <Dropdown values={admissionsCycles} onValueChange={setSelectedCycle} className="mb-2" />
-      {selectedCycle && (
-        <Flex direction="column" gap="1">
-          <ApplicationsLinkButton admissionsCycle={selectedCycle} />
-          <StatisticsLinkButton admissionsCycle={selectedCycle} />
-        </Flex>
-      )}
+    <Flex direction="column" gap="2" className="w-full">
+      <Flex align="center" justify="between" gap="2">
+        <Heading as="h4" size="2">
+          Admissions Cycle
+        </Heading>
+        <Dropdown
+          currentValue={selectedCycle}
+          values={admissionsCycles}
+          onValueChange={setSelectedCycle}
+          valueFormatter={formatCycle}
+          className="w-1/2"
+        />
+      </Flex>
+      <Flex direction="column" gap="1">
+        <ApplicationsLinkButton admissionsCycle={selectedCycle!} />
+        <StatisticsLinkButton admissionsCycle={selectedCycle!} />
+      </Flex>
     </Flex>
   ) : !isSuperUser(userEmail) ? (
     <Callout.Root color="red" className="w-4/5">

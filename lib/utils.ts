@@ -39,7 +39,7 @@ export function prettifyReviewerEmail(email: string | undefined): string {
   return email ? email.replace(/@.*$/, '') : 'Not allocated'
 }
 
-export function formatCycle(cycle: number): string {
+export function formatCycle(cycle: number | string): string {
   const s = cycle.toString()
   return s.slice(0, 2) + '/' + s.slice(2)
 }
