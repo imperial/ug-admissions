@@ -23,7 +23,7 @@ const SelectAdmissionsCycle: FC<SelectAdmissionsCycleProps> = ({ admissionsCycle
     <Flex direction="column" gap="2" className="w-full">
       <Flex align="center" justify="between" gap="2">
         <Heading as="h4" size="2">
-          Admissions Cycle:
+          Admissions Cycle
         </Heading>
         <Dropdown
           currentValue={selectedCycle}
