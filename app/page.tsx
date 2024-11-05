@@ -72,7 +72,7 @@ export default async function Home() {
         <Card className="bg-amber-300">
           <Flex direction="column" gap="4">
             <SelectAdmissionsCycle admissionsCycles={admissionsCycles} userEmail={userEmail} />
-            <Separator size="4" />
+            {isSystemAdmin && <Separator size="4" />}
             {isSystemAdmin && <AdminControlPanel userEmail={userEmail} />}
           </Flex>
         </Card>
