@@ -6,7 +6,7 @@ import SelectAdmissionsCycle from '@/components/SelectAdmissionsCycle'
 import SignOutButton from '@/components/SignOutButton'
 import prisma from '@/db'
 import { isSuperUser } from '@/lib/access'
-import { Card, Flex, Heading, Text } from '@radix-ui/themes'
+import { Card, Container, Flex, Heading, Separator } from '@radix-ui/themes'
 import { redirect } from 'next/navigation'
 import React from 'react'
 
@@ -56,32 +56,27 @@ export default async function Home() {
     .filter((value, index, self) => self.indexOf(value) === index)
 
   return (
-    <Flex direction="column" gap="3" justify="between">
-      <Flex align="center" justify="between" gapX="5" className="mb-2">
+    <Flex direction="column" gap="3">
+      <Flex justify="between" gapX="5" className="mb-2">
         <Flex direction="column" gap="2">
           <Heading size="8">Undergraduate Admissions Portal</Heading>
-          <Flex>
+          <Flex direction="column" gap="2">
             {/* only a super user will see a role on this page*/}
             <RoleBadge email={userEmail} />
           </Flex>
         </Flex>
-        <Flex align="center" gap="2">
-          <Card className="bg-cyan-200">
-            <Text>
-              Logged in as: <strong>{userEmail}</strong>
-            </Text>
-          </Card>
-          <SignOutButton signOutAction={signOutAction} />
-        </Flex>
+        <SignOutButton signOutAction={signOutAction} />
       </Flex>
-      {isSystemAdmin && (
-        <Flex justify="center">
-          <AdminControlPanel userEmail={userEmail} />
-        </Flex>
-      )}
-      <Flex align="center" justify="center" className="mt-4">
-        <SelectAdmissionsCycle admissionsCycles={admissionsCycles} userEmail={userEmail} />
-      </Flex>
+
+      <Container size="1" p="3">
+        <Card className="bg-amber-300">
+          <Flex direction="column" gap="4">
+            <SelectAdmissionsCycle admissionsCycles={admissionsCycles} userEmail={userEmail} />
+            <Separator size="4" />
+            {isSystemAdmin && <AdminControlPanel userEmail={userEmail} />}
+          </Flex>
+        </Card>
+      </Container>
     </Flex>
   )
 }
