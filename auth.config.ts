@@ -1,8 +1,6 @@
 import { NextAuthConfig } from 'next-auth'
 import MicrosoftEntraIDProfile from 'next-auth/providers/microsoft-entra-id'
 
-const UGA_ADMINS = process.env.UGA_ADMINS?.split(',') ?? []
-
 export default {
   providers: [
     MicrosoftEntraIDProfile({
