@@ -228,6 +228,16 @@ function upsertUsers(users: z.infer<typeof csvUserRolesSchema>[]): Promise<User>
   })
 }
 
+function handleParsing(
+  objects: unknown[],
+  schema: z.ZodObject<any>,
+  onSuccess: (data: any[]) => FormPassbackState | Promise<unknown>[]
+) {
+  const { data, errorMessage } = parseWithSchema(objects, schema)
+  if (errorMessage) return { status: 'error', message: errorMessage }
+  return onSuccess(data!)
+}
+
 /**
  * Process a CSV upload and upsert the data into the database
  * @param _ - unused form passback state
@@ -254,61 +264,30 @@ export const processCsvUpload = async (
   }
   const objects = preprocessingResult.data
 
-  let upsertPromises: Promise<unknown>[]
-  let errorMessage: string
-
+  let errorMessageOrPromises
   switch (dataUploadType) {
-    case DataUploadEnum.APPLICATION: {
-      const { data: parsedApplicantData, errorMessage: applicationError } = parseWithSchema(
-        objects,
-        csvApplicationSchema
-      )
-      errorMessage = applicationError
-      if (errorMessage === 'None') {
-        upsertPromises = upsertApplication(parsedApplicantData)
-      }
+    case DataUploadEnum.APPLICATION:
+      errorMessageOrPromises = handleParsing(objects, csvApplicationSchema, upsertApplication)
       break
-    }
-    case DataUploadEnum.TMUA_SCORES: {
-      const { data: parsedTMUAData, errorMessage: tmuaError } = parseWithSchema(
-        objects,
-        csvTmuaScoresSchema
-      )
-      errorMessage = tmuaError
-      if (errorMessage === 'None') {
-        upsertPromises = updateTmuaScores(parsedTMUAData)
-      }
+    case DataUploadEnum.TMUA_SCORES:
+      errorMessageOrPromises = handleParsing(objects, csvTmuaScoresSchema, updateTmuaScores)
       break
-    }
-    case DataUploadEnum.ADMIN_SCORING: {
-      const { data: parsedAdminData, errorMessage: adminScoringError } = parseWithSchema(
-        objects,
-        csvAdminScoringSchema
+    case DataUploadEnum.ADMIN_SCORING:
+      errorMessageOrPromises = handleParsing(objects, csvAdminScoringSchema, (d) =>
+        updateAdminScoring(d, userEmail)
       )
-      errorMessage = adminScoringError
-      if (errorMessage === 'None') {
-        upsertPromises = updateAdminScoring(parsedAdminData, userEmail)
-      }
       break
-    }
-    case DataUploadEnum.USER_ROLES: {
-      const { data: parsedUserData, errorMessage: userRolesError } = parseWithSchema(
-        objects,
-        csvUserRolesSchema
-      )
-      errorMessage = userRolesError
-      if (errorMessage === 'None') {
-        upsertPromises = upsertUsers(parsedUserData)
-      }
+    case DataUploadEnum.USER_ROLES:
+      errorMessageOrPromises = handleParsing(objects, csvUserRolesSchema, upsertUsers)
       break
-    }
   }
 
-  if (errorMessage !== 'None') {
-    return { status: 'error', message: errorMessage }
+  if ('status' in errorMessageOrPromises) {
+    return errorMessageOrPromises as FormPassbackState
   }
 
-  const successfulUpserts = await executePromises(upsertPromises!)
+  const promises = errorMessageOrPromises as Promise<unknown>[]
+  const successfulUpserts = await executePromises(promises)
   // Assign reviewers to applications
   if (dataUploadType === DataUploadEnum.APPLICATION) {
     try {
@@ -318,7 +297,7 @@ export const processCsvUpload = async (
     }
   }
 
-  const noPrismaErrors = upsertPromises!.length - successfulUpserts.length
+  const noPrismaErrors = promises.length - successfulUpserts.length
   const noSuccesses = objects.length - noPrismaErrors
 
   if (noPrismaErrors === 0) {

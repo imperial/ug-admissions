@@ -128,20 +128,18 @@ export const csvUserRolesSchema = z.object({
 export function parseWithSchema<T extends ZodSchema>(
   objects: unknown[],
   validationSchema: T
-): { data: z.infer<T>[]; errorMessage: string } {
+): { data?: z.infer<T>[]; errorMessage?: string } {
   const parsedObjects = objects.map((o) => validationSchema.safeParse(o))
   for (const [i, parsed] of parsedObjects.entries()) {
     if (!parsed.success) {
       console.error(parsed.error.errors)
       return {
-        data: [],
         errorMessage: `Parsing error on row ${i + 1}: ${parsed.error.issues.map((issue) => issue.message).join('; ')}`
       }
     }
   }
 
   return {
-    data: parsedObjects.map((o) => o.data),
-    errorMessage: 'None'
+    data: parsedObjects.map((o) => o.data)
   }
 }
