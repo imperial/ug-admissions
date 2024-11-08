@@ -255,36 +255,60 @@ export const processCsvUpload = async (
   const objects = preprocessingResult.data
 
   let upsertPromises: Promise<unknown>[]
-  let noParsingErrors: number
+  let errorMessage: string
 
   switch (dataUploadType) {
     case DataUploadEnum.APPLICATION: {
-      const { data: parsedApplicantData, noErrors } = parseWithSchema(objects, csvApplicationSchema)
-      noParsingErrors = noErrors
-      upsertPromises = upsertApplication(parsedApplicantData)
+      const { data: parsedApplicantData, errorMessage: applicationError } = parseWithSchema(
+        objects,
+        csvApplicationSchema
+      )
+      errorMessage = applicationError
+      if (errorMessage === 'None') {
+        upsertPromises = upsertApplication(parsedApplicantData)
+      }
       break
     }
     case DataUploadEnum.TMUA_SCORES: {
-      const { data: parsedTMUAData, noErrors } = parseWithSchema(objects, csvTmuaScoresSchema)
-      noParsingErrors = noErrors
-      upsertPromises = updateTmuaScores(parsedTMUAData)
+      const { data: parsedTMUAData, errorMessage: tmuaError } = parseWithSchema(
+        objects,
+        csvTmuaScoresSchema
+      )
+      errorMessage = tmuaError
+      if (errorMessage === 'None') {
+        upsertPromises = updateTmuaScores(parsedTMUAData)
+      }
       break
     }
     case DataUploadEnum.ADMIN_SCORING: {
-      const { data: parsedAdminData, noErrors } = parseWithSchema(objects, csvAdminScoringSchema)
-      noParsingErrors = noErrors
-      upsertPromises = updateAdminScoring(parsedAdminData, userEmail)
+      const { data: parsedAdminData, errorMessage: adminScoringError } = parseWithSchema(
+        objects,
+        csvAdminScoringSchema
+      )
+      errorMessage = adminScoringError
+      if (errorMessage === 'None') {
+        upsertPromises = updateAdminScoring(parsedAdminData, userEmail)
+      }
       break
     }
     case DataUploadEnum.USER_ROLES: {
-      const { data: parsedUserData, noErrors } = parseWithSchema(objects, csvUserRolesSchema)
-      noParsingErrors = noErrors
-      upsertPromises = upsertUsers(parsedUserData)
+      const { data: parsedUserData, errorMessage: userRolesError } = parseWithSchema(
+        objects,
+        csvUserRolesSchema
+      )
+      errorMessage = userRolesError
+      if (errorMessage === 'None') {
+        upsertPromises = upsertUsers(parsedUserData)
+      }
       break
     }
   }
 
-  const successfulUpserts = await executePromises(upsertPromises)
+  if (errorMessage !== 'None') {
+    return { status: 'error', message: errorMessage }
+  }
+
+  const successfulUpserts = await executePromises(upsertPromises!)
   // Assign reviewers to applications
   if (dataUploadType === DataUploadEnum.APPLICATION) {
     try {
@@ -294,18 +318,17 @@ export const processCsvUpload = async (
     }
   }
 
-  const noPrismaErrors = upsertPromises.length - successfulUpserts.length
-  const totalErrors = noParsingErrors + noPrismaErrors
-  const noSuccesses = objects.length - totalErrors
+  const noPrismaErrors = upsertPromises!.length - successfulUpserts.length
+  const noSuccesses = objects.length - noPrismaErrors
 
-  if (totalErrors === 0) {
+  if (noPrismaErrors === 0) {
     return {
-      message: `${noSuccesses}/${objects.length} updates or inserts succeeded`,
+      message: `All ${noSuccesses} updates or inserts succeeded`,
       status: 'success'
     }
   }
   return {
-    message: `${totalErrors}/${objects.length} updates or inserts failed`,
+    message: `${noPrismaErrors}/${objects.length} updates or inserts failed from database errors`,
     status: 'error'
   }
 }
