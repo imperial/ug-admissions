@@ -134,7 +134,7 @@ export function parseWithSchema<T extends ZodSchema>(
     if (!parsed.success) {
       console.error(parsed.error.errors)
       return {
-        errorMessage: `Parsing error on row ${i + 1}: ${parsed.error.issues.map((issue) => issue.message).join('; ')}`
+        errorMessage: `Parsing error on data row ${i + 1}: ${parsed.error.issues.map((issue) => issue.message).join('; ')}`
       }
     }
   }

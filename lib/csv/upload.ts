@@ -264,7 +264,7 @@ export const processCsvUpload = async (
   }
   const objects = preprocessingResult.data
 
-  let errorMessageOrPromises
+  let errorMessageOrPromises: FormPassbackState | Promise<unknown>[]
   switch (dataUploadType) {
     case DataUploadEnum.APPLICATION:
       errorMessageOrPromises = handleParsing(objects, csvApplicationSchema, upsertApplication)
