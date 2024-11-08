@@ -19,10 +19,11 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
       name: 'next-auth.pkce.code_verifier',
       options: {
         httpOnly: true,
-        sameSite: 'none',
+        sameSite: 'lax',
         path: '/',
         secure: true
       }
     }
-  }
+  },
+  session: { strategy: 'jwt' }
 })
