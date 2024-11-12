@@ -14,11 +14,13 @@ const uploadTypeProcessFunctionMap = {
  * Parses a CSV and runs processing function according to the upload type
  * @param file - the CSV file to process
  * @param uploadType - the type of data being uploaded
+ * @param cycle - the admissions cycle, only used for TMUA scores
  * @returns flag to indicate success with data if true and errorMessage if false
  */
 export async function preprocessCsvData(
   file: File,
-  uploadType: DataUploadEnum
+  uploadType: DataUploadEnum,
+  cycle?: number
 ): Promise<{ success: true; data: unknown[] } | { success: false; errorMessage: string }> {
   if (file.type !== 'text/csv') return { success: false, errorMessage: 'File must be a CSV' }
   const lines = await file.text()
@@ -37,7 +39,10 @@ export async function preprocessCsvData(
   }
 
   try {
-    objects = uploadTypeProcessFunctionMap[uploadType](objects)
+    objects =
+      uploadType === DataUploadEnum.TMUA_SCORES
+        ? uploadTypeProcessFunctionMap[uploadType](objects, cycle!)
+        : uploadTypeProcessFunctionMap[uploadType](objects)
   } catch (e: any) {
     console.error(`error in CSV preprocessing: ${e.message}`)
     return {
@@ -167,14 +172,24 @@ function processApplication(objects: unknown[]): unknown[] {
   }))
 }
 
-function processTMUAScores(objects: unknown[]): unknown[] {
+function processTMUAScores(objects: unknown[], cycle: number): unknown[] {
   let df = new DataFrame(objects)
+  // @ts-ignore
+  df = df.withColumn('College ID', (row: any) => {
+    const cid = row.get('College ID')
+    return cid?.padStart(8, '0')
+  })
+
+  // @ts-ignore
+  df = df.withColumn('admissionsCycle', (_row: any) => cycle)
+
   df = renameColumns(df, [
-    ['CID', 'cid'],
-    ['Admissions Cycle', 'admissionsCycle'],
-    ['TMUA Score', 'tmuaScore']
+    ['College ID', 'cid'],
+    ['TMUA score', 'tmuaScore']
   ])
-  return df.toCollection()
+
+  const desiredColumns = ['cid', 'admissionsCycle', 'tmuaScore']
+  return df.select(...desiredColumns).toCollection()
 }
 
 function processAdminScoring(objects: unknown[]): unknown[] {

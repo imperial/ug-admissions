@@ -257,8 +257,9 @@ export const processCsvUpload = async (
   }
   const dataUploadType = dataUploadTypeParseResult.data
   const csv = formData.get('csv') as File
+  const cycle = formData.get('cycle') ? Number(formData.get('cycle')) : undefined
 
-  const preprocessingResult = await preprocessCsvData(csv, dataUploadType)
+  const preprocessingResult = await preprocessCsvData(csv, dataUploadType, cycle)
   if (!preprocessingResult.success) {
     return { status: 'error', message: preprocessingResult.errorMessage }
   }
@@ -273,8 +274,8 @@ export const processCsvUpload = async (
       errorMessageOrPromises = handleParsing(objects, csvTmuaScoresSchema, updateTmuaScores)
       break
     case DataUploadEnum.ADMIN_SCORING:
-      errorMessageOrPromises = handleParsing(objects, csvAdminScoringSchema, (d) =>
-        updateAdminScoring(d, userEmail)
+      errorMessageOrPromises = handleParsing(objects, csvAdminScoringSchema, (data) =>
+        updateAdminScoring(data, userEmail)
       )
       break
     case DataUploadEnum.USER_ROLES:
