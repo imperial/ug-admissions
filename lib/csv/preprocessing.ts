@@ -3,13 +3,6 @@ import { CsvError, parse } from 'csv-parse/sync'
 import DataFrame from 'dataframe-js'
 import { parse as parseDate } from 'date-fns/parse'
 
-const uploadTypeProcessFunctionMap = {
-  [DataUploadEnum.APPLICATION]: processApplication,
-  [DataUploadEnum.TMUA_SCORES]: processTMUAScores,
-  [DataUploadEnum.ADMIN_SCORING]: processAdminScoring,
-  [DataUploadEnum.USER_ROLES]: processUserRoles
-}
-
 /**
  * Parses a CSV and runs processing function according to the upload type
  * @param file - the CSV file to process
@@ -38,11 +31,15 @@ export async function preprocessCsvData(
     return { success: false, errorMessage: 'Unexpected parsing error occurred.' }
   }
 
+  const uploadTypeProcessFunctionMap = {
+    [DataUploadEnum.APPLICATION]: processApplication,
+    [DataUploadEnum.TMUA_SCORES]: processTMUAScores(cycle!),
+    [DataUploadEnum.ADMIN_SCORING]: processAdminScoring,
+    [DataUploadEnum.USER_ROLES]: processUserRoles
+  }
+
   try {
-    objects =
-      uploadType === DataUploadEnum.TMUA_SCORES
-        ? uploadTypeProcessFunctionMap[uploadType](objects, cycle!)
-        : uploadTypeProcessFunctionMap[uploadType](objects)
+    objects = uploadTypeProcessFunctionMap[uploadType](objects)
   } catch (e: any) {
     console.error(`error in CSV preprocessing: ${e.message}`)
     return {
@@ -174,20 +171,22 @@ function processApplication(objects: unknown[]): unknown[] {
   }))
 }
 
-function processTMUAScores(objects: unknown[], cycle: number): unknown[] {
-  let df = new DataFrame(objects)
-  df = renameColumns(df, [
-    ['College ID', 'cid'],
-    ['TMUA score', 'tmuaScore']
-  ])
+function processTMUAScores(cycle: number): (objects: unknown[]) => unknown[] {
+  return (objects: unknown[]): unknown[] => {
+    let df = new DataFrame(objects)
+    df = renameColumns(df, [
+      ['College ID', 'cid'],
+      ['TMUA score', 'tmuaScore']
+    ])
 
-  df = padCidWith0s(df)
+    df = padCidWith0s(df)
 
-  // @ts-ignore
-  df = df.withColumn('admissionsCycle', (_row: any) => cycle)
+    // @ts-ignore
+    df = df.withColumn('admissionsCycle', (_row: any) => cycle)
 
-  const desiredColumns = ['cid', 'admissionsCycle', 'tmuaScore']
-  return df.select(...desiredColumns).toCollection()
+    const desiredColumns = ['cid', 'admissionsCycle', 'tmuaScore']
+    return df.select(...desiredColumns).toCollection()
+  }
 }
 
 function processAdminScoring(objects: unknown[]): unknown[] {
