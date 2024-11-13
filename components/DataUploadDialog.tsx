@@ -2,10 +2,11 @@
 
 import FormWrapper from '@/components/FormWrapper'
 import GenericDialog from '@/components/GenericDialog'
+import LabelText from '@/components/LabelText'
 import { processCsvUpload } from '@/lib/csv/upload'
 import { DataUploadEnum, FormPassbackState } from '@/lib/types'
 import { DownloadIcon, FilePlusIcon, UploadIcon } from '@radix-ui/react-icons'
-import { Button, Flex, Text } from '@radix-ui/themes'
+import { Button, Flex, Text, TextField } from '@radix-ui/themes'
 import Link from 'next/link'
 import React, { FC, useState } from 'react'
 import Dropzone from 'react-dropzone'
@@ -39,6 +40,18 @@ const DataUploadForm: FC<DataUploadFormProps> = ({ file, setFile }) => {
           </Link>
         </Flex>
       </LabelledInput>
+
+      {dataUploadChoice === DataUploadEnum.TMUA_SCORES && (
+        <LabelText label="Admissions Cycle (e.g. 2425)" weight="regular">
+          <TextField.Root
+            id="cycle"
+            name="cycle"
+            type="number"
+            className="flex-grow"
+            required={true}
+          />
+        </LabelText>
+      )}
 
       <Dropzone
         onDrop={(acceptedFiles) => {

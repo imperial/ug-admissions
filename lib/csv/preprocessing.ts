@@ -3,22 +3,17 @@ import { CsvError, parse } from 'csv-parse/sync'
 import DataFrame from 'dataframe-js'
 import { parse as parseDate } from 'date-fns/parse'
 
-const uploadTypeProcessFunctionMap = {
-  [DataUploadEnum.APPLICATION]: processApplication,
-  [DataUploadEnum.TMUA_SCORES]: processTMUAScores,
-  [DataUploadEnum.ADMIN_SCORING]: processAdminScoring,
-  [DataUploadEnum.USER_ROLES]: processUserRoles
-}
-
 /**
  * Parses a CSV and runs processing function according to the upload type
  * @param file - the CSV file to process
  * @param uploadType - the type of data being uploaded
+ * @param cycle - the admissions cycle, only used for TMUA scores
  * @returns flag to indicate success with data if true and errorMessage if false
  */
 export async function preprocessCsvData(
   file: File,
-  uploadType: DataUploadEnum
+  uploadType: DataUploadEnum,
+  cycle?: number
 ): Promise<{ success: true; data: unknown[] } | { success: false; errorMessage: string }> {
   if (file.type !== 'text/csv') return { success: false, errorMessage: 'File must be a CSV' }
   const lines = await file.text()
@@ -34,6 +29,13 @@ export async function preprocessCsvData(
       return { success: false, errorMessage: `Error reading CSV: ${e.message}` }
     }
     return { success: false, errorMessage: 'Unexpected parsing error occurred.' }
+  }
+
+  const uploadTypeProcessFunctionMap = {
+    [DataUploadEnum.APPLICATION]: processApplication,
+    [DataUploadEnum.TMUA_SCORES]: processTMUAScores(cycle!),
+    [DataUploadEnum.ADMIN_SCORING]: processAdminScoring,
+    [DataUploadEnum.USER_ROLES]: processUserRoles
   }
 
   try {
@@ -79,6 +81,8 @@ function processApplication(objects: unknown[]): unknown[] {
     ['Academic eligibility notes', 'academicEligibilityNotes'],
     ['TMUA Score', 'tmuaScore']
   ])
+
+  df = padCidWith0s(df)
 
   // copy the applicationDate column and transform it to admissionsCycle
   // @ts-ignore
@@ -167,14 +171,22 @@ function processApplication(objects: unknown[]): unknown[] {
   }))
 }
 
-function processTMUAScores(objects: unknown[]): unknown[] {
-  let df = new DataFrame(objects)
-  df = renameColumns(df, [
-    ['CID', 'cid'],
-    ['Admissions Cycle', 'admissionsCycle'],
-    ['TMUA Score', 'tmuaScore']
-  ])
-  return df.toCollection()
+function processTMUAScores(cycle: number): (objects: unknown[]) => unknown[] {
+  return (objects: unknown[]): unknown[] => {
+    let df = new DataFrame(objects)
+    df = renameColumns(df, [
+      ['College ID', 'cid'],
+      ['TMUA score', 'tmuaScore']
+    ])
+
+    df = padCidWith0s(df)
+
+    // @ts-ignore
+    df = df.withColumn('admissionsCycle', (_row: any) => cycle)
+
+    const desiredColumns = ['cid', 'admissionsCycle', 'tmuaScore']
+    return df.select(...desiredColumns).toCollection()
+  }
 }
 
 function processAdminScoring(objects: unknown[]): unknown[] {
@@ -190,6 +202,7 @@ function processAdminScoring(objects: unknown[]): unknown[] {
     ['Extracurricular Score', 'extracurricularAdminScore'],
     ['Exam Comments', 'examComments']
   ])
+  df = padCidWith0s(df)
   return df.toCollection()
 }
 
@@ -208,4 +221,11 @@ function renameColumns(df: DataFrame, columnsToRename: [string, string][]): Data
     df = df.rename(oldName, newName)
   })
   return df
+}
+
+function padCidWith0s(df: DataFrame) {
+  // @ts-ignore
+  return df.withColumn('cid', (row: any) => {
+    return row.get('cid')?.padStart(8, '0')
+  })
 }
