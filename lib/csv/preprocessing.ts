@@ -85,6 +85,8 @@ function processApplication(objects: unknown[]): unknown[] {
     ['TMUA Score', 'tmuaScore']
   ])
 
+  df = padCidWith0s(df)
+
   // copy the applicationDate column and transform it to admissionsCycle
   // @ts-ignore
   df = df.withColumn('admissionsCycle', (row: any) => {
@@ -174,19 +176,15 @@ function processApplication(objects: unknown[]): unknown[] {
 
 function processTMUAScores(objects: unknown[], cycle: number): unknown[] {
   let df = new DataFrame(objects)
-  // @ts-ignore
-  df = df.withColumn('College ID', (row: any) => {
-    const cid = row.get('College ID')
-    return cid?.padStart(8, '0')
-  })
-
-  // @ts-ignore
-  df = df.withColumn('admissionsCycle', (_row: any) => cycle)
-
   df = renameColumns(df, [
     ['College ID', 'cid'],
     ['TMUA score', 'tmuaScore']
   ])
+
+  df = padCidWith0s(df)
+
+  // @ts-ignore
+  df = df.withColumn('admissionsCycle', (_row: any) => cycle)
 
   const desiredColumns = ['cid', 'admissionsCycle', 'tmuaScore']
   return df.select(...desiredColumns).toCollection()
@@ -205,6 +203,7 @@ function processAdminScoring(objects: unknown[]): unknown[] {
     ['Extracurricular Score', 'extracurricularAdminScore'],
     ['Exam Comments', 'examComments']
   ])
+  df = padCidWith0s(df)
   return df.toCollection()
 }
 
@@ -223,4 +222,11 @@ function renameColumns(df: DataFrame, columnsToRename: [string, string][]): Data
     df = df.rename(oldName, newName)
   })
   return df
+}
+
+function padCidWith0s(df: DataFrame) {
+  // @ts-ignore
+  return df.withColumn('cid', (row: any) => {
+    return row.get('cid')?.padStart(8, '0')
+  })
 }
