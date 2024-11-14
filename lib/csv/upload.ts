@@ -257,7 +257,7 @@ export const processCsvUpload = async (
   }
   const dataUploadType = dataUploadTypeParseResult.data
   const csv = formData.get('csv') as File
-  const cycle = formData.get('cycle') ? Number(formData.get('cycle')) : undefined
+  const cycle = Number(formData.get('cycle'))
 
   const preprocessingResult = await preprocessCsvData(csv, dataUploadType, cycle)
   if (!preprocessingResult.success) {

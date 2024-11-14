@@ -46,7 +46,7 @@ model Application {
   cid                      String
   admissionsCycle          Int
   entryYear                Int
-  applicationDate          DateTime
+  applicationDate          DateTime?
   wideningParticipation    WP                   @default(NOT_CALCULATED)
   feeStatus                FeeStatus
   tmuaScore                Decimal?             @db.Decimal(2, 1)

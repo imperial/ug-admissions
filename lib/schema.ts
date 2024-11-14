@@ -91,7 +91,14 @@ export const csvApplicationSchema = z.object({
     wideningParticipation: z.nativeEnum(WP).optional().default(WP.NOT_CALCULATED),
     applicationDate: z
       .string()
-      .transform((value) => formatISO(parseDate(value, 'dd/MM/yyyy HH:mm', new Date()))),
+      .transform((value) => {
+        try {
+          return formatISO(parseDate(value, 'dd/MM/yyyy HH:mm', new Date()))
+        } catch {
+          return null
+        }
+      })
+      .nullable(),
     tmuaScore: z.coerce.number().min(1).max(9).optional(),
     extenuatingCircumstances: z.string().nullable(),
     academicEligibilityNotes: z.string().nullable()

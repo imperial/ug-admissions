@@ -1,7 +1,6 @@
 import { DataUploadEnum } from '@/lib/types'
 import { CsvError, parse } from 'csv-parse/sync'
 import DataFrame from 'dataframe-js'
-import { parse as parseDate } from 'date-fns/parse'
 
 /**
  * Parses a CSV and runs processing function according to the upload type
@@ -13,7 +12,7 @@ import { parse as parseDate } from 'date-fns/parse'
 export async function preprocessCsvData(
   file: File,
   uploadType: DataUploadEnum,
-  cycle?: number
+  cycle: number
 ): Promise<{ success: true; data: unknown[] } | { success: false; errorMessage: string }> {
   if (file.type !== 'text/csv') return { success: false, errorMessage: 'File must be a CSV' }
   const lines = await file.text()
@@ -33,15 +32,16 @@ export async function preprocessCsvData(
 
   const uploadTypeProcessFunctionMap = {
     [DataUploadEnum.APPLICATION]: processApplication,
-    [DataUploadEnum.TMUA_SCORES]: processTMUAScores(cycle!),
+    [DataUploadEnum.TMUA_SCORES]: processTMUAScores,
     [DataUploadEnum.ADMIN_SCORING]: processAdminScoring,
     [DataUploadEnum.USER_ROLES]: processUserRoles
   }
 
   try {
-    objects = uploadTypeProcessFunctionMap[uploadType](objects)
+    objects = uploadTypeProcessFunctionMap[uploadType](objects, cycle)
   } catch (e: any) {
     console.error(`error in CSV preprocessing: ${e.message}`)
+    console.error(e)
     return {
       success: false,
       errorMessage:
@@ -56,9 +56,10 @@ export async function preprocessCsvData(
  * Process the data from the College-given applicant CSV file.
  * Renames, transforms and select columns as appropriate.
  * @param objects
+ * @param cycle
  * @returns an array of objects with nested applicant and application objects
  */
-function processApplication(objects: unknown[]): unknown[] {
+function processApplication(objects: unknown[], cycle: number): unknown[] {
   let df = new DataFrame(objects)
   df = df.replace('', null)
 
@@ -83,17 +84,7 @@ function processApplication(objects: unknown[]): unknown[] {
   ])
 
   df = padCidWith0s(df)
-
-  // copy the applicationDate column and transform it to admissionsCycle
-  // @ts-ignore
-  df = df.withColumn('admissionsCycle', (row: any) => {
-    const sentDate = parseDate(row.get('applicationDate'), 'dd/MM/yyyy HH:mm', new Date())
-    // Sep to Dec 2025 is 2526, Jan to Aug 2026 is 2526
-    const currentYear = sentDate.getFullYear().toString().slice(-2)
-    return sentDate.getMonth() >= 8
-      ? currentYear + (sentDate.getFullYear() + 1).toString().slice(-2)
-      : (sentDate.getFullYear() - 1).toString().slice(-2) + currentYear
-  })
+  df = addAdmissionsCycle(df, cycle)
 
   // @ts-ignore
   df = df.withColumn('entryYear', (row: any) => {
@@ -124,7 +115,11 @@ function processApplication(objects: unknown[]): unknown[] {
     return wp?.toUpperCase()
   })
   // @ts-ignore
-  df = df.withColumn('feeStatus', (row: any) => row.get('feeStatus')?.toUpperCase())
+  df = df.withColumn('feeStatus', (row: any) => {
+    const feeStatus = row.get('feeStatus')
+    if (feeStatus === 'Query') return 'UNKNOWN'
+    return feeStatus?.toUpperCase()
+  })
 
   const applicantColumns = [
     'cid',
@@ -171,29 +166,22 @@ function processApplication(objects: unknown[]): unknown[] {
   }))
 }
 
-function processTMUAScores(cycle: number): (objects: unknown[]) => unknown[] {
-  return (objects: unknown[]): unknown[] => {
-    let df = new DataFrame(objects)
-    df = renameColumns(df, [
-      ['College ID', 'cid'],
-      ['TMUA score', 'tmuaScore']
-    ])
-
-    df = padCidWith0s(df)
-
-    // @ts-ignore
-    df = df.withColumn('admissionsCycle', (_row: any) => cycle)
-
-    const desiredColumns = ['cid', 'admissionsCycle', 'tmuaScore']
-    return df.select(...desiredColumns).toCollection()
-  }
+function processTMUAScores(objects: unknown[], cycle: number): unknown[] {
+  let df = new DataFrame(objects)
+  df = renameColumns(df, [
+    ['College ID', 'cid'],
+    ['TMUA score', 'tmuaScore']
+  ])
+  df = padCidWith0s(df)
+  df = addAdmissionsCycle(df, cycle)
+  const desiredColumns = ['cid', 'admissionsCycle', 'tmuaScore']
+  return df.select(...desiredColumns).toCollection()
 }
 
-function processAdminScoring(objects: unknown[]): unknown[] {
+function processAdminScoring(objects: unknown[], cycle: number): unknown[] {
   let df = new DataFrame(objects)
   df = renameColumns(df, [
     ['CID', 'cid'],
-    ['Admissions Cycle', 'admissionsCycle'],
     ['Age 16 Qualification Type', 'gcseQualification'],
     ['Age 16 Qualification Score', 'gcseQualificationScore'],
     ['Age 18 Qualification Type', 'aLevelQualification'],
@@ -203,13 +191,14 @@ function processAdminScoring(objects: unknown[]): unknown[] {
     ['Exam Comments', 'examComments']
   ])
   df = padCidWith0s(df)
+  df = addAdmissionsCycle(df, cycle)
   return df.toCollection()
 }
 
-function processUserRoles(objects: unknown[]): unknown[] {
+function processUserRoles(objects: unknown[], cycle: number): unknown[] {
   let df = new DataFrame(objects)
+  df = addAdmissionsCycle(df, cycle)
   df = renameColumns(df, [
-    ['Admissions Cycle', 'admissionsCycle'],
     ['Email', 'login'],
     ['Role', 'role']
   ])
@@ -223,7 +212,12 @@ function renameColumns(df: DataFrame, columnsToRename: [string, string][]): Data
   return df
 }
 
-function padCidWith0s(df: DataFrame) {
+function addAdmissionsCycle(df: DataFrame, cycle: number): DataFrame {
+  // @ts-ignore
+  return df.withColumn('admissionsCycle', (_row: any) => cycle)
+}
+
+function padCidWith0s(df: DataFrame): DataFrame {
   // @ts-ignore
   return df.withColumn('cid', (row: any) => {
     return row.get('cid')?.padStart(8, '0')
