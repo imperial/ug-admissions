@@ -41,17 +41,16 @@ const DataUploadForm: FC<DataUploadFormProps> = ({ file, setFile }) => {
         </Flex>
       </LabelledInput>
 
-      {dataUploadChoice === DataUploadEnum.TMUA_SCORES && (
-        <LabelText label="Admissions Cycle (e.g. 2425)" weight="regular">
-          <TextField.Root
-            id="cycle"
-            name="cycle"
-            type="number"
-            className="flex-grow"
-            required={true}
-          />
-        </LabelText>
-      )}
+      <LabelText label="Admissions Cycle (e.g. 2425)" weight="regular">
+        <TextField.Root
+          id="cycle"
+          name="cycle"
+          type="number"
+          className="flex-grow"
+          defaultValue={2425}
+          required={true}
+        />
+      </LabelText>
 
       <Dropzone
         onDrop={(acceptedFiles) => {
