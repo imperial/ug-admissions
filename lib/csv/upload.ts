@@ -53,7 +53,7 @@ async function getCurrentNextAction(
 }
 
 function upsertApplicant(applicants: z.infer<typeof csvApplicationSchema>[]) {
-  return applicants.map(async ({ applicant, degrees, application }) => {
+  return applicants.map(async ({ applicant, courses, application }) => {
     return prisma.applicant.upsert({
       where: {
         cid: applicant.cid
@@ -65,33 +65,34 @@ function upsertApplicant(applicants: z.infer<typeof csvApplicationSchema>[]) {
 }
 
 function upsertOutcome(outcomes: z.infer<typeof csvApplicationSchema>[]) {
-  return outcomes.map(async ({ applicant, degrees, application }) => {
-    return prisma.outcome.upsert({
-      where: {
-        cid_cycle_degree: {
-          cid: applicant.cid,
-          admissionsCycle: application.admissionsCycle,
-          degreeCode: degrees[0].degreeCode
-        }
-      },
-      update: {
-        ...degrees[0]
-      },
-      create: {
-        ...degrees[0],
-        application: {
-          connect: {
-            admissionsCycle_cid: {
-              admissionsCycle: application.admissionsCycle,
-              cid: applicant.cid
+  return outcomes.flatMap(({ applicant, courses, application }) => {
+    return courses.map(async (degree) => {
+      return prisma.outcome.upsert({
+        where: {
+          cid_cycle_degree: {
+            cid: applicant.cid,
+            admissionsCycle: application.admissionsCycle,
+            degreeCode: degree.degreeCode
+          }
+        },
+        update: {
+          ...degree
+        },
+        create: {
+          ...degree,
+          application: {
+            connect: {
+              admissionsCycle_cid: {
+                admissionsCycle: application.admissionsCycle,
+                cid: applicant.cid
+              }
             }
           }
         }
-      }
+      })
     })
   })
 }
-
 function upsertApplication(applications: z.infer<typeof csvApplicationSchema>[]) {
   function calculateNextAction(currentNextAction: NextAction | undefined, isTmuaPresent: boolean) {
     if (!currentNextAction)

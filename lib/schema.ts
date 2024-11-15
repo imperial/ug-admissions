@@ -84,7 +84,7 @@ export const csvApplicationSchema = z.object({
     email: z.string().email(),
     primaryNationality: z.string()
   }),
-  degrees: z.array(
+  courses: z.array(
     z.object({
       degreeCode: z.nativeEnum(DegreeCode),
       academicEligibilityNotes: z.string().nullable()

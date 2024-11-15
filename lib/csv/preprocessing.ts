@@ -77,9 +77,9 @@ function processApplication(
 
   for (const row of df.toCollection()) {
     if (applicantMap.has(row.cid)) {
-      // only need to add a degree
+      // only need to add a course
       const existing = applicantMap.get(row.cid)
-      existing?.degrees.push({
+      existing?.courses.push({
         degreeCode: row.degreeCode,
         academicEligibilityNotes: row.academicEligibilityNotes
       })
@@ -95,7 +95,7 @@ function processApplication(
         email: row.email,
         primaryNationality: row.primaryNationality
       }
-      const degrees = [
+      const courses = [
         {
           degreeCode: row.degreeCode,
           academicEligibilityNotes: row.academicEligibilityNotes
@@ -110,7 +110,7 @@ function processApplication(
         tmuaScore: row.tmuaScore,
         extenuatingCircumstances: row.extenuatingCircumstances
       }
-      applicantMap.set(row.cid, { applicant, degrees, application })
+      applicantMap.set(row.cid, { applicant, courses, application })
     }
   }
 
