@@ -9,7 +9,7 @@ import { upsertReviewerScoring } from '@/lib/forms'
 import { FormPassbackState } from '@/lib/types'
 import { ord } from '@/lib/utils'
 import { NextAction } from '@prisma/client'
-import { Button, Callout, DataList, Flex, Text, TextField } from '@radix-ui/themes'
+import { Button, Callout, DataList, Flex, Text, TextArea, TextField } from '@radix-ui/themes'
 import { format } from 'date-fns'
 import React, { FC, useState } from 'react'
 
@@ -111,12 +111,14 @@ const ReviewerScoringForm: FC<ReviewerScoringFormProps> = ({ data, readOnly }) =
           />
         </LabelText>
 
-        <LabelText label="Academic Comments (optional)">
-          <TextField.Root
+        <LabelText label="Academic Comments (minimum 30 characters)">
+          <TextArea
             id="academicComments"
             name="academicComments"
             defaultValue={internalReview?.academicComments ?? undefined}
+            required
             disabled={readOnly}
+            minLength={30}
           />
         </LabelText>
       </Flex>
