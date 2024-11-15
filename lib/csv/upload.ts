@@ -53,7 +53,7 @@ async function getCurrentNextAction(
 }
 
 function upsertApplicant(applicants: z.infer<typeof csvApplicationSchema>[]) {
-  return applicants.map(async ({ applicant, courses, application }) => {
+  return applicants.map(async ({ applicant }) => {
     return prisma.applicant.upsert({
       where: {
         cid: applicant.cid

@@ -11,7 +11,7 @@ import { upsertAdminScoring } from '@/lib/forms'
 import { FormPassbackState } from '@/lib/types'
 import { decimalToNumber } from '@/lib/utils'
 import { AlevelQualification, GCSEQualification, Role } from '@prisma/client'
-import { FileTextIcon, IdCardIcon } from '@radix-ui/react-icons'
+import { IdCardIcon } from '@radix-ui/react-icons'
 import { Button, Flex, Heading, Popover, Text, TextField } from '@radix-ui/themes'
 import { format } from 'date-fns'
 import React, { FC, useState } from 'react'
@@ -67,22 +67,6 @@ const AdminScoringForm: FC<AdminScoringFormProps> = ({ data, readOnly }) => {
               </Popover.Trigger>
               <Popover.Content className="bg-yellow-50">
                 <Text>{data.extenuatingCircumstances}</Text>
-              </Popover.Content>
-            </Popover.Root>
-          )}
-        </Flex>
-
-        <Flex direction="column" gap="2">
-          {data.academicEligibilityNotes && (
-            <Popover.Root>
-              <Popover.Trigger>
-                <Button type="button" variant="soft" color="yellow">
-                  <FileTextIcon width={ICON_SIZE} height={ICON_SIZE} />
-                  Academic eligibility notes
-                </Button>
-              </Popover.Trigger>
-              <Popover.Content className="bg-yellow-50">
-                <Text>{data.academicEligibilityNotes}</Text>
               </Popover.Content>
             </Popover.Root>
           )}
