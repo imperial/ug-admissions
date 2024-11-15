@@ -273,77 +273,67 @@ export const processCsvUpload = async (
   }
   const objects = preprocessingResult.data
 
-  let errorMessageOrPromises: FormPassbackState | Promise<unknown>[]
-  switch (dataUploadType) {
-    case DataUploadEnum.APPLICATION:
-      const applicantResult = createAndExecutePromises(
-        objects,
-        csvApplicationSchema,
-        upsertApplicant
-      )
-      const applicantErrorOrPromises = handleParsing(objects, csvApplicationSchema, upsertApplicant)
-      if ('status' in applicantErrorOrPromises) {
-        return applicantErrorOrPromises as FormPassbackState
-      }
-      await executePromisesAndReturnFulfilled(applicantErrorOrPromises)
-
-      const errorMessageOrPromises2 = handleParsing(
-        objects,
-        csvApplicationSchema,
-        upsertApplication
-      )
-      if ('status' in errorMessageOrPromises2) {
-        return errorMessageOrPromises2 as FormPassbackState
-      }
-      await executePromisesAndReturnFulfilled(errorMessageOrPromises2)
-
-      const errorMessageOrPromises3 = handleParsing(objects, csvApplicationSchema, upsertOutcome)
-      if ('status' in errorMessageOrPromises3) {
-        return errorMessageOrPromises3 as FormPassbackState
-      }
-      await executePromisesAndReturnFulfilled(errorMessageOrPromises3)
-      errorMessageOrPromises = []
-      break
-    case DataUploadEnum.TMUA_SCORES:
-      errorMessageOrPromises = handleParsing(objects, csvTmuaScoresSchema, updateTmuaScores)
-      break
-    case DataUploadEnum.ADMIN_SCORING:
-      errorMessageOrPromises = handleParsing(objects, csvAdminScoringSchema, (data) =>
-        updateAdminScoring(data, userEmail)
-      )
-      break
-    case DataUploadEnum.USER_ROLES:
-      errorMessageOrPromises = handleParsing(objects, csvUserRolesSchema, upsertUsers)
-      break
-  }
-
-  if ('status' in errorMessageOrPromises) {
-    return errorMessageOrPromises as FormPassbackState
-  }
-
-  const promises = errorMessageOrPromises as Promise<unknown>[]
-  const successfulUpserts = await executePromisesAndReturnFulfilled(promises)
-  // Assign reviewers to applications
   if (dataUploadType === DataUploadEnum.APPLICATION) {
+    const applicantResult = await createAndExecutePromises(
+      objects,
+      csvApplicationSchema,
+      upsertApplicant
+    )
+    if (applicantResult.errorMessage) {
+      return { status: 'error', message: applicantResult.errorMessage }
+    }
+
+    const applicationResult = await createAndExecutePromises(
+      objects,
+      csvApplicationSchema,
+      upsertApplication
+    )
+    if (applicationResult.errorMessage) {
+      return { status: 'error', message: applicationResult.errorMessage }
+    }
+
+    const outcomeResult = await createAndExecutePromises(
+      objects,
+      csvApplicationSchema,
+      upsertOutcome
+    )
+    if (outcomeResult.errorMessage) {
+      return { status: 'error', message: outcomeResult.errorMessage }
+    }
+
     try {
-      await allocateApplications(successfulUpserts as Application[])
+      await allocateApplications(applicationResult.fulfilledUpserts as Application[])
+      return { status: 'success', message: `All applications entered successfully` }
     } catch (e: any) {
       return { status: 'error', message: e.message }
     }
-  }
-
-  const noPrismaErrors = promises.length - successfulUpserts.length
-  const noSuccesses = objects.length - noPrismaErrors
-
-  if (noPrismaErrors === 0) {
-    return {
-      message: `All ${noSuccesses} updates or inserts succeeded`,
-      status: 'success'
+  } else if (dataUploadType === DataUploadEnum.TMUA_SCORES) {
+    const tmuaScoresResult = await createAndExecutePromises(
+      objects,
+      csvTmuaScoresSchema,
+      updateTmuaScores
+    )
+    if (tmuaScoresResult.errorMessage) {
+      return { status: 'error', message: tmuaScoresResult.errorMessage }
     }
-  }
-  return {
-    message: `${noPrismaErrors}/${objects.length} updates or inserts failed from database errors`,
-    status: 'error'
+    return { status: 'success', message: tmuaScoresResult.successMessage! }
+  } else if (dataUploadType === DataUploadEnum.ADMIN_SCORING) {
+    const adminScoringResult = await createAndExecutePromises(
+      objects,
+      csvAdminScoringSchema,
+      (data) => updateAdminScoring(data, userEmail)
+    )
+    if (adminScoringResult.errorMessage) {
+      return { status: 'error', message: adminScoringResult.errorMessage }
+    }
+    return { status: 'success', message: adminScoringResult.successMessage! }
+  } else {
+    // user roles
+    const userRolesResult = await createAndExecutePromises(objects, csvUserRolesSchema, upsertUsers)
+    if (userRolesResult.errorMessage) {
+      return { status: 'error', message: userRolesResult.errorMessage }
+    }
+    return { status: 'success', message: userRolesResult.successMessage! }
   }
 }
 
@@ -351,22 +341,28 @@ async function createAndExecutePromises(
   objects: unknown[],
   schema: z.ZodObject<any>,
   upsertFunction: (data: any[]) => Promise<unknown>[]
-) {
+): Promise<{
+  errorMessage?: string
+  successMessage?: string
+  fulfilledUpserts?: unknown[]
+}> {
   const errorOrPromises = handleParsing(objects, schema, upsertFunction)
-  if ('status' in errorOrPromises) return errorOrPromises as FormPassbackState
+  if ('status' in errorOrPromises) {
+    // error occurred during parsing
+    return { errorMessage: errorOrPromises.message }
+  }
   const promises = errorOrPromises as Promise<unknown>[]
   const fulfilledUpserts = await executePromisesAndReturnFulfilled(promises)
   const noPrismaErrors = promises.length - fulfilledUpserts.length
   const noSuccesses = objects.length - noPrismaErrors
 
-  if (noPrismaErrors === 0) {
+  if (noPrismaErrors === 0)
     return {
-      message: `All ${noSuccesses} updates or inserts succeeded`,
-      status: 'success'
+      successMessage: `All ${noSuccesses} updates or inserts succeeded`,
+      fulfilledUpserts
     }
-  }
+
   return {
-    message: `${noPrismaErrors}/${objects.length} updates or inserts failed from database errors`,
-    status: 'error'
+    errorMessage: `${noPrismaErrors}/${objects.length} updates or inserts failed from database errors`
   }
 }
