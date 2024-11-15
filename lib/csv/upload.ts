@@ -93,6 +93,7 @@ function upsertOutcome(outcomes: z.infer<typeof csvApplicationSchema>[]) {
     })
   })
 }
+
 function upsertApplication(applications: z.infer<typeof csvApplicationSchema>[]) {
   function calculateNextAction(currentNextAction: NextAction | undefined, isTmuaPresent: boolean) {
     if (!currentNextAction)
@@ -303,7 +304,12 @@ export const processCsvUpload = async (
       return { status: 'error', message: outcomeResult.errorMessage }
     }
     // application allocation briefly disabled
-    return { status: 'success', message: `All applications entered successfully` }
+    const numApplicants = applicantResult.fulfilledUpserts?.length
+    const numOutcomes = outcomeResult.fulfilledUpserts?.length
+    return {
+      status: 'success',
+      message: `Successfully input ${numApplicants} applicants applying for ${numOutcomes} courses`
+    }
   } else if (dataUploadType === DataUploadEnum.TMUA_SCORES) {
     const tmuaScoresResult = await createAndExecutePromises(
       objects,
