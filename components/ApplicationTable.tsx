@@ -171,6 +171,7 @@ const ApplicationTable: FC<ApplicationTableProps> = ({
                 values={[ALL_DROPDOWN_OPTION, ...reviewerIds]}
                 currentValue={reviewerFilterValue}
                 onValueChange={(value) => onFilterDropdownChange(SEARCH_PARAM_REVIEWER, value)}
+                valueFormatter={prettifyReviewerEmail}
               />
             </Flex>
           </Flex>
