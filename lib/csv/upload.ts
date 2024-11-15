@@ -2,7 +2,6 @@
 
 import prisma from '@/db'
 import { preprocessCsvData } from '@/lib/csv/preprocessing'
-import { allocateApplications } from '@/lib/reviewerAllocation'
 import {
   csvAdminScoringSchema,
   csvApplicationSchema,
@@ -11,7 +10,7 @@ import {
   parseWithSchema
 } from '@/lib/schema'
 import { ord } from '@/lib/utils'
-import { Application, NextAction, Prisma, type User } from '@prisma/client'
+import { NextAction, Prisma, type User } from '@prisma/client'
 import { isNumber } from 'lodash'
 import { z } from 'zod'
 
@@ -54,7 +53,7 @@ async function getCurrentNextAction(
 }
 
 function upsertApplicant(applicants: z.infer<typeof csvApplicationSchema>[]) {
-  return applicants.map(async ({ applicant, application, outcome }) => {
+  return applicants.map(async ({ applicant, degrees, application }) => {
     return prisma.applicant.upsert({
       where: {
         cid: applicant.cid
@@ -66,20 +65,20 @@ function upsertApplicant(applicants: z.infer<typeof csvApplicationSchema>[]) {
 }
 
 function upsertOutcome(outcomes: z.infer<typeof csvApplicationSchema>[]) {
-  return outcomes.map(async ({ applicant, application, outcome }) => {
+  return outcomes.map(async ({ applicant, degrees, application }) => {
     return prisma.outcome.upsert({
       where: {
         cid_cycle_degree: {
           cid: applicant.cid,
           admissionsCycle: application.admissionsCycle,
-          degreeCode: outcome.degreeCode
+          degreeCode: degrees[0].degreeCode
         }
       },
       update: {
-        degreeCode: outcome.degreeCode
+        ...degrees[0]
       },
       create: {
-        ...outcome,
+        ...degrees[0],
         application: {
           connect: {
             admissionsCycle_cid: {
@@ -108,7 +107,7 @@ function upsertApplication(applications: z.infer<typeof csvApplicationSchema>[])
     return currentNextAction
   }
 
-  return applications.map(async ({ applicant, application, outcome }) => {
+  return applications.map(async ({ applicant, application }) => {
     const currentNextAction = await getCurrentNextAction(application.admissionsCycle, applicant.cid)
     const nextNextAction = calculateNextAction(currentNextAction, isNumber(application.tmuaScore))
 
@@ -289,6 +288,7 @@ export const processCsvUpload = async (
       upsertApplication
     )
     if (applicationResult.errorMessage) {
+      console.error('Upserted applicants but failed on applications')
       return { status: 'error', message: applicationResult.errorMessage }
     }
 
@@ -298,15 +298,11 @@ export const processCsvUpload = async (
       upsertOutcome
     )
     if (outcomeResult.errorMessage) {
+      console.error('Upserted applicants and applications but failed on outcomes')
       return { status: 'error', message: outcomeResult.errorMessage }
     }
-
-    try {
-      await allocateApplications(applicationResult.fulfilledUpserts as Application[])
-      return { status: 'success', message: `All applications entered successfully` }
-    } catch (e: any) {
-      return { status: 'error', message: e.message }
-    }
+    // application allocation briefly disabled
+    return { status: 'success', message: `All applications entered successfully` }
   } else if (dataUploadType === DataUploadEnum.TMUA_SCORES) {
     const tmuaScoresResult = await createAndExecutePromises(
       objects,
