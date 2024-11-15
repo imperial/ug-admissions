@@ -19,7 +19,7 @@ import { DataUploadEnum, FormPassbackState } from '../types'
 
 import PrismaClientKnownRequestError = Prisma.PrismaClientKnownRequestError
 
-async function executePromises(promises: Promise<unknown>[]): Promise<unknown[]> {
+async function executePromisesAndReturnFulfilled(promises: Promise<unknown>[]): Promise<unknown[]> {
   const results = await Promise.allSettled(promises)
   results.forEach((result) => {
     if (result.status === 'rejected') {
@@ -53,16 +53,46 @@ async function getCurrentNextAction(
     .then((app) => app?.nextAction)
 }
 
-/**
- * If application does not exist:
- *   - creates a new outcome
- *   - creates/updates the applicant depending on whether it exists
- *
- * If application does exist:
- *   - updates the applicant (applicant must exist because application exists)
- *   - updates the outcome if degree code is the same or creates a new outcome if it is different
- * @param applications - an array of schema objects with a nested applicant and application object
- */
+function upsertApplicant(applicants: z.infer<typeof csvApplicationSchema>[]) {
+  return applicants.map(async ({ applicant, application, outcome }) => {
+    return prisma.applicant.upsert({
+      where: {
+        cid: applicant.cid
+      },
+      update: applicant,
+      create: applicant
+    })
+  })
+}
+
+function upsertOutcome(outcomes: z.infer<typeof csvApplicationSchema>[]) {
+  return outcomes.map(async ({ applicant, application, outcome }) => {
+    return prisma.outcome.upsert({
+      where: {
+        cid_cycle_degree: {
+          cid: applicant.cid,
+          admissionsCycle: application.admissionsCycle,
+          degreeCode: outcome.degreeCode
+        }
+      },
+      update: {
+        degreeCode: outcome.degreeCode
+      },
+      create: {
+        ...outcome,
+        application: {
+          connect: {
+            admissionsCycle_cid: {
+              admissionsCycle: application.admissionsCycle,
+              cid: applicant.cid
+            }
+          }
+        }
+      }
+    })
+  })
+}
+
 function upsertApplication(applications: z.infer<typeof csvApplicationSchema>[]) {
   function calculateNextAction(currentNextAction: NextAction | undefined, isTmuaPresent: boolean) {
     if (!currentNextAction)
@@ -91,40 +121,18 @@ function upsertApplication(applications: z.infer<typeof csvApplicationSchema>[])
       },
       update: {
         ...application,
-        nextAction: nextNextAction,
-        applicant: {
-          update: applicant
-        },
-        outcomes: {
-          upsert: {
-            where: {
-              cid_cycle_degree: {
-                cid: applicant.cid,
-                admissionsCycle: application.admissionsCycle,
-                degreeCode: outcome.degreeCode
-              }
-            },
-            update: outcome,
-            create: outcome
-          }
-        }
+        nextAction: nextNextAction
       },
       create: {
         ...application,
         nextAction: nextNextAction,
-        applicant: {
-          connectOrCreate: {
-            where: {
-              cid: applicant.cid
-            },
-            create: applicant
-          }
-        },
         internalReview: {
           create: {}
         },
-        outcomes: {
-          create: outcome
+        applicant: {
+          connect: {
+            cid: applicant.cid
+          }
         }
       }
     })
@@ -268,7 +276,33 @@ export const processCsvUpload = async (
   let errorMessageOrPromises: FormPassbackState | Promise<unknown>[]
   switch (dataUploadType) {
     case DataUploadEnum.APPLICATION:
-      errorMessageOrPromises = handleParsing(objects, csvApplicationSchema, upsertApplication)
+      const applicantResult = createAndExecutePromises(
+        objects,
+        csvApplicationSchema,
+        upsertApplicant
+      )
+      const applicantErrorOrPromises = handleParsing(objects, csvApplicationSchema, upsertApplicant)
+      if ('status' in applicantErrorOrPromises) {
+        return applicantErrorOrPromises as FormPassbackState
+      }
+      await executePromisesAndReturnFulfilled(applicantErrorOrPromises)
+
+      const errorMessageOrPromises2 = handleParsing(
+        objects,
+        csvApplicationSchema,
+        upsertApplication
+      )
+      if ('status' in errorMessageOrPromises2) {
+        return errorMessageOrPromises2 as FormPassbackState
+      }
+      await executePromisesAndReturnFulfilled(errorMessageOrPromises2)
+
+      const errorMessageOrPromises3 = handleParsing(objects, csvApplicationSchema, upsertOutcome)
+      if ('status' in errorMessageOrPromises3) {
+        return errorMessageOrPromises3 as FormPassbackState
+      }
+      await executePromisesAndReturnFulfilled(errorMessageOrPromises3)
+      errorMessageOrPromises = []
       break
     case DataUploadEnum.TMUA_SCORES:
       errorMessageOrPromises = handleParsing(objects, csvTmuaScoresSchema, updateTmuaScores)
@@ -288,7 +322,7 @@ export const processCsvUpload = async (
   }
 
   const promises = errorMessageOrPromises as Promise<unknown>[]
-  const successfulUpserts = await executePromises(promises)
+  const successfulUpserts = await executePromisesAndReturnFulfilled(promises)
   // Assign reviewers to applications
   if (dataUploadType === DataUploadEnum.APPLICATION) {
     try {
@@ -299,6 +333,30 @@ export const processCsvUpload = async (
   }
 
   const noPrismaErrors = promises.length - successfulUpserts.length
+  const noSuccesses = objects.length - noPrismaErrors
+
+  if (noPrismaErrors === 0) {
+    return {
+      message: `All ${noSuccesses} updates or inserts succeeded`,
+      status: 'success'
+    }
+  }
+  return {
+    message: `${noPrismaErrors}/${objects.length} updates or inserts failed from database errors`,
+    status: 'error'
+  }
+}
+
+async function createAndExecutePromises(
+  objects: unknown[],
+  schema: z.ZodObject<any>,
+  upsertFunction: (data: any[]) => Promise<unknown>[]
+) {
+  const errorOrPromises = handleParsing(objects, schema, upsertFunction)
+  if ('status' in errorOrPromises) return errorOrPromises as FormPassbackState
+  const promises = errorOrPromises as Promise<unknown>[]
+  const fulfilledUpserts = await executePromisesAndReturnFulfilled(promises)
+  const noPrismaErrors = promises.length - fulfilledUpserts.length
   const noSuccesses = objects.length - noPrismaErrors
 
   if (noPrismaErrors === 0) {
