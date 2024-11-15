@@ -1,6 +1,8 @@
+import { csvApplicationSchema } from '@/lib/schema'
 import { DataUploadEnum } from '@/lib/types'
 import { CsvError, parse } from 'csv-parse/sync'
 import DataFrame from 'dataframe-js'
+import { z } from 'zod'
 
 /**
  * Parses a CSV and runs processing function according to the upload type
@@ -59,111 +61,60 @@ export async function preprocessCsvData(
  * @param cycle
  * @returns an array of objects with nested applicant and application objects
  */
-function processApplication(objects: unknown[], cycle: number): unknown[] {
+function processApplication(
+  objects: unknown[],
+  cycle: number
+): z.infer<typeof csvApplicationSchema>[] {
   let df = new DataFrame(objects)
   df = df.replace('', null)
-
-  df = renameColumns(df, [
-    ['College ID (Applicant) (Contact)', 'cid'],
-    ['UCAS ID (Applicant) (Contact)', 'ucasNumber'],
-    ['Programme code (Programme) (Programme)', 'degreeCode'],
-    ['First name (Applicant) (Contact)', 'firstName'],
-    ['Last name (Applicant) (Contact)', 'surname'],
-    ['Nationality (Applicant) (Contact)', 'primaryNationality'],
-    ['Primary email address (Applicant) (Contact)', 'email'],
-    ['Gender (Applicant) (Contact)', 'gender'],
-    ['Date of birth', 'dateOfBirth'],
-    ['Preferred first name (Applicant) (Contact)', 'preferredName'],
-    ['Entry term', 'entryYear'],
-    ['Fee status', 'feeStatus'],
-    ['WP flag', 'wideningParticipation'],
-    ['Sent to department', 'applicationDate'],
-    ['Extenuating circumstances notes', 'extenuatingCircumstances'],
-    ['Academic eligibility notes', 'academicEligibilityNotes'],
-    ['TMUA Score', 'tmuaScore']
-  ])
-
+  df = renameApplicationColumns(df)
   df = padCidWith0s(df)
   df = addAdmissionsCycle(df, cycle)
+  df = transformDataFormats(df)
 
-  // @ts-ignore
-  df = df.withColumn('entryYear', (row: any) => {
-    // format is 'Autumn 2025-2026' so extract '2526'
-    const [year1, year2] = row.get('entryYear')?.split(' ').at(1)?.split('-')
-    return year1.slice(-2) + year2.slice(-2)
-  })
+  // map from cid to object with applicant, degrees and application
+  const applicantMap = new Map<string, z.infer<typeof csvApplicationSchema>>()
 
-  df = df.withColumn(
-    'degreeCode',
-    // @ts-ignore
-    (row: any) =>
-      // format is G400.1 so remove the .1
-      row.get('degreeCode')?.split('.').at(0)
-  )
+  for (const row of df.toCollection()) {
+    if (applicantMap.has(row.cid)) {
+      // only need to add a course
+      const existing = applicantMap.get(row.cid)
+      existing?.courses.push({
+        degreeCode: row.degreeCode,
+        academicEligibilityNotes: row.academicEligibilityNotes
+      })
+    } else {
+      const applicant = {
+        cid: row.cid,
+        ucasNumber: row.ucasNumber,
+        gender: row.gender,
+        firstName: row.firstName,
+        surname: row.surname,
+        preferredName: row.preferredName,
+        dateOfBirth: row.dateOfBirth,
+        email: row.email,
+        primaryNationality: row.primaryNationality
+      }
+      const courses = [
+        {
+          degreeCode: row.degreeCode,
+          academicEligibilityNotes: row.academicEligibilityNotes
+        }
+      ]
+      const application = {
+        admissionsCycle: row.admissionsCycle,
+        entryYear: row.entryYear,
+        feeStatus: row.feeStatus,
+        wideningParticipation: row.wideningParticipation,
+        applicationDate: row.applicationDate,
+        tmuaScore: row.tmuaScore,
+        extenuatingCircumstances: row.extenuatingCircumstances
+      }
+      applicantMap.set(row.cid, { applicant, courses, application })
+    }
+  }
 
-  // capitalise enums so they validate
-  // @ts-ignore
-  df = df.withColumn('gender', (row: any) => {
-    const gender = row.get('gender')
-    if (gender === 'Other gender not listed') return 'OTHER'
-    return gender?.toUpperCase()
-  })
-  // @ts-ignore
-  df = df.withColumn('wideningParticipation', (row: any) => {
-    const wp = row.get('wideningParticipation')
-    if (wp === 'Not calculated') return 'NOT_CALCULATED'
-    return wp?.toUpperCase()
-  })
-  // @ts-ignore
-  df = df.withColumn('feeStatus', (row: any) => {
-    const feeStatus = row.get('feeStatus')
-    if (feeStatus === 'Query') return 'UNKNOWN'
-    return feeStatus?.toUpperCase()
-  })
-
-  const applicantColumns = [
-    'cid',
-    'ucasNumber',
-    'gender',
-    'firstName',
-    'surname',
-    'preferredName',
-    'dateOfBirth',
-    'email',
-    'primaryNationality'
-  ]
-  const applicantDf = df.select(...applicantColumns)
-  const applicantObjects = applicantDf.toCollection()
-
-  const applicationColumns = [
-    'hasDisability',
-    'admissionsCycle',
-    'entryYear',
-    'feeStatus',
-    'wideningParticipation',
-    'applicationDate',
-    'tmuaScore',
-    'extenuatingCircumstances',
-    'academicEligibilityNotes'
-  ]
-
-  // filter in case columns are missing e.g. TMUA score
-  const existingApplicationColumns = applicationColumns.filter((col) =>
-    df.listColumns().includes(col)
-  )
-  const applicationDf = df.select(...existingApplicationColumns)
-  const applicationObjects = applicationDf.toCollection()
-
-  const outcomeColumns = ['degreeCode']
-  const outcomeDf = df.select(...outcomeColumns)
-  const outcomeObjects = outcomeDf.toCollection()
-
-  // zip arrays together to create nested object for schema validation
-  return applicantObjects.map((applicant: unknown, i: number) => ({
-    applicant: applicant,
-    application: applicationObjects[i],
-    outcome: outcomeObjects[i]
-  }))
+  return Array.from(applicantMap.values())
 }
 
 function processTMUAScores(objects: unknown[], cycle: number): unknown[] {
@@ -180,16 +131,7 @@ function processTMUAScores(objects: unknown[], cycle: number): unknown[] {
 
 function processAdminScoring(objects: unknown[], cycle: number): unknown[] {
   let df = new DataFrame(objects)
-  df = renameColumns(df, [
-    ['CID', 'cid'],
-    ['Age 16 Qualification Type', 'gcseQualification'],
-    ['Age 16 Qualification Score', 'gcseQualificationScore'],
-    ['Age 18 Qualification Type', 'aLevelQualification'],
-    ['Age 18 Qualification Score', 'aLevelQualificationScore'],
-    ['Motivation Score', 'motivationAdminScore'],
-    ['Extracurricular Score', 'extracurricularAdminScore'],
-    ['Exam Comments', 'examComments']
-  ])
+  df = renameAdminScoringColumns(df)
   df = padCidWith0s(df)
   df = addAdmissionsCycle(df, cycle)
   return df.toCollection()
@@ -221,5 +163,77 @@ function padCidWith0s(df: DataFrame): DataFrame {
   // @ts-ignore
   return df.withColumn('cid', (row: any) => {
     return row.get('cid')?.padStart(8, '0')
+  })
+}
+
+function renameApplicationColumns(df: DataFrame): DataFrame {
+  return renameColumns(df, [
+    ['College ID (Applicant) (Contact)', 'cid'],
+    ['UCAS ID (Applicant) (Contact)', 'ucasNumber'],
+    ['Programme code (Programme) (Programme)', 'degreeCode'],
+    ['First name (Applicant) (Contact)', 'firstName'],
+    ['Last name (Applicant) (Contact)', 'surname'],
+    ['Nationality (Applicant) (Contact)', 'primaryNationality'],
+    ['Primary email address (Applicant) (Contact)', 'email'],
+    ['Gender (Applicant) (Contact)', 'gender'],
+    ['Date of birth', 'dateOfBirth'],
+    ['Preferred first name (Applicant) (Contact)', 'preferredName'],
+    ['Entry term', 'entryYear'],
+    ['Fee status', 'feeStatus'],
+    ['WP flag', 'wideningParticipation'],
+    ['Sent to department', 'applicationDate'],
+    ['Extenuating circumstances notes', 'extenuatingCircumstances'],
+    ['Academic eligibility notes', 'academicEligibilityNotes'],
+    ['TMUA Score', 'tmuaScore']
+  ])
+}
+
+function renameAdminScoringColumns(df: DataFrame): DataFrame {
+  return renameColumns(df, [
+    ['CID', 'cid'],
+    ['Age 16 Qualification Type', 'gcseQualification'],
+    ['Age 16 Qualification Score', 'gcseQualificationScore'],
+    ['Age 18 Qualification Type', 'aLevelQualification'],
+    ['Age 18 Qualification Score', 'aLevelQualificationScore'],
+    ['Motivation Score', 'motivationAdminScore'],
+    ['Extracurricular Score', 'extracurricularAdminScore'],
+    ['Exam Comments', 'examComments']
+  ])
+}
+
+function transformDataFormats(df: DataFrame): DataFrame {
+  // @ts-ignore
+  df = df.withColumn('entryYear', (row: any) => {
+    // format is 'Autumn 2025-2026' so extract '2526'
+    const [year1, year2] = row.get('entryYear')?.split(' ').at(1)?.split('-')
+    return year1.slice(-2) + year2.slice(-2)
+  })
+
+  df = df.withColumn(
+    'degreeCode',
+    // @ts-ignore
+    (row: any) =>
+      // format is G400.1 so remove the .1
+      row.get('degreeCode')?.split('.').at(0)
+  )
+
+  // capitalise enums so they validate
+  // @ts-ignore
+  df = df.withColumn('gender', (row: any) => {
+    const gender = row.get('gender')
+    if (gender === 'Other gender not listed') return 'OTHER'
+    return gender?.toUpperCase()
+  })
+  // @ts-ignore
+  df = df.withColumn('wideningParticipation', (row: any) => {
+    const wp = row.get('wideningParticipation')
+    if (wp === 'Not calculated') return 'NOT_CALCULATED'
+    return wp?.toUpperCase()
+  })
+  // @ts-ignore
+  return df.withColumn('feeStatus', (row: any) => {
+    const feeStatus = row.get('feeStatus')
+    if (feeStatus === 'Query') return 'UNKNOWN'
+    return feeStatus?.toUpperCase()
   })
 }

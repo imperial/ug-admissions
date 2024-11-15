@@ -84,6 +84,12 @@ export const csvApplicationSchema = z.object({
     email: z.string().email(),
     primaryNationality: z.string()
   }),
+  courses: z.array(
+    z.object({
+      degreeCode: z.nativeEnum(DegreeCode),
+      academicEligibilityNotes: z.string().nullable()
+    })
+  ),
   application: z.object({
     admissionsCycle: cycleField,
     entryYear: cycleField,
@@ -100,11 +106,7 @@ export const csvApplicationSchema = z.object({
       })
       .nullable(),
     tmuaScore: z.coerce.number().min(1).max(9).optional(),
-    extenuatingCircumstances: z.string().nullable(),
-    academicEligibilityNotes: z.string().nullable()
-  }),
-  outcome: z.object({
-    degreeCode: z.nativeEnum(DegreeCode)
+    extenuatingCircumstances: z.string().nullable()
   })
 })
 

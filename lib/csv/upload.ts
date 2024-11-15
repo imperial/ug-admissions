@@ -2,7 +2,6 @@
 
 import prisma from '@/db'
 import { preprocessCsvData } from '@/lib/csv/preprocessing'
-import { allocateApplications } from '@/lib/reviewerAllocation'
 import {
   csvAdminScoringSchema,
   csvApplicationSchema,
@@ -11,7 +10,7 @@ import {
   parseWithSchema
 } from '@/lib/schema'
 import { ord } from '@/lib/utils'
-import { Application, NextAction, Prisma, type User } from '@prisma/client'
+import { NextAction, Prisma, type User } from '@prisma/client'
 import { isNumber } from 'lodash'
 import { z } from 'zod'
 
@@ -19,7 +18,7 @@ import { DataUploadEnum, FormPassbackState } from '../types'
 
 import PrismaClientKnownRequestError = Prisma.PrismaClientKnownRequestError
 
-async function executePromises(promises: Promise<unknown>[]): Promise<unknown[]> {
+async function executePromisesAndReturnFulfilled(promises: Promise<unknown>[]): Promise<unknown[]> {
   const results = await Promise.allSettled(promises)
   results.forEach((result) => {
     if (result.status === 'rejected') {
@@ -53,16 +52,48 @@ async function getCurrentNextAction(
     .then((app) => app?.nextAction)
 }
 
-/**
- * If application does not exist:
- *   - creates a new outcome
- *   - creates/updates the applicant depending on whether it exists
- *
- * If application does exist:
- *   - updates the applicant (applicant must exist because application exists)
- *   - updates the outcome if degree code is the same or creates a new outcome if it is different
- * @param applications - an array of schema objects with a nested applicant and application object
- */
+function upsertApplicant(applicants: z.infer<typeof csvApplicationSchema>[]) {
+  return applicants.map(async ({ applicant }) => {
+    return prisma.applicant.upsert({
+      where: {
+        cid: applicant.cid
+      },
+      update: applicant,
+      create: applicant
+    })
+  })
+}
+
+function upsertOutcome(outcomes: z.infer<typeof csvApplicationSchema>[]) {
+  return outcomes.flatMap(({ applicant, courses, application }) => {
+    return courses.map(async (degree) => {
+      return prisma.outcome.upsert({
+        where: {
+          cid_cycle_degree: {
+            cid: applicant.cid,
+            admissionsCycle: application.admissionsCycle,
+            degreeCode: degree.degreeCode
+          }
+        },
+        update: {
+          ...degree
+        },
+        create: {
+          ...degree,
+          application: {
+            connect: {
+              admissionsCycle_cid: {
+                admissionsCycle: application.admissionsCycle,
+                cid: applicant.cid
+              }
+            }
+          }
+        }
+      })
+    })
+  })
+}
+
 function upsertApplication(applications: z.infer<typeof csvApplicationSchema>[]) {
   function calculateNextAction(currentNextAction: NextAction | undefined, isTmuaPresent: boolean) {
     if (!currentNextAction)
@@ -78,7 +109,7 @@ function upsertApplication(applications: z.infer<typeof csvApplicationSchema>[])
     return currentNextAction
   }
 
-  return applications.map(async ({ applicant, application, outcome }) => {
+  return applications.map(async ({ applicant, application }) => {
     const currentNextAction = await getCurrentNextAction(application.admissionsCycle, applicant.cid)
     const nextNextAction = calculateNextAction(currentNextAction, isNumber(application.tmuaScore))
 
@@ -91,40 +122,18 @@ function upsertApplication(applications: z.infer<typeof csvApplicationSchema>[])
       },
       update: {
         ...application,
-        nextAction: nextNextAction,
-        applicant: {
-          update: applicant
-        },
-        outcomes: {
-          upsert: {
-            where: {
-              cid_cycle_degree: {
-                cid: applicant.cid,
-                admissionsCycle: application.admissionsCycle,
-                degreeCode: outcome.degreeCode
-              }
-            },
-            update: outcome,
-            create: outcome
-          }
-        }
+        nextAction: nextNextAction
       },
       create: {
         ...application,
         nextAction: nextNextAction,
-        applicant: {
-          connectOrCreate: {
-            where: {
-              cid: applicant.cid
-            },
-            create: applicant
-          }
-        },
         internalReview: {
           create: {}
         },
-        outcomes: {
-          create: outcome
+        applicant: {
+          connect: {
+            cid: applicant.cid
+          }
         }
       }
     })
@@ -265,50 +274,98 @@ export const processCsvUpload = async (
   }
   const objects = preprocessingResult.data
 
-  let errorMessageOrPromises: FormPassbackState | Promise<unknown>[]
-  switch (dataUploadType) {
-    case DataUploadEnum.APPLICATION:
-      errorMessageOrPromises = handleParsing(objects, csvApplicationSchema, upsertApplication)
-      break
-    case DataUploadEnum.TMUA_SCORES:
-      errorMessageOrPromises = handleParsing(objects, csvTmuaScoresSchema, updateTmuaScores)
-      break
-    case DataUploadEnum.ADMIN_SCORING:
-      errorMessageOrPromises = handleParsing(objects, csvAdminScoringSchema, (data) =>
-        updateAdminScoring(data, userEmail)
-      )
-      break
-    case DataUploadEnum.USER_ROLES:
-      errorMessageOrPromises = handleParsing(objects, csvUserRolesSchema, upsertUsers)
-      break
-  }
-
-  if ('status' in errorMessageOrPromises) {
-    return errorMessageOrPromises as FormPassbackState
-  }
-
-  const promises = errorMessageOrPromises as Promise<unknown>[]
-  const successfulUpserts = await executePromises(promises)
-  // Assign reviewers to applications
   if (dataUploadType === DataUploadEnum.APPLICATION) {
-    try {
-      await allocateApplications(successfulUpserts as Application[])
-    } catch (e: any) {
-      return { status: 'error', message: e.message }
+    const applicantResult = await createAndExecutePromises(
+      objects,
+      csvApplicationSchema,
+      upsertApplicant
+    )
+    if (applicantResult.errorMessage) {
+      return { status: 'error', message: applicantResult.errorMessage }
     }
-  }
 
-  const noPrismaErrors = promises.length - successfulUpserts.length
+    const applicationResult = await createAndExecutePromises(
+      objects,
+      csvApplicationSchema,
+      upsertApplication
+    )
+    if (applicationResult.errorMessage) {
+      console.error('Upserted applicants but failed on applications')
+      return { status: 'error', message: applicationResult.errorMessage }
+    }
+
+    const outcomeResult = await createAndExecutePromises(
+      objects,
+      csvApplicationSchema,
+      upsertOutcome
+    )
+    if (outcomeResult.errorMessage) {
+      console.error('Upserted applicants and applications but failed on outcomes')
+      return { status: 'error', message: outcomeResult.errorMessage }
+    }
+    // application allocation briefly disabled
+    const numApplicants = applicantResult.fulfilledUpserts?.length
+    const numOutcomes = outcomeResult.fulfilledUpserts?.length
+    return {
+      status: 'success',
+      message: `Successfully input ${numApplicants} applicants applying for ${numOutcomes} courses`
+    }
+  } else if (dataUploadType === DataUploadEnum.TMUA_SCORES) {
+    const tmuaScoresResult = await createAndExecutePromises(
+      objects,
+      csvTmuaScoresSchema,
+      updateTmuaScores
+    )
+    if (tmuaScoresResult.errorMessage) {
+      return { status: 'error', message: tmuaScoresResult.errorMessage }
+    }
+    return { status: 'success', message: tmuaScoresResult.successMessage! }
+  } else if (dataUploadType === DataUploadEnum.ADMIN_SCORING) {
+    const adminScoringResult = await createAndExecutePromises(
+      objects,
+      csvAdminScoringSchema,
+      (data) => updateAdminScoring(data, userEmail)
+    )
+    if (adminScoringResult.errorMessage) {
+      return { status: 'error', message: adminScoringResult.errorMessage }
+    }
+    return { status: 'success', message: adminScoringResult.successMessage! }
+  } else {
+    // user roles
+    const userRolesResult = await createAndExecutePromises(objects, csvUserRolesSchema, upsertUsers)
+    if (userRolesResult.errorMessage) {
+      return { status: 'error', message: userRolesResult.errorMessage }
+    }
+    return { status: 'success', message: userRolesResult.successMessage! }
+  }
+}
+
+async function createAndExecutePromises(
+  objects: unknown[],
+  schema: z.ZodObject<any>,
+  upsertFunction: (data: any[]) => Promise<unknown>[]
+): Promise<{
+  errorMessage?: string
+  successMessage?: string
+  fulfilledUpserts?: unknown[]
+}> {
+  const errorOrPromises = handleParsing(objects, schema, upsertFunction)
+  if ('status' in errorOrPromises) {
+    // error occurred during parsing
+    return { errorMessage: errorOrPromises.message }
+  }
+  const promises = errorOrPromises as Promise<unknown>[]
+  const fulfilledUpserts = await executePromisesAndReturnFulfilled(promises)
+  const noPrismaErrors = promises.length - fulfilledUpserts.length
   const noSuccesses = objects.length - noPrismaErrors
 
-  if (noPrismaErrors === 0) {
+  if (noPrismaErrors === 0)
     return {
-      message: `All ${noSuccesses} updates or inserts succeeded`,
-      status: 'success'
+      successMessage: `All ${noSuccesses} updates or inserts succeeded`,
+      fulfilledUpserts
     }
-  }
+
   return {
-    message: `${noPrismaErrors}/${objects.length} updates or inserts failed from database errors`,
-    status: 'error'
+    errorMessage: `${noPrismaErrors}/${objects.length} updates or inserts failed from database errors`
   }
 }
