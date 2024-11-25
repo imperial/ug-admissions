@@ -13,6 +13,7 @@ const LoginPage = async ({ searchParams }: { searchParams?: { callbackUrl?: stri
         redirectTo: searchParams?.callbackUrl ?? '/'
       })
     } catch (error) {
+      console.error(error)
       if (error instanceof AuthError) {
         return redirect('/auth/error')
       }
