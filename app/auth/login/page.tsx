@@ -5,12 +5,12 @@ import { AuthError } from 'next-auth'
 import { redirect } from 'next/navigation'
 import React from 'react'
 
-const LoginPage = async ({ searchParams }: { searchParams?: { callbackUrl?: string } }) => {
+const LoginPage = async () => {
   const signInEntraID = async () => {
     'use server'
     try {
       await signIn('microsoft-entra-id', {
-        redirectTo: searchParams?.callbackUrl ?? '/'
+        redirectTo: '/'
       })
     } catch (error) {
       console.error(error)
