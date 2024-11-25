@@ -24,6 +24,7 @@ COPY --from=builder --chown=node:node /app/.next /app/.next
 COPY --from=builder /app/public /app/public
 COPY --from=builder /app/package.json /app/package.json
 COPY --from=builder /app/prisma /app/prisma
+COPY ./.env.prod /app/.env
 
 RUN chown -R node:node /app
 USER node
