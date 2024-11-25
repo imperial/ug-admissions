@@ -1,7 +1,14 @@
-import authConfig from '@/auth.config'
-import NextAuth from 'next-auth'
+import NextAuth, { NextAuthConfig } from 'next-auth'
+import MicrosoftEntraID from 'next-auth/providers/microsoft-entra-id'
 
-export const { handlers, auth, signIn, signOut } = NextAuth({
-  ...authConfig,
-  session: { strategy: 'jwt' }
-})
+const config = {
+  session: { strategy: 'jwt' },
+  providers: [MicrosoftEntraID],
+
+  pages: {
+    signIn: '/auth/login',
+    error: '/auth/error'
+  }
+} satisfies NextAuthConfig
+
+export const { handlers, auth, signIn, signOut } = NextAuth(config)
