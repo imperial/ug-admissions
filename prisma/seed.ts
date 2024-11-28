@@ -59,7 +59,6 @@ const createApplication = (cycle: number, reviewer: User) => {
     ) as AlevelQualification,
     aLevelQualificationScore: faker.number.float({ multipleOf: 0.1, min: 0.0, max: 10.0 }),
     extenuatingCircumstances: faker.lorem.text(),
-    academicEligibilityNotes: faker.lorem.text(),
     reviewer: {
       connect: {
         id: reviewer.id
@@ -85,7 +84,8 @@ const createOutcome = (application: Application) => {
   return {
     cid: application.cid,
     admissionsCycle: application.admissionsCycle,
-    degreeCode: faker.helpers.arrayElement(Object.keys(DegreeCode)) as DegreeCode
+    degreeCode: faker.helpers.arrayElement(Object.keys(DegreeCode)) as DegreeCode,
+    academicEligibilityNotes: faker.lorem.text()
   }
 }
 

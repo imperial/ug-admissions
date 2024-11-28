@@ -12,7 +12,7 @@ export default function AuthErrorPage() {
 
       <Text>
         There was an error when trying to authenticate. Please contact us at{' '}
-        <Link href={`mailto:${SUPPORT_EMAIL}`} target="_blank">
+        <Link href={`mailto:${SUPPORT_EMAIL}`} target="_blank" className="text-blue-700">
           {SUPPORT_EMAIL}
         </Link>{' '}
         if this error persists.

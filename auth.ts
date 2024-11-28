@@ -1,10 +1,18 @@
+import { allowedAccess } from '@/lib/users'
 import NextAuth, { NextAuthConfig } from 'next-auth'
 import MicrosoftEntraID from 'next-auth/providers/microsoft-entra-id'
 
 const config = {
   session: { strategy: 'jwt' },
   providers: [MicrosoftEntraID],
-
+  callbacks: {
+    signIn: async ({ profile }) => {
+      if (!profile || !profile.email) {
+        return false
+      }
+      return allowedAccess(profile.email)
+    }
+  },
   pages: {
     signIn: '/auth/login',
     error: '/auth/error'

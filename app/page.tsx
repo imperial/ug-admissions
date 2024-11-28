@@ -4,8 +4,8 @@ import AdminControlPanel from '@/components/AdminControlPanel'
 import { RoleBadge } from '@/components/RoleBadge'
 import SelectAdmissionsCycle from '@/components/SelectAdmissionsCycle'
 import SignOutButton from '@/components/SignOutButton'
-import prisma from '@/db'
 import { isSuperUser } from '@/lib/access'
+import { allAllowedAdmissionsCycles, getAllAdminAndTutorEmails } from '@/lib/users'
 import { Card, Container, Flex, Heading, Separator } from '@radix-ui/themes'
 import { redirect } from 'next/navigation'
 import React from 'react'
@@ -20,40 +20,9 @@ export default async function Home() {
   }
   const userEmail = session?.user?.email as string
 
-  const allAdminsAndUgTutors = (
-    await prisma.user.findMany({
-      select: {
-        login: true
-      },
-      where: {
-        OR: [{ role: 'ADMIN' }, { role: 'UG_TUTOR' }]
-      }
-    })
-  ).map((user) => user.login)
-  // super users, admins and UG tutors should be able to view all admissions cycles
-  // reviewers should only see cycles they play a role in
-  // remove all duplicates
+  const allAdminsAndUgTutors = await getAllAdminAndTutorEmails()
   const isSystemAdmin = allAdminsAndUgTutors.includes(userEmail) || isSuperUser(userEmail)
-  const admissionsCycles = (
-    isSystemAdmin
-      ? await prisma.user.findMany({
-          select: { admissionsCycle: true },
-          orderBy: { admissionsCycle: 'asc' }
-        })
-      : await prisma.user.findMany({
-          select: {
-            admissionsCycle: true
-          },
-          where: {
-            login: userEmail
-          },
-          orderBy: {
-            login: 'asc'
-          }
-        })
-  )
-    .map((user) => user.admissionsCycle.toString())
-    .filter((value, index, self) => self.indexOf(value) === index)
+  const admissionsCycles = await allAllowedAdmissionsCycles(userEmail)
 
   return (
     <Flex direction="column" gap="3">
