@@ -218,7 +218,7 @@ const UgTutorDialog: FC<UgTutorDialogProps> = ({ data, user }) => {
       isOpen={isOpen}
       onOpenChange={setIsOpen}
       trigger={
-        <Button className="min-h-10" color="ruby">
+        <Button className="min-h-10 w-20" color="ruby">
           UG Tutor
         </Button>
       }

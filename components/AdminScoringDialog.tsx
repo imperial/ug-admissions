@@ -188,8 +188,8 @@ const AdminScoringDialog: FC<AdminScoringDialogProps> = ({ data, user }) => {
       isOpen={isOpen}
       onOpenChange={setIsOpen}
       trigger={
-        <Button className="min-h-10" color="cyan">
-          Admin Scoring
+        <Button className="min-h-10 w-20" color="cyan">
+          Admin
         </Button>
       }
     >
