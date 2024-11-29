@@ -6,7 +6,6 @@ import React, { FC } from 'react'
 import { Pagination as HeadlessPagination } from 'react-headless-pagination'
 
 interface PaginationProps {
-  pageSize: number
   setPageSize: (size: number) => void
   pageIndex: number
   setPage: (page: number) => void
@@ -16,7 +15,6 @@ interface PaginationProps {
 }
 
 const Pagination: FC<PaginationProps> = ({
-  pageSize,
   setPageSize,
   pageIndex,
   setPage,

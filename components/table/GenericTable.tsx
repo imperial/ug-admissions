@@ -44,6 +44,13 @@ const GenericTable = <T,>({
   const handlePageSizeChange = (newPageSize: number) => {
     setPageSize(newPageSize)
     setPagination({ pageIndex: 0, pageSize: newPageSize })
+    setTimeout(() => {
+      window.scrollTo({
+        top: 0,
+        left: 0,
+        behavior: 'smooth'
+      })
+    }, 0)
   }
 
   const table = useReactTable({
@@ -110,7 +117,6 @@ const GenericTable = <T,>({
       </Table.Root>
 
       <Pagination
-        pageSize={pageSize}
         setPageSize={handlePageSizeChange}
         pageIndex={table.getState().pagination.pageIndex}
         setPage={table.setPageIndex}
