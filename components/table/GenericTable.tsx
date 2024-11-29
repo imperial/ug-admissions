@@ -82,12 +82,12 @@ const GenericTable = <T,>({
               {headerGroup.headers.map((header) => (
                 <Table.ColumnHeaderCell
                   key={header.id}
-                  className="bg-yellow-100 border-b-2 border-black border-r-1 border"
+                  className="bg-blue-100 border-b-2 border-black border-r-1 border"
                   onClick={() => {
                     const isSorted = header.column.getIsSorted()
                     header.column.toggleSorting(isSorted === 'asc')
                   }}
-                  style={{ cursor: 'pointer' }} // Add pointer cursor
+                  style={{ cursor: 'pointer' }}
                 >
                   {flexRender(header.column.columnDef.header, header.getContext())}
                   {header.column.getIsSorted()
@@ -102,11 +102,8 @@ const GenericTable = <T,>({
         </Table.Header>
 
         <Table.Body>
-          {table.getRowModel().rows.map((row, i) => (
-            <Table.Row
-              key={row.id}
-              className={`align-middle ${i % 2 == 0 ? 'bg-gray-200' : 'bg-white'}`}
-            >
+          {table.getRowModel().rows.map((row) => (
+            <Table.Row key={row.id} className="odd:bg-gray-100">
               {row.getVisibleCells().map((cell, id) => (
                 <Table.Cell key={id} className={RIGHT_BORDER}>
                   {flexRender(cell.column.columnDef.cell, cell.getContext())}

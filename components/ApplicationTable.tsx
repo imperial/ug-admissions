@@ -153,7 +153,7 @@ const ApplicationTable: FC<ApplicationTableProps> = ({
 
   return (
     <Flex direction="column" gap="1">
-      <Card className="bg-indigo-200">
+      <Card className="bg-yellow-200">
         <Flex justify="start">
           <Flex gap="5" direction="row" justify="start">
             <Flex align="center" gap="2">
