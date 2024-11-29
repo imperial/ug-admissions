@@ -47,9 +47,12 @@ const Pagination: FC<PaginationProps> = ({
       <Text>
         Showing {visibleRows} of {totalRows} rows
       </Text>
-      <Flex gap="2" align="center" justify="center" width="50%">
-        <Text>Page Size:</Text>
+      <Flex gap="2" align="center" justify="center">
+        <Text>
+          <i>Rows per page: </i>
+        </Text>
         <TextField.Root
+          className="w-12"
           type="number"
           min={1}
           step={1}

@@ -44,6 +44,7 @@ const GenericTable = <T,>({
   const handlePageSizeChange = (newPageSize: number) => {
     setPageSize(newPageSize)
     setPagination({ pageIndex: 0, pageSize: newPageSize })
+    // timeout forces scroll to happen after re-render
     setTimeout(() => {
       window.scrollTo({
         top: 0,
