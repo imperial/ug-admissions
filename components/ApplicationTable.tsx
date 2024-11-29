@@ -2,8 +2,8 @@
 
 import AdminScoringDialog from '@/components/AdminScoringDialog'
 import ReviewerScoringDialog from '@/components/ReviewerScoringDialog'
-import TanstackTable from '@/components/TanstackTable'
 import UgTutorDialog from '@/components/UgTutorDialog'
+import GenericTable from '@/components/table/GenericTable'
 import { updateNextAction } from '@/lib/forms'
 import { prettifyOption, prettifyReviewerEmail } from '@/lib/utils'
 import {
@@ -191,7 +191,7 @@ const ApplicationTable: FC<ApplicationTableProps> = ({
         </Flex>
       </Card>
 
-      <TanstackTable
+      <GenericTable
         data={applications}
         columns={columns}
         columnFilters={columnFilters}

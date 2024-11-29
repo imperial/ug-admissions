@@ -1,11 +1,13 @@
 'use client'
 
 import { ChevronLeftIcon, ChevronRightIcon } from '@radix-ui/react-icons'
-import { Button, Flex, IconButton } from '@radix-ui/themes'
+import { Button, Flex, IconButton, Text, TextField } from '@radix-ui/themes'
 import React, { FC } from 'react'
 import { Pagination as HeadlessPagination } from 'react-headless-pagination'
 
 interface PaginationProps {
+  pageSize: number
+  setPageSize: (size: number) => void
   pageIndex: number
   setPage: (page: number) => void
   totalPages: number
@@ -14,6 +16,8 @@ interface PaginationProps {
 }
 
 const Pagination: FC<PaginationProps> = ({
+  pageSize,
+  setPageSize,
   pageIndex,
   setPage,
   totalPages,
@@ -42,7 +46,22 @@ const Pagination: FC<PaginationProps> = ({
           <ChevronRightIcon />
         </HeadlessPagination.NextButton>
       </HeadlessPagination>
-      Showing {visibleRows} of {totalRows} rows
+      <Text>
+        Showing {visibleRows} of {totalRows} rows
+      </Text>
+      <Flex gap="2" align="center" justify="center" width="50%">
+        <Text>Page Size:</Text>
+        <TextField.Root
+          type="number"
+          min={1}
+          step={1}
+          defaultValue={5}
+          required
+          onChange={(e) => {
+            setPageSize(e.target.value ? parseInt(e.target.value) : 5)
+          }}
+        />
+      </Flex>
     </Flex>
   )
 }

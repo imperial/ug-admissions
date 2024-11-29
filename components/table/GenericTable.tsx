@@ -17,7 +17,7 @@ import { useState } from 'react'
 
 import Pagination from './Pagination'
 
-interface TanstackTableProps<T> {
+interface GenericTableProps<T> {
   data: T[]
   columns: ColumnDef<T, any>[]
   columnFilters: ColumnFiltersState
@@ -26,19 +26,25 @@ interface TanstackTableProps<T> {
   setGlobalFilter: OnChangeFn<any>
 }
 
-const PAGE_SIZE = 5
+const DEFAULT_PAGE_SIZE = 5
 const RIGHT_BORDER = 'border-r-1 border-gray-400 border'
 
-const TanstackTable = <T,>({
+const GenericTable = <T,>({
   data,
   columns,
   columnFilters,
   setColumnFilters,
   globalFilter,
   setGlobalFilter
-}: TanstackTableProps<T>) => {
-  const [pagination, setPagination] = useState({ pageIndex: 0, pageSize: PAGE_SIZE })
+}: GenericTableProps<T>) => {
+  const [pageSize, setPageSize] = useState(DEFAULT_PAGE_SIZE)
+  const [pagination, setPagination] = useState({ pageIndex: 0, pageSize: pageSize })
   const [sorting, setSorting] = useState<SortingState>([])
+
+  const handlePageSizeChange = (newPageSize: number) => {
+    setPageSize(newPageSize)
+    setPagination({ pageIndex: 0, pageSize: newPageSize })
+  }
 
   const table = useReactTable({
     data,
@@ -104,6 +110,8 @@ const TanstackTable = <T,>({
       </Table.Root>
 
       <Pagination
+        pageSize={pageSize}
+        setPageSize={handlePageSizeChange}
         pageIndex={table.getState().pagination.pageIndex}
         setPage={table.setPageIndex}
         totalPages={table.getPageCount()}
@@ -114,4 +122,4 @@ const TanstackTable = <T,>({
   )
 }
 
-export default TanstackTable
+export default GenericTable
