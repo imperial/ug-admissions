@@ -161,7 +161,7 @@ const ReviewerScoringDialog: FC<ReviewerScoringDialogProps> = ({ data, userEmail
           {data.internalReview?.motivationReviewerScore &&
           data.internalReview?.extracurricularReviewerScore &&
           data.internalReview?.referenceReviewerScore ? (
-            <Flex>
+            <Flex gap="1">
               <Tooltip content="Motivation Score">
                 <Badge className="bg-fuchsia-200 max-w-6" size="2">
                   {data.internalReview.motivationReviewerScore.toString()}
