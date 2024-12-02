@@ -9,7 +9,17 @@ import { upsertReviewerScoring } from '@/lib/forms'
 import { FormPassbackState } from '@/lib/types'
 import { ord } from '@/lib/utils'
 import { NextAction } from '@prisma/client'
-import { Button, Callout, DataList, Flex, Text, TextArea, TextField } from '@radix-ui/themes'
+import {
+  Badge,
+  Button,
+  Callout,
+  DataList,
+  Flex,
+  Text,
+  TextArea,
+  TextField,
+  Tooltip
+} from '@radix-ui/themes'
 import { format } from 'date-fns'
 import React, { FC, useState } from 'react'
 
@@ -148,7 +158,29 @@ const ReviewerScoringDialog: FC<ReviewerScoringDialogProps> = ({ data, userEmail
             ord(data.nextAction) < ord(NextAction.REVIEWER_SCORING) || data?.reviewer == null
           }
         >
-          Reviewer
+          {data.internalReview?.motivationReviewerScore &&
+          data.internalReview?.extracurricularReviewerScore &&
+          data.internalReview?.referenceReviewerScore ? (
+            <Flex>
+              <Tooltip content="Motivation Score">
+                <Badge className="bg-fuchsia-200 max-w-6" size="2">
+                  {data.internalReview.motivationReviewerScore.toString()}
+                </Badge>
+              </Tooltip>
+              <Tooltip content="Extracurricular Score">
+                <Badge className="bg-yellow-300 max-w-6" size="2">
+                  {data.internalReview.extracurricularReviewerScore.toString()}
+                </Badge>
+              </Tooltip>
+              <Tooltip content="Reference Score">
+                <Badge className="bg-zinc-200 max-w-6" size="2">
+                  {data.internalReview.referenceReviewerScore.toString()}
+                </Badge>
+              </Tooltip>
+            </Flex>
+          ) : (
+            <Text>Reviewer</Text>
+          )}
         </Button>
       }
     >
