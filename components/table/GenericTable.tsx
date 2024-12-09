@@ -17,7 +17,7 @@ import { useState } from 'react'
 
 import Pagination from './Pagination'
 
-interface TanstackTableProps<T> {
+interface GenericTableProps<T> {
   data: T[]
   columns: ColumnDef<T, any>[]
   columnFilters: ColumnFiltersState
@@ -26,19 +26,33 @@ interface TanstackTableProps<T> {
   setGlobalFilter: OnChangeFn<any>
 }
 
-const PAGE_SIZE = 5
+const DEFAULT_PAGE_SIZE = 5
 const RIGHT_BORDER = 'border-r-1 border-gray-400 border'
 
-const TanstackTable = <T,>({
+const GenericTable = <T,>({
   data,
   columns,
   columnFilters,
   setColumnFilters,
   globalFilter,
   setGlobalFilter
-}: TanstackTableProps<T>) => {
-  const [pagination, setPagination] = useState({ pageIndex: 0, pageSize: PAGE_SIZE })
+}: GenericTableProps<T>) => {
+  const [pageSize, setPageSize] = useState(DEFAULT_PAGE_SIZE)
+  const [pagination, setPagination] = useState({ pageIndex: 0, pageSize: pageSize })
   const [sorting, setSorting] = useState<SortingState>([])
+
+  const handlePageSizeChange = (newPageSize: number) => {
+    setPageSize(newPageSize)
+    setPagination({ pageIndex: 0, pageSize: newPageSize })
+    // timeout forces scroll to happen after re-render
+    setTimeout(() => {
+      window.scrollTo({
+        top: 0,
+        left: 0,
+        behavior: 'smooth'
+      })
+    }, 0)
+  }
 
   const table = useReactTable({
     data,
@@ -68,12 +82,12 @@ const TanstackTable = <T,>({
               {headerGroup.headers.map((header) => (
                 <Table.ColumnHeaderCell
                   key={header.id}
-                  className="bg-yellow-100 border-b-2 border-black border-r-1 border"
+                  className="bg-blue-100 border-b-2 border-black border-r-1 border"
                   onClick={() => {
                     const isSorted = header.column.getIsSorted()
                     header.column.toggleSorting(isSorted === 'asc')
                   }}
-                  style={{ cursor: 'pointer' }} // Add pointer cursor
+                  style={{ cursor: 'pointer' }}
                 >
                   {flexRender(header.column.columnDef.header, header.getContext())}
                   {header.column.getIsSorted()
@@ -88,11 +102,8 @@ const TanstackTable = <T,>({
         </Table.Header>
 
         <Table.Body>
-          {table.getRowModel().rows.map((row, i) => (
-            <Table.Row
-              key={row.id}
-              className={`align-middle ${i % 2 == 0 ? 'bg-gray-200' : 'bg-white'}`}
-            >
+          {table.getRowModel().rows.map((row) => (
+            <Table.Row key={row.id} className="odd:bg-gray-100">
               {row.getVisibleCells().map((cell, id) => (
                 <Table.Cell key={id} className={RIGHT_BORDER}>
                   {flexRender(cell.column.columnDef.cell, cell.getContext())}
@@ -104,6 +115,7 @@ const TanstackTable = <T,>({
       </Table.Root>
 
       <Pagination
+        setPageSize={handlePageSizeChange}
         pageIndex={table.getState().pagination.pageIndex}
         setPage={table.setPageIndex}
         totalPages={table.getPageCount()}
@@ -114,4 +126,4 @@ const TanstackTable = <T,>({
   )
 }
 
-export default TanstackTable
+export default GenericTable

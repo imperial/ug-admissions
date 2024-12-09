@@ -1,22 +1,14 @@
 import { signIn } from '@/auth'
 import { EnterIcon } from '@radix-ui/react-icons'
 import { Button, Flex, Heading, Separator, Text } from '@radix-ui/themes'
-import { AuthError } from 'next-auth'
-import { redirect } from 'next/navigation'
 import React from 'react'
 
 const LoginPage = async () => {
   const signInEntraID = async () => {
     'use server'
     try {
-      await signIn('microsoft-entra-id', {
-        redirectTo: '/'
-      })
+      await signIn('microsoft-entra-id', { redirectTo: '/' })
     } catch (error) {
-      console.error(error)
-      if (error instanceof AuthError) {
-        return redirect('/auth/error')
-      }
       throw error
     }
   }

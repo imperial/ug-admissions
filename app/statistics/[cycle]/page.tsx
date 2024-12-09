@@ -1,8 +1,10 @@
+import { auth } from '@/auth'
 import AdmissionsCycleStatistics from '@/components/AdmissionsCycleStatistics'
 import prisma from '@/db'
 import { prettifyOption } from '@/lib/utils'
 import { Decision, NextAction } from '@prisma/client'
 import _ from 'lodash'
+import { redirect } from 'next/navigation'
 
 export const dynamic = 'force-dynamic'
 
@@ -11,6 +13,12 @@ export default async function AdmissionsCycleStatisticsPage({
 }: {
   params: { cycle: string }
 }) {
+  // Redirect to login page if not authenticated
+  const session = await auth()
+  if (!session) {
+    redirect('/auth/login')
+  }
+
   const cycle = parseInt(params.cycle)
 
   const outcomes = await prisma.outcome.findMany({
