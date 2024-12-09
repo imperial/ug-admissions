@@ -4,10 +4,10 @@ import { Button, Flex, Heading, Separator, Text } from '@radix-ui/themes'
 import React from 'react'
 
 const LoginPage = async () => {
-  const signInEntraID = async ({ searchParams }: { searchParams?: { callbackUrl?: string } }) => {
+  const signInEntraID = async () => {
     'use server'
     try {
-      await signIn('microsoft-entra-id', { redirectTo: searchParams?.callbackUrl ?? '/' })
+      await signIn('microsoft-entra-id', { redirectTo: '/' })
     } catch (error) {
       throw error
     }
