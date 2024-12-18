@@ -3,7 +3,7 @@ import AdmissionsCycleStatistics from '@/components/AdmissionsCycleStatistics'
 import { countNextActions, getOutcomes } from '@/lib/query/applications'
 import { prettifyOption } from '@/lib/utils'
 import { Decision, NextAction } from '@prisma/client'
-import _ from 'lodash'
+import { map } from 'lodash'
 import { redirect } from 'next/navigation'
 
 export const dynamic = 'force-dynamic'
@@ -27,7 +27,7 @@ export default async function AdmissionsCycleStatisticsPage({
   const rejectionsCount = outcomes.filter((outcome) => outcome.decision === Decision.REJECT).length
 
   const nextActionCountsQuery = await countNextActions(cycle)
-  const nextActionCounts: { name: string; quantity: number }[] = _.map(NextAction, (na) => {
+  const nextActionCounts: { name: string; quantity: number }[] = map(NextAction, (na) => {
     return {
       name: prettifyOption(na),
       quantity: nextActionCountsQuery.find((i) => i.nextAction === na)?._count.nextAction || 0
