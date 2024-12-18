@@ -1,8 +1,8 @@
 'use client'
 
-import AdminScoringDialog from '@/components/AdminScoringDialog'
-import ReviewerScoringDialog from '@/components/ReviewerScoringDialog'
-import UgTutorDialog from '@/components/UgTutorDialog'
+import AdminScoringDialog from '@/components/dialog/AdminScoringDialog'
+import ReviewerScoringDialog from '@/components/dialog/ReviewerScoringDialog'
+import UgTutorDialog from '@/components/dialog/UgTutorDialog'
 import GenericTable from '@/components/table/GenericTable'
 import { updateNextAction } from '@/lib/forms'
 import { prettifyOption, prettifyReviewerEmail } from '@/lib/utils'
@@ -26,7 +26,7 @@ import Link from 'next/link'
 import { usePathname, useRouter, useSearchParams } from 'next/navigation'
 import React, { FC, useEffect, useState } from 'react'
 
-import Dropdown from './Dropdown'
+import Dropdown from '../general/Dropdown'
 
 export type ApplicationRow = Application & {
   applicant: Applicant

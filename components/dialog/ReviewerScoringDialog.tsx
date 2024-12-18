@@ -1,9 +1,9 @@
 'use client'
 
-import CandidateCallout from '@/components/CandidateCallout'
-import FormWrapper from '@/components/FormWrapper'
-import GenericDialog from '@/components/GenericDialog'
-import LabelText from '@/components/LabelText'
+import CandidateCallout from '@/components/dialog/CandidateCallout'
+import FormWrapper from '@/components/dialog/FormWrapper'
+import GenericDialog from '@/components/dialog/GenericDialog'
+import LabelText from '@/components/general/LabelText'
 import { reviewerAccess } from '@/lib/access'
 import { upsertReviewerScoring } from '@/lib/forms'
 import { FormPassbackState } from '@/lib/types'
@@ -23,7 +23,7 @@ import {
 import { format } from 'date-fns'
 import React, { FC, useState } from 'react'
 
-import { ApplicationRow } from './ApplicationTable'
+import { ApplicationRow } from '../table/ApplicationTable'
 
 interface ReviewerScoringDialogProps {
   data: ApplicationRow

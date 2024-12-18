@@ -1,6 +1,6 @@
 'use client'
 
-import { ApplicationsLinkButton, HomepageLinkButton } from '@/components/LinkButton'
+import { ApplicationsLinkButton, HomepageLinkButton } from '@/components/general/LinkButton'
 import { formatCycle } from '@/lib/utils'
 import { DataList, Flex, Heading } from '@radix-ui/themes'
 import React, { FC } from 'react'

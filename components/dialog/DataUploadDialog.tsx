@@ -1,8 +1,8 @@
 'use client'
 
-import FormWrapper from '@/components/FormWrapper'
-import GenericDialog from '@/components/GenericDialog'
-import LabelText from '@/components/LabelText'
+import FormWrapper from '@/components/dialog/FormWrapper'
+import GenericDialog from '@/components/dialog/GenericDialog'
+import LabelText from '@/components/general/LabelText'
 import { processCsvUpload } from '@/lib/csv/upload'
 import { DataUploadEnum, FormPassbackState } from '@/lib/types'
 import { DownloadIcon, FilePlusIcon, UploadIcon } from '@radix-ui/react-icons'
@@ -11,8 +11,8 @@ import Link from 'next/link'
 import React, { FC, useState } from 'react'
 import Dropzone from 'react-dropzone'
 
-import Dropdown from './Dropdown'
-import LabelledInput from './LabelText'
+import Dropdown from '../general/Dropdown'
+import LabelledInput from '../general/LabelText'
 
 interface DataUploadFormProps {
   file: File | null

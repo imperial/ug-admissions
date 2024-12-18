@@ -1,7 +1,7 @@
 'use client'
 
 // Error boundaries must be Client Components
-import ErrorPage from '@/components/ErrorPage'
+import ErrorPage from '@/components/general/ErrorPage'
 import { Button } from '@radix-ui/themes'
 import React, { useEffect } from 'react'
 
