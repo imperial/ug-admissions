@@ -7,7 +7,7 @@ import Dropdown from '@/components/general/Dropdown'
 import LabelText from '@/components/general/LabelText'
 import { ApplicationRow } from '@/components/table/ApplicationTable'
 import { adminAccess } from '@/lib/access'
-import { insertComment, upsertOutcome } from '@/lib/forms'
+import { insertComment, upsertOutcome } from '@/lib/query/forms'
 import { FormPassbackState } from '@/lib/types'
 import {
   Comment as ApplicationComment,

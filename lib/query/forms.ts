@@ -12,7 +12,7 @@ import { Decision, NextAction } from '@prisma/client'
 import { includes } from 'lodash'
 import { revalidatePath } from 'next/cache'
 
-import { FormPassbackState } from './types'
+import { FormPassbackState } from '../types'
 
 export const upsertAdminScoring = async (
   currentAction: NextAction,
@@ -183,4 +183,5 @@ export async function updateNextAction(
       nextAction
     }
   })
+  revalidatePath('/')
 }
