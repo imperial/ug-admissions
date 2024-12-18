@@ -1,13 +1,13 @@
 'use client'
 
-import CandidateCallout from '@/components/CandidateCallout'
-import Dropdown from '@/components/Dropdown'
-import FormWrapper from '@/components/FormWrapper'
-import GenericDialog from '@/components/GenericDialog'
-import LabelText from '@/components/LabelText'
-import TmuaGradeBox from '@/components/TmuaGradeBox'
+import CandidateCallout from '@/components/dialog/CandidateCallout'
+import FormWrapper from '@/components/dialog/FormWrapper'
+import GenericDialog from '@/components/dialog/GenericDialog'
+import TmuaGradeBox from '@/components/dialog/TmuaGradeBox'
+import Dropdown from '@/components/general/Dropdown'
+import LabelText from '@/components/general/LabelText'
 import { adminAccess } from '@/lib/access'
-import { upsertAdminScoring } from '@/lib/forms'
+import { upsertAdminScoring } from '@/lib/query/forms'
 import { FormPassbackState } from '@/lib/types'
 import { decimalToNumber } from '@/lib/utils'
 import { AlevelQualification, GCSEQualification, Role } from '@prisma/client'
@@ -16,7 +16,7 @@ import { Button, Flex, Heading, Popover, Text, TextField } from '@radix-ui/theme
 import { format } from 'date-fns'
 import React, { FC, useState } from 'react'
 
-import { ApplicationRow } from './ApplicationTable'
+import { ApplicationRow } from '../table/ApplicationTable'
 
 interface AdminScoringDialogProps {
   data: ApplicationRow

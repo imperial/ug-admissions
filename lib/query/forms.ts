@@ -12,15 +12,15 @@ import { Decision, NextAction } from '@prisma/client'
 import { includes } from 'lodash'
 import { revalidatePath } from 'next/cache'
 
-import { FormPassbackState } from './types'
+import { FormPassbackState } from '../types'
 
-export const upsertAdminScoring = async (
+export async function upsertAdminScoring(
   currentAction: NextAction,
   applicationId: number,
   adminLogin: string,
   _: FormPassbackState,
   formData: FormData
-): Promise<FormPassbackState> => {
+): Promise<FormPassbackState> {
   const result = formAdminSchema.safeParse(Object.fromEntries(formData))
   if (!result.success) return { status: 'error', message: result.error.issues[0].message }
   const {
@@ -75,11 +75,11 @@ export const upsertAdminScoring = async (
   return { status: 'success', message: 'Admin scoring form updated successfully.' }
 }
 
-export const upsertReviewerScoring = async (
+export async function upsertReviewerScoring(
   applicationId: number,
   _: FormPassbackState,
   formData: FormData
-): Promise<FormPassbackState> => {
+): Promise<FormPassbackState> {
   const result = formReviewerSchema.safeParse(Object.fromEntries(formData))
   if (!result.success) return { status: 'error', message: result.error.issues[0].message }
   const {
@@ -112,12 +112,12 @@ export const upsertReviewerScoring = async (
   return { status: 'success', message: 'Reviewer scoring form updated successfully.' }
 }
 
-export const upsertOutcome = async (
+export async function upsertOutcome(
   applicationId: number,
   partialOutcomes: { id: number; degreeCode: string }[],
   _: FormPassbackState,
   formData: FormData
-): Promise<FormPassbackState> => {
+): Promise<FormPassbackState> {
   const groupedOutcomes = partialOutcomes.map(({ id, degreeCode }) => {
     const offerCode = formData.get('offerCode-'.concat(degreeCode))
     const offerText = formData.get('offerText-'.concat(degreeCode))
@@ -143,14 +143,14 @@ export const upsertOutcome = async (
   return { status: 'success', message: 'UG tutor form updated outcome successfully.' }
 }
 
-export const insertComment = async (
+export async function insertComment(
   applicationId: number,
   admissionsCycle: number,
   authorEmail: string,
   internalReviewId: number,
   _: FormPassbackState,
   formData: FormData
-): Promise<FormPassbackState> => {
+): Promise<FormPassbackState> {
   formData.set('authorLogin', authorEmail)
 
   const result = formCommentSchema.safeParse(Object.fromEntries(formData))
@@ -183,4 +183,5 @@ export async function updateNextAction(
       nextAction
     }
   })
+  revalidatePath('/')
 }

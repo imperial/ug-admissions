@@ -1,7 +1,7 @@
 'use client'
 
-import Dropdown from '@/components/Dropdown'
-import { ApplicationsLinkButton, StatisticsLinkButton } from '@/components/LinkButton'
+import Dropdown from '@/components/general/Dropdown'
+import { ApplicationsLinkButton, StatisticsLinkButton } from '@/components/general/LinkButton'
 import { isSuperUser } from '@/lib/access'
 import { formatCycle } from '@/lib/utils'
 import { ExclamationTriangleIcon } from '@radix-ui/react-icons'

@@ -1,4 +1,4 @@
-import DataUploadDialog from '@/components/DataUploadDialog'
+import DataUploadDialog from '@/components/dialog/DataUploadDialog'
 import { Flex, Heading } from '@radix-ui/themes'
 import React, { FC } from 'react'
 

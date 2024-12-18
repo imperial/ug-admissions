@@ -1,10 +1,10 @@
 'use client'
 
-import AdminScoringDialog from '@/components/AdminScoringDialog'
-import ReviewerScoringDialog from '@/components/ReviewerScoringDialog'
-import UgTutorDialog from '@/components/UgTutorDialog'
+import AdminScoringDialog from '@/components/dialog/AdminScoringDialog'
+import ReviewerScoringDialog from '@/components/dialog/ReviewerScoringDialog'
+import UgTutorDialog from '@/components/dialog/UgTutorDialog'
 import GenericTable from '@/components/table/GenericTable'
-import { updateNextAction } from '@/lib/forms'
+import { updateNextAction } from '@/lib/query/forms'
 import { prettifyOption, prettifyReviewerEmail } from '@/lib/utils'
 import {
   Applicant,
@@ -26,7 +26,7 @@ import Link from 'next/link'
 import { usePathname, useRouter, useSearchParams } from 'next/navigation'
 import React, { FC, useEffect, useState } from 'react'
 
-import Dropdown from './Dropdown'
+import Dropdown from '../general/Dropdown'
 
 export type ApplicationRow = Application & {
   applicant: Applicant
@@ -44,14 +44,14 @@ const columnHelper = createColumnHelper<ApplicationRow>()
 interface ApplicationTableProps {
   cycle: number
   applications: ApplicationRow[]
-  reviewerIds: string[]
+  reviewerLogins: string[]
   user: { email: string; role?: Role }
 }
 
 const ApplicationTable: FC<ApplicationTableProps> = ({
   cycle,
   applications,
-  reviewerIds,
+  reviewerLogins,
   user: { email, role }
 }) => {
   // ensure login
@@ -168,7 +168,7 @@ const ApplicationTable: FC<ApplicationTableProps> = ({
             <Flex align="center" gap="2">
               <Text weight="medium">Reviewer: </Text>
               <Dropdown
-                values={[ALL_DROPDOWN_OPTION, ...reviewerIds]}
+                values={[ALL_DROPDOWN_OPTION, ...reviewerLogins]}
                 currentValue={reviewerFilterValue}
                 onValueChange={(value) => onFilterDropdownChange(SEARCH_PARAM_REVIEWER, value)}
                 valueFormatter={prettifyReviewerEmail}
@@ -226,9 +226,8 @@ const NextActionCell: FC<{ nextAction: NextAction; applicationId: number }> = ({
         <Button
           size="1"
           color="grass"
-          onClick={() => {
-            updateNextAction(NextAction.CANDIDATE_INFORMED, applicationId)
-            window.location.reload()
+          onClick={async () => {
+            await updateNextAction(NextAction.CANDIDATE_INFORMED, applicationId)
           }}
         >
           <CheckboxIcon />

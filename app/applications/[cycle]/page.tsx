@@ -1,13 +1,13 @@
 import { auth } from '@/auth'
-import ApplicationTable from '@/components/ApplicationTable'
-import DataUploadDialog from '@/components/DataUploadDialog'
-import { HomepageLinkButton, StatisticsLinkButton } from '@/components/LinkButton'
-import NotFoundPage from '@/components/NotFoundPage'
-import { RoleBadge } from '@/components/RoleBadge'
-import prisma from '@/db'
+import DataUploadDialog from '@/components/dialog/DataUploadDialog'
+import { HomepageLinkButton, StatisticsLinkButton } from '@/components/general/LinkButton'
+import NotFoundPage from '@/components/general/NotFoundPage'
+import { RoleBadge } from '@/components/general/RoleBadge'
+import ApplicationTable from '@/components/table/ApplicationTable'
 import { adminAccess, isSuperUser } from '@/lib/access'
+import { getApplicationsIncludingAllNested } from '@/lib/query/applications'
+import { getAllReviewerLogins, getUserFromCycleAndEmail } from '@/lib/query/users'
 import { formatCycle } from '@/lib/utils'
-import { Role } from '@prisma/client'
 import { Flex, Heading } from '@radix-ui/themes'
 import { SessionProvider } from 'next-auth/react'
 import { redirect } from 'next/navigation'
@@ -26,53 +26,11 @@ export default async function AdmissionsCycleApplicationsPage({
     redirect('/auth/login')
   }
   const userEmail = session?.user?.email as string
-
   const cycle = parseInt(params.cycle)
 
-  const applications = await prisma.application.findMany({
-    orderBy: {
-      applicant: {
-        surname: 'asc'
-      }
-    },
-    include: {
-      applicant: true,
-      internalReview: {
-        include: {
-          generalComments: true
-        }
-      },
-      reviewer: true,
-      outcomes: true
-    },
-    where: {
-      admissionsCycle: cycle
-    }
-  })
-
-  const reviewerIds = (
-    await prisma.user.findMany({
-      select: {
-        login: true
-      },
-      where: {
-        role: Role.REVIEWER,
-        admissionsCycle: cycle
-      },
-      orderBy: {
-        login: 'asc'
-      }
-    })
-  ).map((user) => user.login)
-
-  const user = await prisma.user.findUnique({
-    where: {
-      admissionsCycle_login: {
-        admissionsCycle: cycle,
-        login: userEmail
-      }
-    }
-  })
+  const applications = await getApplicationsIncludingAllNested(cycle)
+  const user = await getUserFromCycleAndEmail(cycle, userEmail)
+  const reviewerLogins = await getAllReviewerLogins(cycle)
 
   return isSuperUser(userEmail) || user ? (
     <SessionProvider>
@@ -98,7 +56,7 @@ export default async function AdmissionsCycleApplicationsPage({
         <ApplicationTable
           cycle={cycle}
           applications={JSON.parse(JSON.stringify(applications))}
-          reviewerIds={reviewerIds}
+          reviewerLogins={reviewerLogins}
           user={{ email: userEmail, role: user?.role }}
         />
       </Flex>

@@ -1,5 +1,8 @@
+'use server'
+
 import prisma from '@/db'
 import { isSuperUser } from '@/lib/access'
+import { Role } from '@prisma/client'
 
 export async function getAllAdminAndTutorEmails(): Promise<string[]> {
   return (
@@ -56,4 +59,32 @@ export async function allAllowedAdmissionsCycles(userEmail: string): Promise<str
   )
     .map((user) => user.admissionsCycle.toString())
     .filter((value, index, self) => self.indexOf(value) === index)
+}
+
+export async function getUserFromCycleAndEmail(cycle: number, userEmail: string) {
+  return prisma.user.findUnique({
+    where: {
+      admissionsCycle_login: {
+        admissionsCycle: cycle,
+        login: userEmail
+      }
+    }
+  })
+}
+
+export async function getAllReviewerLogins(cycle: number) {
+  return (
+    await prisma.user.findMany({
+      select: {
+        login: true
+      },
+      where: {
+        role: Role.REVIEWER,
+        admissionsCycle: cycle
+      },
+      orderBy: {
+        login: 'asc'
+      }
+    })
+  ).map((user) => user.login)
 }

@@ -1,4 +1,4 @@
-import { allowedAccess } from '@/lib/users'
+import { allowedAccess } from '@/lib/query/users'
 import NextAuth, { NextAuthConfig } from 'next-auth'
 import MicrosoftEntraID from 'next-auth/providers/microsoft-entra-id'
 
