@@ -18,7 +18,7 @@ const AdminControlPanel: FC<AdminControlPanelProps> = ({ userEmail }) => {
       const url = window.URL.createObjectURL(blob)
       const a = document.createElement('a')
       a.href = url
-      a.download = `offers_cycle_${cycle}.csv`
+      a.download = `offers_${cycle}.csv`
       document.body.appendChild(a)
       a.click()
       a.remove()

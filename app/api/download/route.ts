@@ -11,17 +11,15 @@ export async function GET(request: NextRequest) {
 
   try {
     const offers = await getAllOffers(Number(cycle))
-
     if (!Array.isArray(offers) || offers.length === 0) {
       return new NextResponse('No data available for the given cycle', { status: 404 })
     }
 
-    const csv = parse(offers) // Converts JSON data to CSV format
-
+    const csv = parse(offers)
     return new NextResponse(csv, {
       headers: {
         'Content-Type': 'text/csv',
-        'Content-Disposition': `attachment; filename="offers_cycle_${cycle}.csv"`
+        'Content-Disposition': `attachment; filename="offers_${cycle}.csv"`
       }
     })
   } catch (error) {
