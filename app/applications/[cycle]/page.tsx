@@ -27,12 +27,21 @@ export default async function AdmissionsCycleApplicationsPage({
   }
   const userEmail = session?.user?.email as string
   const cycle = parseInt(params.cycle)
+  const user = await getUserFromCycleAndEmail(cycle, userEmail)
+
+  if (!isSuperUser(userEmail) && !user) {
+    return (
+      <NotFoundPage
+        btnName="Return to homepage"
+        btnUrl="/"
+        explanation={`Admissions cycle ${params.cycle} does not exist or ${userEmail} has no role in this admissions cycle`}
+      />
+    )
+  }
 
   const applications = await getApplicationsIncludingAllNested(cycle)
-  const user = await getUserFromCycleAndEmail(cycle, userEmail)
   const reviewerLogins = await getAllReviewerLogins(cycle)
-
-  return isSuperUser(userEmail) || user ? (
+  return (
     <SessionProvider>
       <Flex justify="between" className="mb-3">
         <Flex direction="column" gap="2">
@@ -52,11 +61,5 @@ export default async function AdmissionsCycleApplicationsPage({
         user={{ email: userEmail, role: user?.role }}
       />
     </SessionProvider>
-  ) : (
-    <NotFoundPage
-      btnName="Return to homepage"
-      btnUrl="/"
-      explanation={`Admissions cycle ${params.cycle} does not exist or ${userEmail} has no role in this admissions cycle`}
-    />
   )
 }
