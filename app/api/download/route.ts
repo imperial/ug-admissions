@@ -1,5 +1,5 @@
 import { getAllOffers } from '@/lib/query/applications'
-import { parse } from 'json2csv'
+import { AsyncParser } from '@json2csv/node'
 import { NextRequest, NextResponse } from 'next/server'
 
 export async function GET(request: NextRequest) {
@@ -15,7 +15,9 @@ export async function GET(request: NextRequest) {
       return new NextResponse('No data available for the given cycle', { status: 404 })
     }
 
-    const csv = parse(offers)
+    const parser = new AsyncParser()
+    const csv = await parser.parse(offers).promise()
+
     return new NextResponse(csv, {
       headers: {
         'Content-Type': 'text/csv',
