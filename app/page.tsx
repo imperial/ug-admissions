@@ -1,12 +1,12 @@
 import { auth } from '@/auth'
 import { RoleBadge } from '@/components/general/RoleBadge'
-import AdminControlPanel from '@/components/homepage/AdminControlPanel'
-import SelectAdmissionsCycle from '@/components/homepage/SelectAdmissionsCycle'
+import ActionPanel from '@/components/homepage/ActionPanel'
 import SignOutButton from '@/components/homepage/SignOutButton'
 import { isSuperUser } from '@/lib/access'
 import { allAllowedAdmissionsCycles, getAllAdminAndTutorEmails } from '@/lib/query/users'
 import { signOutAction } from '@/lib/signOut'
-import { Card, Container, Flex, Heading, Separator } from '@radix-ui/themes'
+import { ExclamationTriangleIcon } from '@radix-ui/react-icons'
+import { Callout, Flex, Heading } from '@radix-ui/themes'
 import { redirect } from 'next/navigation'
 import React from 'react'
 
@@ -24,6 +24,21 @@ export default async function Home() {
   const isSystemAdmin = allAdminsAndUgTutors.includes(userEmail) || isSuperUser(userEmail)
   const admissionsCycles = await allAllowedAdmissionsCycles(userEmail)
 
+  if (admissionsCycles.length === 0 && !isSystemAdmin)
+    return (
+      <Flex justify="center" align="center">
+        <Callout.Root color="red" className="w-4/5">
+          <Callout.Icon>
+            <ExclamationTriangleIcon />
+          </Callout.Icon>
+          <Callout.Text className="text-center">
+            You have not been registered as a user in any admissions cycle. Contact the
+            administration team, the Undergraduate Tutor or EdTech to fix this.
+          </Callout.Text>
+        </Callout.Root>
+      </Flex>
+    )
+
   return (
     <Flex direction="column" gap="3">
       <Flex justify="between" gapX="5" className="mb-2">
@@ -37,15 +52,11 @@ export default async function Home() {
         <SignOutButton signOutAction={signOutAction} />
       </Flex>
 
-      <Container size="1" p="3">
-        <Card className="bg-amber-300">
-          <Flex direction="column" gap="4">
-            <SelectAdmissionsCycle admissionsCycles={admissionsCycles} userEmail={userEmail} />
-            {isSystemAdmin && <Separator size="4" />}
-            {isSystemAdmin && <AdminControlPanel userEmail={userEmail} />}
-          </Flex>
-        </Card>
-      </Container>
+      <ActionPanel
+        admissionsCycles={admissionsCycles}
+        userEmail={userEmail}
+        isSystemAdmin={isSystemAdmin}
+      />
     </Flex>
   )
 }

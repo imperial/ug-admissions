@@ -5,7 +5,7 @@ import { Button, Flex, Link } from '@radix-ui/themes'
 import React, { FC } from 'react'
 
 interface DownloadCsvButtonProps {
-  cycle: number
+  cycle: string
 }
 
 const DownloadCsvButton: FC<DownloadCsvButtonProps> = ({ cycle }) => {
@@ -13,7 +13,7 @@ const DownloadCsvButton: FC<DownloadCsvButtonProps> = ({ cycle }) => {
 
   return (
     <Link href={destination} download="offers.csv">
-      <Button className="w-full" color="bronze">
+      <Button className="w-full" color="brown">
         <Flex align="center" justify="center" gap="2">
           <DownloadIcon /> Download Offers CSV
         </Flex>
