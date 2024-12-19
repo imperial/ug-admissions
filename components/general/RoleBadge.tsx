@@ -1,7 +1,7 @@
 import { isSuperUser } from '@/lib/access'
-import { prettifyOption } from '@/lib/utils'
+import { prettifyOption, shortenEmail } from '@/lib/utils'
 import { Role } from '@prisma/client'
-import { Badge } from '@radix-ui/themes'
+import { Badge, Flex, Text } from '@radix-ui/themes'
 import { FC } from 'react'
 
 const roleColourMap: Record<Role, 'lime' | 'blue' | 'crimson'> = {
@@ -16,13 +16,17 @@ interface RoleBadgeProps {
 }
 
 export const RoleBadge: FC<RoleBadgeProps> = ({ email, role }) => {
-  return isSuperUser(email) ? (
-    <Badge color="red" size="3">
-      <strong>Super User</strong>
-    </Badge>
-  ) : role ? (
-    <Badge color={roleColourMap[role]} size="3">
-      <strong>{prettifyOption(role)}</strong>
-    </Badge>
-  ) : null
+  if (!isSuperUser(email) && !role) return null
+
+  const color = isSuperUser(email) ? 'red' : roleColourMap[role!]
+  return (
+    <Flex direction="row" gap="3" align="center">
+      <Text weight="light" size="3">
+        {shortenEmail(email)}
+      </Text>
+      <Badge color={color} size="3">
+        <Text weight="bold">{isSuperUser(email) ? 'Super User' : prettifyOption(role!)}</Text>
+      </Badge>
+    </Flex>
+  )
 }

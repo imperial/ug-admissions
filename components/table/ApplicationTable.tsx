@@ -5,7 +5,7 @@ import ReviewerScoringDialog from '@/components/dialog/ReviewerScoringDialog'
 import UgTutorDialog from '@/components/dialog/UgTutorDialog'
 import GenericTable from '@/components/table/GenericTable'
 import { updateNextAction } from '@/lib/query/forms'
-import { prettifyOption, prettifyReviewerEmail } from '@/lib/utils'
+import { prettifyOption, shortenEmail } from '@/lib/utils'
 import {
   Applicant,
   Application,
@@ -134,7 +134,7 @@ const ApplicationTable: FC<ApplicationTableProps> = ({
       id: SEARCH_PARAM_NEXT_ACTION
     }),
     columnHelper.accessor('reviewer.login', {
-      cell: (info) => prettifyReviewerEmail(info.getValue()),
+      cell: (info) => shortenEmail(info.getValue()),
       header: 'Reviewer',
       id: SEARCH_PARAM_REVIEWER
     }),
@@ -171,7 +171,7 @@ const ApplicationTable: FC<ApplicationTableProps> = ({
                 values={[ALL_DROPDOWN_OPTION, ...reviewerLogins]}
                 currentValue={reviewerFilterValue}
                 onValueChange={(value) => onFilterDropdownChange(SEARCH_PARAM_REVIEWER, value)}
-                valueFormatter={prettifyReviewerEmail}
+                valueFormatter={shortenEmail}
               />
             </Flex>
           </Flex>
