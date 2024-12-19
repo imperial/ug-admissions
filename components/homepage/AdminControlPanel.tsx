@@ -16,7 +16,7 @@ const AdminControlPanel: FC<AdminControlPanelProps> = ({ userEmail }) => {
         Admin Control Panel
       </Heading>
       <DataUploadDialog userEmail={userEmail} className="w-full" />
-      <DownloadCsvButton />
+      <DownloadCsvButton cycle={2526} />
     </Flex>
   )
 }
