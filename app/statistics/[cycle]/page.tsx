@@ -1,10 +1,13 @@
 import { auth } from '@/auth'
 import AdmissionsCycleStatistics from '@/components/AdmissionsCycleStatistics'
+import { ApplicationsLinkButton, HomepageLinkButton } from '@/components/general/LinkButton'
 import { countNextActions, getOutcomes } from '@/lib/query/applications'
-import { prettifyOption } from '@/lib/utils'
+import { formatCycle, prettifyOption } from '@/lib/utils'
 import { Decision, NextAction } from '@prisma/client'
+import { Flex, Heading } from '@radix-ui/themes'
 import { map } from 'lodash'
 import { redirect } from 'next/navigation'
+import React from 'react'
 
 export const dynamic = 'force-dynamic'
 
@@ -35,12 +38,21 @@ export default async function AdmissionsCycleStatisticsPage({
   })
 
   return (
-    <AdmissionsCycleStatistics
-      cycle={cycle}
-      applicationsCount={applicationsCount}
-      offersCount={offersCount}
-      rejectionsCount={rejectionsCount}
-      nextActionCounts={nextActionCounts}
-    />
+    <Flex direction="column" gap="5">
+      <Flex justify="between">
+        <Heading size="6">Admissions Cycle Statistics: {formatCycle(cycle)}</Heading>
+        <Flex gapX="2">
+          <HomepageLinkButton />
+          <ApplicationsLinkButton admissionsCycle={cycle.toString()} />
+        </Flex>
+      </Flex>
+
+      <AdmissionsCycleStatistics
+        applicationsCount={applicationsCount}
+        offersCount={offersCount}
+        rejectionsCount={rejectionsCount}
+        nextActionCounts={nextActionCounts}
+      />
+    </Flex>
   )
 }

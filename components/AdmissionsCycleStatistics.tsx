@@ -1,8 +1,6 @@
 'use client'
 
-import { ApplicationsLinkButton, HomepageLinkButton } from '@/components/general/LinkButton'
-import { formatCycle } from '@/lib/utils'
-import { Card, DataList, Flex, Heading, Separator } from '@radix-ui/themes'
+import { Card, DataList, Flex, Heading, Separator, Text } from '@radix-ui/themes'
 import React, { FC } from 'react'
 import {
   Bar,
@@ -17,7 +15,6 @@ import {
 } from 'recharts'
 
 interface AdmissionsCycleStatisticsProps {
-  cycle: number
   applicationsCount: number
   offersCount: number
   rejectionsCount: number
@@ -25,7 +22,6 @@ interface AdmissionsCycleStatisticsProps {
 }
 
 const AdmissionsCycleStatistics: FC<AdmissionsCycleStatisticsProps> = ({
-  cycle,
   applicationsCount,
   offersCount,
   rejectionsCount,
@@ -33,35 +29,24 @@ const AdmissionsCycleStatistics: FC<AdmissionsCycleStatisticsProps> = ({
 }) => {
   return (
     <Flex direction="column" gap="5">
-      <Flex justify="between">
-        <Heading as="h1" size="6">
-          Admissions Cycle Statistics: {formatCycle(cycle)}
-        </Heading>
-        <Flex gapX="2">
-          <HomepageLinkButton />
-          <ApplicationsLinkButton admissionsCycle={cycle.toString()} />
-        </Flex>
-      </Flex>
-
       <Heading size="4">Overview</Heading>
-
       <Card className="w-2/5 bg-blue-100">
         <DataList.Root>
           <DataList.Item>
             <DataList.Label>
-              <strong>Total number of applications (including multiple degrees):</strong>
+              <Text weight="bold">Total number of applications (including multiple degrees):</Text>
             </DataList.Label>
             <DataList.Value>{applicationsCount}</DataList.Value>
           </DataList.Item>
           <DataList.Item>
             <DataList.Label color="green">
-              <strong>Offers made:</strong>
+              <Text weight="bold">Offers made:</Text>
             </DataList.Label>
             <DataList.Value>{offersCount}</DataList.Value>
           </DataList.Item>
           <DataList.Item>
             <DataList.Label color="red">
-              <strong>Rejections:</strong>
+              <Text weight="bold">Rejections:</Text>
             </DataList.Label>
             <DataList.Value>{rejectionsCount}</DataList.Value>
           </DataList.Item>
