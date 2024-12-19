@@ -3,6 +3,7 @@ import '@radix-ui/themes/styles.css'
 import classNames from 'classnames'
 import type { Metadata } from 'next'
 import { Inter } from 'next/font/google'
+import React from 'react'
 import 'tailwindcss/tailwind.css'
 
 const inter = Inter({ subsets: ['latin'] })

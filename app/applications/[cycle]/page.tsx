@@ -27,45 +27,39 @@ export default async function AdmissionsCycleApplicationsPage({
   }
   const userEmail = session?.user?.email as string
   const cycle = parseInt(params.cycle)
+  const user = await getUserFromCycleAndEmail(cycle, userEmail)
+
+  if (!isSuperUser(userEmail) && !user) {
+    return (
+      <NotFoundPage
+        btnName="Return to homepage"
+        btnUrl="/"
+        explanation={`Admissions cycle ${params.cycle} does not exist or ${userEmail} has no role in this admissions cycle`}
+      />
+    )
+  }
 
   const applications = await getApplicationsIncludingAllNested(cycle)
-  const user = await getUserFromCycleAndEmail(cycle, userEmail)
   const reviewerLogins = await getAllReviewerLogins(cycle)
-
-  return isSuperUser(userEmail) || user ? (
+  return (
     <SessionProvider>
-      <Flex direction="column" gap="1">
-        <Flex justify="between" className="mb-3">
-          <Flex direction="column" gap="1">
-            <Flex>
-              <Heading>Applications Table: {formatCycle(cycle)}</Heading>
-            </Flex>
-            <Flex>
-              <RoleBadge email={userEmail} role={user?.role} />
-            </Flex>
-          </Flex>
-          <Flex gap="1">
-            <HomepageLinkButton />
-            <StatisticsLinkButton admissionsCycle={params.cycle} />
-            <DataUploadDialog
-              disabled={!adminAccess(userEmail, user?.role)}
-              userEmail={userEmail}
-            />
-          </Flex>
+      <Flex justify="between" className="mb-3">
+        <Flex direction="column" gap="2">
+          <Heading size="6">Applications Table: {formatCycle(cycle)}</Heading>
+          <RoleBadge email={userEmail} role={user?.role} />
         </Flex>
-        <ApplicationTable
-          cycle={cycle}
-          applications={JSON.parse(JSON.stringify(applications))}
-          reviewerLogins={reviewerLogins}
-          user={{ email: userEmail, role: user?.role }}
-        />
+        <Flex gap="1">
+          <HomepageLinkButton />
+          <StatisticsLinkButton admissionsCycle={params.cycle} />
+          <DataUploadDialog disabled={!adminAccess(userEmail, user?.role)} userEmail={userEmail} />
+        </Flex>
       </Flex>
+      <ApplicationTable
+        cycle={cycle}
+        applications={JSON.parse(JSON.stringify(applications))}
+        reviewerLogins={reviewerLogins}
+        user={{ email: userEmail, role: user?.role }}
+      />
     </SessionProvider>
-  ) : (
-    <NotFoundPage
-      btnName="Return to homepage"
-      btnUrl="/"
-      explanation={`Admissions cycle ${params.cycle} does not exist or ${userEmail} has no role in this admissions cycle`}
-    />
   )
 }

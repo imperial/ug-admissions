@@ -5,8 +5,7 @@ import SignOutButton from '@/components/homepage/SignOutButton'
 import { isSuperUser } from '@/lib/access'
 import { allAllowedAdmissionsCycles, getAllAdminAndTutorEmails } from '@/lib/query/users'
 import { signOutAction } from '@/lib/signOut'
-import { ExclamationTriangleIcon } from '@radix-ui/react-icons'
-import { Callout, Flex, Heading } from '@radix-ui/themes'
+import { Flex, Heading } from '@radix-ui/themes'
 import { redirect } from 'next/navigation'
 import React from 'react'
 
@@ -23,21 +22,6 @@ export default async function Home() {
   const allAdminsAndUgTutors = await getAllAdminAndTutorEmails()
   const isSystemAdmin = allAdminsAndUgTutors.includes(userEmail) || isSuperUser(userEmail)
   const admissionsCycles = await allAllowedAdmissionsCycles(userEmail)
-
-  if (admissionsCycles.length === 0 && !isSystemAdmin)
-    return (
-      <Flex justify="center" align="center">
-        <Callout.Root color="red" className="w-4/5">
-          <Callout.Icon>
-            <ExclamationTriangleIcon />
-          </Callout.Icon>
-          <Callout.Text className="text-center">
-            You have not been registered as a user in any admissions cycle. Contact the
-            administration team, the Undergraduate Tutor or EdTech to fix this.
-          </Callout.Text>
-        </Callout.Root>
-      </Flex>
-    )
 
   return (
     <Flex direction="column" gap="3">

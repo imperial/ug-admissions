@@ -24,7 +24,7 @@ const Dropdown: FC<DropdownProps> = ({
   return (
     <Select.Root onValueChange={onValueChange} value={currentValue} disabled={disabled}>
       <Select.Trigger placeholder={placeholder ?? ''} className={className} />
-      <Select.Content>
+      <Select.Content position="popper">
         {values.map((value) => (
           <Select.Item key={value} value={value}>
             {valueFormatter(value)}

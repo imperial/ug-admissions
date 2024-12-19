@@ -11,11 +11,12 @@ export default function AuthErrorPage() {
       </Flex>
 
       <Text>
-        There was an error when trying to authenticate. Please contact us at{' '}
+        There was an error when trying to authenticate because you have not been granted a role in
+        the system. Please contact us at{' '}
         <Link href={`mailto:${SUPPORT_EMAIL}`} target="_blank" className="text-blue-700">
           {SUPPORT_EMAIL}
         </Link>{' '}
-        if this error persists.
+        if you should have access.
       </Text>
 
       <Button size="3" style={{ width: '100%', textDecoration: 'none' }} variant="outline" asChild>

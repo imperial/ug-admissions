@@ -3,6 +3,8 @@ import { Decimal } from '@prisma/client/runtime/binary'
 import { capitalize } from 'lodash'
 
 // null and undefined are converted to NaN
+
+// null and undefined are converted to NaN
 export function decimalToNumber(value: Decimal | null | undefined): number {
   return parseFloat(value?.toString() ?? '')
 }
@@ -34,7 +36,7 @@ export function prettifyOption(value: string): string {
     .join(' ')
 }
 
-export function prettifyReviewerEmail(email: string | undefined): string {
+export function shortenEmail(email: string | undefined): string {
   // strip domain from email to save space
   return email ? email.replace(/@.*$/, '') : 'Not allocated'
 }
