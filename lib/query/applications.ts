@@ -1,6 +1,7 @@
 'use server'
 
 import prisma from '@/db'
+import { Decision } from '@prisma/client'
 
 export async function getApplicationsIncludingAllNested(cycle: number) {
   return prisma.application.findMany({
@@ -40,4 +41,42 @@ export async function countNextActions(cycle: number) {
       nextAction: true
     }
   })
+}
+
+export async function getAllOffers(cycle: number) {
+  const offers = await prisma.outcome.findMany({
+    select: {
+      application: {
+        select: {
+          applicant: {
+            select: {
+              firstName: true,
+              surname: true,
+              ucasNumber: true
+            }
+          }
+        }
+      },
+      cid: true,
+      degreeCode: true,
+      offerCode: true,
+      offerText: true
+    },
+    where: {
+      application: {
+        admissionsCycle: cycle
+      },
+      decision: Decision.OFFER
+    }
+  })
+
+  return offers.map((o) => ({
+    'First Name': o.application.applicant.firstName,
+    Surname: o.application.applicant.surname,
+    'UCAS Number': o.application.applicant.ucasNumber,
+    CID: o.cid,
+    'Degree Code': o.degreeCode,
+    'Offer Code': o.offerCode,
+    'Offer Text': o.offerText
+  }))
 }
