@@ -2,7 +2,7 @@
 
 import { ApplicationsLinkButton, HomepageLinkButton } from '@/components/general/LinkButton'
 import { formatCycle } from '@/lib/utils'
-import { DataList, Flex, Heading } from '@radix-ui/themes'
+import { Card, DataList, Flex, Heading, Separator } from '@radix-ui/themes'
 import React, { FC } from 'react'
 import {
   Bar,
@@ -43,29 +43,32 @@ const AdmissionsCycleStatistics: FC<AdmissionsCycleStatisticsProps> = ({
         </Flex>
       </Flex>
 
-      <Heading as="h2" size="4">
-        Overview
-      </Heading>
-      <DataList.Root>
-        <DataList.Item>
-          <DataList.Label>
-            <strong>Total number of applications:</strong>
-          </DataList.Label>
-          <DataList.Value>{applicationsCount}</DataList.Value>
-        </DataList.Item>
-        <DataList.Item>
-          <DataList.Label color="green">
-            <strong>Offers made:</strong>
-          </DataList.Label>
-          <DataList.Value>{offersCount}</DataList.Value>
-        </DataList.Item>
-        <DataList.Item>
-          <DataList.Label color="red">
-            <strong>Rejections:</strong>
-          </DataList.Label>
-          <DataList.Value>{rejectionsCount}</DataList.Value>
-        </DataList.Item>
-      </DataList.Root>
+      <Heading size="4">Overview</Heading>
+
+      <Card className="w-2/5 bg-blue-100">
+        <DataList.Root>
+          <DataList.Item>
+            <DataList.Label>
+              <strong>Total number of applications (including multiple degrees):</strong>
+            </DataList.Label>
+            <DataList.Value>{applicationsCount}</DataList.Value>
+          </DataList.Item>
+          <DataList.Item>
+            <DataList.Label color="green">
+              <strong>Offers made:</strong>
+            </DataList.Label>
+            <DataList.Value>{offersCount}</DataList.Value>
+          </DataList.Item>
+          <DataList.Item>
+            <DataList.Label color="red">
+              <strong>Rejections:</strong>
+            </DataList.Label>
+            <DataList.Value>{rejectionsCount}</DataList.Value>
+          </DataList.Item>
+        </DataList.Root>
+      </Card>
+
+      <Separator size="4" my="1" />
 
       <NextActionGraph data={nextActionCounts} />
     </Flex>
@@ -79,16 +82,16 @@ interface NextActionGraphProps {
 const NextActionGraph: FC<NextActionGraphProps> = ({ data }) => {
   return (
     <Flex direction="column">
-      <Heading as="h2" size="3" align="center">
-        Applications per stage
+      <Heading size="5" align="center">
+        Applicants in each stage
       </Heading>
       <ResponsiveContainer width="100%" height={400} className="mt-4">
         <BarChart data={data}>
-          <XAxis dataKey="name" tick={{ fontSize: 11 }}>
-            <Label value={'Next Action'} dy={10} position="insideBottom" />
+          <XAxis dataKey="name" tick={{ fontSize: 12 }}>
+            <Label value="Next Action" dy={10} position="insideBottom" />
           </XAxis>
           <YAxis dataKey="quantity">
-            <Label value={'Number of applications'} angle={-90} dx={-30} position="middle" />
+            <Label value="Number of applicants" angle={-90} dx={-30} position="middle" />
           </YAxis>
           <Tooltip />
           <Legend verticalAlign="top" align="right" />
