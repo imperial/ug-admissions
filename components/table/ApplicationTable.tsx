@@ -76,13 +76,13 @@ const ApplicationTable: FC<ApplicationTableProps> = ({
   const updateSearchParam = (name: string, value: string) => {
     const params = new URLSearchParams(searchParams.toString())
     params.set(name, value)
-    router.push(`${pathname}?${params}`)
+    router.replace(`${pathname}?${params.toString()}`)
   }
 
   const removeSearchParam = (name: string) => {
     const params = new URLSearchParams(searchParams.toString())
     params.delete(name)
-    router.push(`${pathname}?${params}`)
+    router.replace(`${pathname}?${params.toString()}`)
   }
 
   // update searchParams which in turn update the dropdown value and the filters
