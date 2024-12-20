@@ -1,6 +1,6 @@
 'use client'
 
-import { Table } from '@radix-ui/themes'
+import { Flex, Table } from '@radix-ui/themes'
 import {
   ColumnDef,
   ColumnFiltersState,
@@ -15,7 +15,7 @@ import {
 } from '@tanstack/react-table'
 import { useState } from 'react'
 
-import Pagination from './Pagination'
+import Pagination, { DEFAULT_PAGE_SIZE } from './Pagination'
 
 interface GenericTableProps<T> {
   data: T[]
@@ -25,9 +25,6 @@ interface GenericTableProps<T> {
   globalFilter: any
   setGlobalFilter: OnChangeFn<any>
 }
-
-const DEFAULT_PAGE_SIZE = 5
-const RIGHT_BORDER = 'border-r-1 border-gray-400 border'
 
 const GenericTable = <T,>({
   data,
@@ -74,15 +71,15 @@ const GenericTable = <T,>({
   })
 
   return (
-    <>
-      <Table.Root className="border-2 border-gray-300">
+    <Flex direction="column">
+      <Table.Root className="border border-gray-400">
         <Table.Header>
           {table.getHeaderGroups().map((headerGroup) => (
             <Table.Row key={headerGroup.id}>
               {headerGroup.headers.map((header) => (
                 <Table.ColumnHeaderCell
                   key={header.id}
-                  className="bg-blue-100 border-b-2 border-black border-r-1 border"
+                  className="bg-blue-100 border-b-2 border-black border-r-1 border border-r-dashed"
                   onClick={() => {
                     const isSorted = header.column.getIsSorted()
                     header.column.toggleSorting(isSorted === 'asc')
@@ -105,7 +102,7 @@ const GenericTable = <T,>({
           {table.getRowModel().rows.map((row) => (
             <Table.Row key={row.id} className="odd:bg-gray-100">
               {row.getVisibleCells().map((cell, id) => (
-                <Table.Cell key={id} className={RIGHT_BORDER}>
+                <Table.Cell key={id} className="border-r border-dashed border-gray-400">
                   {flexRender(cell.column.columnDef.cell, cell.getContext())}
                 </Table.Cell>
               ))}
@@ -122,7 +119,7 @@ const GenericTable = <T,>({
         totalRows={table.getRowCount()}
         visibleRows={table.getRowModel().rows.length}
       />
-    </>
+    </Flex>
   )
 }
 

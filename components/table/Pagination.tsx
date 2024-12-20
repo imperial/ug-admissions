@@ -5,6 +5,8 @@ import { Button, Flex, IconButton, Text, TextField } from '@radix-ui/themes'
 import React, { FC } from 'react'
 import { Pagination as HeadlessPagination } from 'react-headless-pagination'
 
+export const DEFAULT_PAGE_SIZE = 5
+
 interface PaginationProps {
   setPageSize: (size: number) => void
   pageIndex: number

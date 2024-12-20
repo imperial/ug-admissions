@@ -19,12 +19,12 @@ import {
   WP
 } from '@prisma/client'
 import { CheckboxIcon, Link2Icon, MagnifyingGlassIcon } from '@radix-ui/react-icons'
-import { Button, Card, Flex, Text, TextField } from '@radix-ui/themes'
+import { Button, Card, Flex, Link, Text, TextField } from '@radix-ui/themes'
 import { ColumnFiltersState, createColumnHelper } from '@tanstack/react-table'
+import { entries } from 'lodash'
 import { useSession } from 'next-auth/react'
-import Link from 'next/link'
 import { usePathname, useRouter, useSearchParams } from 'next/navigation'
-import React, { FC, useEffect, useState } from 'react'
+import React, { FC, useEffect, useMemo, useState } from 'react'
 
 import Dropdown from '../general/Dropdown'
 
@@ -60,14 +60,15 @@ const ApplicationTable: FC<ApplicationTableProps> = ({
   const router = useRouter()
   const pathname = usePathname()
   const searchParams = useSearchParams()
+
   const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([])
-  const [globalFilter, setGlobalFilter] = useState('')
-  const [nextActionFilterValue, setNextActionFilterValue] = useState(ALL_DROPDOWN_OPTION)
-  const [reviewerFilterValue, setReviewerFilterValue] = useState(ALL_DROPDOWN_OPTION)
+  const [globalFilter, setGlobalFilter] = useState<string>('')
+  const [nextActionFilterValue, setNextActionFilterValue] = useState<string>(ALL_DROPDOWN_OPTION)
+  const [reviewerFilterValue, setReviewerFilterValue] = useState<string>(ALL_DROPDOWN_OPTION)
 
   // searchParams determine what filters should be applied and the value of the dropdown
   useEffect(() => {
-    setColumnFilters(Array.from(searchParams).map(([key, value]) => ({ id: key, value: value })))
+    setColumnFilters(entries(searchParams).map(([key, value]) => ({ id: key, value: value })))
 
     setNextActionFilterValue(searchParams.get(SEARCH_PARAM_NEXT_ACTION) || ALL_DROPDOWN_OPTION)
     setReviewerFilterValue(searchParams.get(SEARCH_PARAM_REVIEWER) || ALL_DROPDOWN_OPTION)
@@ -91,65 +92,70 @@ const ApplicationTable: FC<ApplicationTableProps> = ({
     else updateSearchParam(name, value)
   }
 
-  const columns = [
-    columnHelper.accessor('applicant.cid', {
-      cell: (info) => info.getValue(),
-      header: 'CID',
-      id: 'applicant.cid'
-    }),
-    columnHelper.accessor('applicant.ucasNumber', {
-      cell: (info) => <UcasApplicationLink admissionsCycle={cycle} ucasNumber={info.getValue()} />,
-      header: 'UCAS Number',
-      id: 'applicant.ucasNumber'
-    }),
-    columnHelper.accessor('applicant.firstName', {
-      cell: (info) => info.getValue(),
-      header: 'First Name',
-      id: 'applicant.firstName'
-    }),
-    columnHelper.accessor('applicant.surname', {
-      cell: (info) => info.getValue(),
-      header: 'Last Name',
-      id: 'applicant.surname'
-    }),
-    columnHelper.accessor('feeStatus', {
-      cell: (info) => (
-        <Text color={FeeStatusColourMap[info.getValue()]}>{prettifyOption(info.getValue())}</Text>
-      ),
-      header: 'Fee Status',
-      id: 'feeStatus'
-    }),
-    columnHelper.accessor('wideningParticipation', {
-      cell: (info) => (
-        <Text color={WPColourMap[info.getValue()]}>{prettifyOption(info.getValue())}</Text>
-      ),
-      header: 'WP',
-      id: 'wideningParticipation'
-    }),
-    columnHelper.accessor('nextAction', {
-      cell: (info) => (
-        <NextActionCell nextAction={info.getValue()} applicationId={info.row.original.id} />
-      ),
-      header: 'Next Action',
-      id: SEARCH_PARAM_NEXT_ACTION
-    }),
-    columnHelper.accessor('reviewer.login', {
-      cell: (info) => shortenEmail(info.getValue()),
-      header: 'Reviewer',
-      id: SEARCH_PARAM_REVIEWER
-    }),
-    columnHelper.display({
-      id: 'forms',
-      header: 'Forms',
-      cell: (info) => (
-        <Flex gap="1">
-          <AdminScoringDialog data={info.row.original} user={{ email: email, role: role }} />
-          <ReviewerScoringDialog data={info.row.original} userEmail={email} />
-          <UgTutorDialog data={info.row.original} user={{ email: email, role: role }} />
-        </Flex>
-      )
-    })
-  ]
+  const columns = useMemo(
+    () => [
+      columnHelper.accessor('applicant.cid', {
+        cell: (info) => info.getValue(),
+        header: 'CID',
+        id: 'applicant.cid'
+      }),
+      columnHelper.accessor('applicant.ucasNumber', {
+        cell: (info) => (
+          <UcasApplicationLink admissionsCycle={cycle} ucasNumber={info.getValue()} />
+        ),
+        header: 'UCAS Number',
+        id: 'applicant.ucasNumber'
+      }),
+      columnHelper.accessor('applicant.firstName', {
+        cell: (info) => info.getValue(),
+        header: 'First Name',
+        id: 'applicant.firstName'
+      }),
+      columnHelper.accessor('applicant.surname', {
+        cell: (info) => info.getValue(),
+        header: 'Last Name',
+        id: 'applicant.surname'
+      }),
+      columnHelper.accessor('feeStatus', {
+        cell: (info) => (
+          <Text color={FeeStatusColourMap[info.getValue()]}>{prettifyOption(info.getValue())}</Text>
+        ),
+        header: 'Fee Status',
+        id: 'feeStatus'
+      }),
+      columnHelper.accessor('wideningParticipation', {
+        cell: (info) => (
+          <Text color={WPColourMap[info.getValue()]}>{prettifyOption(info.getValue())}</Text>
+        ),
+        header: 'WP',
+        id: 'wideningParticipation'
+      }),
+      columnHelper.accessor('nextAction', {
+        cell: (info) => (
+          <NextActionCell nextAction={info.getValue()} applicationId={info.row.original.id} />
+        ),
+        header: 'Next Action',
+        id: SEARCH_PARAM_NEXT_ACTION
+      }),
+      columnHelper.accessor('reviewer.login', {
+        cell: (info) => shortenEmail(info.getValue()),
+        header: 'Reviewer',
+        id: SEARCH_PARAM_REVIEWER
+      }),
+      columnHelper.display({
+        id: 'forms',
+        header: 'Forms',
+        cell: (info) => (
+          <Flex gap="1">
+            <AdminScoringDialog data={info.row.original} user={{ email: email, role: role }} />
+            <ReviewerScoringDialog data={info.row.original} userEmail={email} />
+            <UgTutorDialog data={info.row.original} user={{ email: email, role: role }} />
+          </Flex>
+        )
+      })
+    ],
+    [cycle, email, role]
+  )
 
   return (
     <Flex direction="column" gap="1">
