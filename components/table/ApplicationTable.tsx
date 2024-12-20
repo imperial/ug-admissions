@@ -22,7 +22,7 @@ import { CheckboxIcon, Link2Icon, MagnifyingGlassIcon } from '@radix-ui/react-ic
 import { Button, Card, Flex, Link, Text, TextField } from '@radix-ui/themes'
 import { ColumnFiltersState, createColumnHelper } from '@tanstack/react-table'
 import { useSession } from 'next-auth/react'
-import { usePathname, useRouter, useSearchParams } from 'next/navigation'
+import { usePathname, useSearchParams } from 'next/navigation'
 import React, { FC, useEffect, useMemo, useState } from 'react'
 
 import Dropdown from '../general/Dropdown'
@@ -56,7 +56,6 @@ const ApplicationTable: FC<ApplicationTableProps> = ({
   // ensure login
   useSession()
 
-  const router = useRouter()
   const pathname = usePathname()
   const searchParams = useSearchParams()
 
@@ -76,13 +75,13 @@ const ApplicationTable: FC<ApplicationTableProps> = ({
   const updateSearchParam = (name: string, value: string) => {
     const params = new URLSearchParams(searchParams.toString())
     params.set(name, value)
-    router.replace(`${pathname}?${params.toString()}`)
+    window.history.pushState(null, '', `${pathname}?${params.toString()}`)
   }
 
   const removeSearchParam = (name: string) => {
     const params = new URLSearchParams(searchParams.toString())
     params.delete(name)
-    router.replace(`${pathname}?${params.toString()}`)
+    window.history.pushState(null, '', `${pathname}?${params.toString()}`)
   }
 
   // update searchParams which in turn update the dropdown value and the filters
