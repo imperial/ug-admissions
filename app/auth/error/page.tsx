@@ -1,5 +1,4 @@
-import { Button, Flex, Heading, Text } from '@radix-ui/themes'
-import Link from 'next/link'
+import { Button, Flex, Heading, Link, Text } from '@radix-ui/themes'
 
 const SUPPORT_EMAIL = 'doc-edtech@imperial.ac.uk'
 

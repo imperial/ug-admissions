@@ -1,5 +1,4 @@
-import { Button, Flex, Heading, Text } from '@radix-ui/themes'
-import Link from 'next/link'
+import { Button, Flex, Heading, Link, Text } from '@radix-ui/themes'
 import React from 'react'
 
 interface NotFoundPageProps {

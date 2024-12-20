@@ -19,10 +19,9 @@ import {
   WP
 } from '@prisma/client'
 import { CheckboxIcon, Link2Icon, MagnifyingGlassIcon } from '@radix-ui/react-icons'
-import { Button, Card, Flex, Text, TextField } from '@radix-ui/themes'
+import { Button, Card, Flex, Link, Text, TextField } from '@radix-ui/themes'
 import { ColumnFiltersState, createColumnHelper } from '@tanstack/react-table'
 import { useSession } from 'next-auth/react'
-import Link from 'next/link'
 import { usePathname, useRouter, useSearchParams } from 'next/navigation'
 import React, { FC, useEffect, useMemo, useState } from 'react'
 

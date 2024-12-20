@@ -1,8 +1,7 @@
 'use client'
 
 import { BarChartIcon, HomeIcon, ReaderIcon } from '@radix-ui/react-icons'
-import { Button, Flex, Spinner } from '@radix-ui/themes'
-import Link from 'next/link'
+import { Button, Flex, Link, Spinner } from '@radix-ui/themes'
 import { useRouter } from 'next/navigation'
 import React, { FC, useState } from 'react'
 
