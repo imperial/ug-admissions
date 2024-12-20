@@ -15,7 +15,7 @@ import {
 } from '@tanstack/react-table'
 import { useState } from 'react'
 
-import Pagination from './Pagination'
+import Pagination, { DEFAULT_PAGE_SIZE } from './Pagination'
 
 interface GenericTableProps<T> {
   data: T[]
@@ -25,9 +25,6 @@ interface GenericTableProps<T> {
   globalFilter: any
   setGlobalFilter: OnChangeFn<any>
 }
-
-const DEFAULT_PAGE_SIZE = 5
-const RIGHT_BORDER = 'border-r-1 border-gray-400 border'
 
 const GenericTable = <T,>({
   data,
