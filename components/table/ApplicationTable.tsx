@@ -24,7 +24,7 @@ import { ColumnFiltersState, createColumnHelper } from '@tanstack/react-table'
 import { useSession } from 'next-auth/react'
 import Link from 'next/link'
 import { usePathname, useRouter, useSearchParams } from 'next/navigation'
-import React, { FC, useEffect, useState } from 'react'
+import React, { FC, useEffect, useMemo, useState } from 'react'
 
 import Dropdown from '../general/Dropdown'
 
@@ -91,65 +91,70 @@ const ApplicationTable: FC<ApplicationTableProps> = ({
     else updateSearchParam(name, value)
   }
 
-  const columns = [
-    columnHelper.accessor('applicant.cid', {
-      cell: (info) => info.getValue(),
-      header: 'CID',
-      id: 'applicant.cid'
-    }),
-    columnHelper.accessor('applicant.ucasNumber', {
-      cell: (info) => <UcasApplicationLink admissionsCycle={cycle} ucasNumber={info.getValue()} />,
-      header: 'UCAS Number',
-      id: 'applicant.ucasNumber'
-    }),
-    columnHelper.accessor('applicant.firstName', {
-      cell: (info) => info.getValue(),
-      header: 'First Name',
-      id: 'applicant.firstName'
-    }),
-    columnHelper.accessor('applicant.surname', {
-      cell: (info) => info.getValue(),
-      header: 'Last Name',
-      id: 'applicant.surname'
-    }),
-    columnHelper.accessor('feeStatus', {
-      cell: (info) => (
-        <Text color={FeeStatusColourMap[info.getValue()]}>{prettifyOption(info.getValue())}</Text>
-      ),
-      header: 'Fee Status',
-      id: 'feeStatus'
-    }),
-    columnHelper.accessor('wideningParticipation', {
-      cell: (info) => (
-        <Text color={WPColourMap[info.getValue()]}>{prettifyOption(info.getValue())}</Text>
-      ),
-      header: 'WP',
-      id: 'wideningParticipation'
-    }),
-    columnHelper.accessor('nextAction', {
-      cell: (info) => (
-        <NextActionCell nextAction={info.getValue()} applicationId={info.row.original.id} />
-      ),
-      header: 'Next Action',
-      id: SEARCH_PARAM_NEXT_ACTION
-    }),
-    columnHelper.accessor('reviewer.login', {
-      cell: (info) => shortenEmail(info.getValue()),
-      header: 'Reviewer',
-      id: SEARCH_PARAM_REVIEWER
-    }),
-    columnHelper.display({
-      id: 'forms',
-      header: 'Forms',
-      cell: (info) => (
-        <Flex gap="1">
-          <AdminScoringDialog data={info.row.original} user={{ email: email, role: role }} />
-          <ReviewerScoringDialog data={info.row.original} userEmail={email} />
-          <UgTutorDialog data={info.row.original} user={{ email: email, role: role }} />
-        </Flex>
-      )
-    })
-  ]
+  const columns = useMemo(
+    () => [
+      columnHelper.accessor('applicant.cid', {
+        cell: (info) => info.getValue(),
+        header: 'CID',
+        id: 'applicant.cid'
+      }),
+      columnHelper.accessor('applicant.ucasNumber', {
+        cell: (info) => (
+          <UcasApplicationLink admissionsCycle={cycle} ucasNumber={info.getValue()} />
+        ),
+        header: 'UCAS Number',
+        id: 'applicant.ucasNumber'
+      }),
+      columnHelper.accessor('applicant.firstName', {
+        cell: (info) => info.getValue(),
+        header: 'First Name',
+        id: 'applicant.firstName'
+      }),
+      columnHelper.accessor('applicant.surname', {
+        cell: (info) => info.getValue(),
+        header: 'Last Name',
+        id: 'applicant.surname'
+      }),
+      columnHelper.accessor('feeStatus', {
+        cell: (info) => (
+          <Text color={FeeStatusColourMap[info.getValue()]}>{prettifyOption(info.getValue())}</Text>
+        ),
+        header: 'Fee Status',
+        id: 'feeStatus'
+      }),
+      columnHelper.accessor('wideningParticipation', {
+        cell: (info) => (
+          <Text color={WPColourMap[info.getValue()]}>{prettifyOption(info.getValue())}</Text>
+        ),
+        header: 'WP',
+        id: 'wideningParticipation'
+      }),
+      columnHelper.accessor('nextAction', {
+        cell: (info) => (
+          <NextActionCell nextAction={info.getValue()} applicationId={info.row.original.id} />
+        ),
+        header: 'Next Action',
+        id: SEARCH_PARAM_NEXT_ACTION
+      }),
+      columnHelper.accessor('reviewer.login', {
+        cell: (info) => shortenEmail(info.getValue()),
+        header: 'Reviewer',
+        id: SEARCH_PARAM_REVIEWER
+      }),
+      columnHelper.display({
+        id: 'forms',
+        header: 'Forms',
+        cell: (info) => (
+          <Flex gap="1">
+            <AdminScoringDialog data={info.row.original} user={{ email: email, role: role }} />
+            <ReviewerScoringDialog data={info.row.original} userEmail={email} />
+            <UgTutorDialog data={info.row.original} user={{ email: email, role: role }} />
+          </Flex>
+        )
+      })
+    ],
+    [cycle, email, role]
+  )
 
   return (
     <Flex direction="column" gap="1">
