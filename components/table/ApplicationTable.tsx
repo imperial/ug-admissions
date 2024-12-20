@@ -21,7 +21,6 @@ import {
 import { CheckboxIcon, Link2Icon, MagnifyingGlassIcon } from '@radix-ui/react-icons'
 import { Button, Card, Flex, Link, Text, TextField } from '@radix-ui/themes'
 import { ColumnFiltersState, createColumnHelper } from '@tanstack/react-table'
-import { entries } from 'lodash'
 import { useSession } from 'next-auth/react'
 import { usePathname, useRouter, useSearchParams } from 'next/navigation'
 import React, { FC, useEffect, useMemo, useState } from 'react'
@@ -68,7 +67,7 @@ const ApplicationTable: FC<ApplicationTableProps> = ({
 
   // searchParams determine what filters should be applied and the value of the dropdown
   useEffect(() => {
-    setColumnFilters(entries(searchParams).map(([key, value]) => ({ id: key, value: value })))
+    setColumnFilters(Array.from(searchParams).map(([key, value]) => ({ id: key, value: value })))
 
     setNextActionFilterValue(searchParams.get(SEARCH_PARAM_NEXT_ACTION) || ALL_DROPDOWN_OPTION)
     setReviewerFilterValue(searchParams.get(SEARCH_PARAM_REVIEWER) || ALL_DROPDOWN_OPTION)
