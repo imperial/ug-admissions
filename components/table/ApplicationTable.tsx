@@ -61,9 +61,9 @@ const ApplicationTable: FC<ApplicationTableProps> = ({
   const pathname = usePathname()
   const searchParams = useSearchParams()
   const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([])
-  const [globalFilter, setGlobalFilter] = useState('')
-  const [nextActionFilterValue, setNextActionFilterValue] = useState(ALL_DROPDOWN_OPTION)
-  const [reviewerFilterValue, setReviewerFilterValue] = useState(ALL_DROPDOWN_OPTION)
+  const [globalFilter, setGlobalFilter] = useState<string>('')
+  const [nextActionFilterValue, setNextActionFilterValue] = useState<string>(ALL_DROPDOWN_OPTION)
+  const [reviewerFilterValue, setReviewerFilterValue] = useState<string>(ALL_DROPDOWN_OPTION)
 
   // searchParams determine what filters should be applied and the value of the dropdown
   useEffect(() => {
