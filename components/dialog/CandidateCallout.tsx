@@ -1,3 +1,4 @@
+import { shortenEmail } from '@/lib/utils'
 import { Callout, DataList } from '@radix-ui/themes'
 import React, { FC } from 'react'
 
@@ -5,9 +6,23 @@ interface CandidateCalloutProps {
   firstName: string
   surname: string
   ucasNumber: string
+  isTutorDialog?: boolean
+  reviewer?: string
+  reviewerPercentile?: number | null
+  overallScore?: number | null
+  academicComments?: string | null
 }
 
-const CandidateCallout: FC<CandidateCalloutProps> = ({ firstName, surname, ucasNumber }) => {
+const CandidateCallout: FC<CandidateCalloutProps> = ({
+  firstName,
+  surname,
+  ucasNumber,
+  isTutorDialog = false,
+  reviewer,
+  overallScore,
+  reviewerPercentile,
+  academicComments
+}) => {
   return (
     <Callout.Root>
       <DataList.Root>
@@ -21,6 +36,28 @@ const CandidateCallout: FC<CandidateCalloutProps> = ({ firstName, surname, ucasN
           <DataList.Label>UCAS number:</DataList.Label>
           <DataList.Value className="font-bold">{ucasNumber}</DataList.Value>
         </DataList.Item>
+        {isTutorDialog && (
+          <>
+            <DataList.Item align="center">
+              <DataList.Label>Reviewer:</DataList.Label>
+              <DataList.Value className="font-bold">
+                {reviewer ? shortenEmail(reviewer) : 'Unassigned'}
+              </DataList.Value>
+            </DataList.Item>
+            <DataList.Item align="center">
+              <DataList.Label>Reviewer percentile:</DataList.Label>
+              <DataList.Value className="font-bold">{reviewerPercentile || 'N/A'}</DataList.Value>
+            </DataList.Item>
+            <DataList.Item align="center">
+              <DataList.Label>Overall score:</DataList.Label>
+              <DataList.Value className="font-bold">{overallScore || 'N/A'}</DataList.Value>
+            </DataList.Item>
+            <DataList.Item align="center">
+              <DataList.Label>Academic comments:</DataList.Label>
+              <DataList.Value className="font-bold">{academicComments || 'N/A'}</DataList.Value>
+            </DataList.Item>
+          </>
+        )}
       </DataList.Root>
     </Callout.Root>
   )

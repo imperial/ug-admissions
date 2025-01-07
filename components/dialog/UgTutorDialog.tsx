@@ -9,6 +9,7 @@ import { ApplicationRow } from '@/components/table/ApplicationTable'
 import { adminAccess } from '@/lib/access'
 import { insertComment, upsertOutcome } from '@/lib/query/forms'
 import { FormPassbackState } from '@/lib/types'
+import { decimalToNumber } from '@/lib/utils'
 import {
   Comment as ApplicationComment,
   CommentType,
@@ -34,6 +35,7 @@ import React, { FC, useMemo, useState } from 'react'
 interface UgTutorDialogProps {
   // generalComments relation does not type check otherwise
   data: ApplicationRow
+  reviewerLogin?: string
   user: { email: string; role?: Role }
 }
 
@@ -41,6 +43,7 @@ type Tab = 'outcomes' | 'comments'
 
 interface UgTutorFormProps {
   data: ApplicationRow
+  reviewerLogin?: string
   readOnly: boolean
   setCurrentTab: (tab: Tab) => void
 }
@@ -51,8 +54,8 @@ const decisionColourMap = {
   [Decision.PENDING]: 'bg-amber-200'
 }
 
-const UgTutorForm: FC<UgTutorFormProps> = ({ data, readOnly, setCurrentTab }) => {
-  const { applicant, internalReview } = data
+const UgTutorForm: FC<UgTutorFormProps> = ({ data, reviewerLogin, readOnly, setCurrentTab }) => {
+  const { applicant, internalReview, reviewerPercentile } = data
   const [outcomes, setOutcomes] = useState(data.outcomes)
   const [nextAction, setNextAction] = useState('Unchanged')
   const [commentType, setCommentType] = useState(CommentType.NOTE.toString())
@@ -73,6 +76,11 @@ const UgTutorForm: FC<UgTutorFormProps> = ({ data, readOnly, setCurrentTab }) =>
         firstName={applicant.firstName}
         surname={applicant.surname}
         ucasNumber={applicant.ucasNumber}
+        isTutorDialog={true}
+        reviewer={reviewerLogin}
+        overallScore={decimalToNumber(internalReview?.overallScore)}
+        reviewerPercentile={reviewerPercentile}
+        academicComments={internalReview?.academicComments}
       />
 
       {/* Reviewers should not be able to see TMUA grades */}
@@ -197,7 +205,7 @@ const UgTutorForm: FC<UgTutorFormProps> = ({ data, readOnly, setCurrentTab }) =>
   )
 }
 
-const UgTutorDialog: FC<UgTutorDialogProps> = ({ data, user }) => {
+const UgTutorDialog: FC<UgTutorDialogProps> = ({ data, reviewerLogin, user }) => {
   const [isOpen, setIsOpen] = useState(false)
   const handleFormSuccess = () => setIsOpen(false)
   const [currentTab, setCurrentTab] = useState<Tab>('outcomes')
@@ -243,6 +251,7 @@ const UgTutorDialog: FC<UgTutorDialogProps> = ({ data, user }) => {
       >
         <UgTutorForm
           data={data}
+          reviewerLogin={reviewerLogin}
           readOnly={!adminAccess(email, role)}
           setCurrentTab={setCurrentTab}
         />
