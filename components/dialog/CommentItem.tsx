@@ -18,15 +18,15 @@ const CommentItem: FC<CommentProps> = ({ comment }) => {
   return (
     <Card>
       <Flex direction="column">
-        <Flex justify="between">
-          {CommentTypeBadgeMap[comment.type]}
+        {CommentTypeBadgeMap[comment.type]}
+        <Flex gap="3" align="center">
+          <Text weight="medium" size="3" className="ml-1">
+            {comment.authorLogin}
+          </Text>{' '}
           <Text size="2" color="gray">
             {format(new Date(comment.madeOn), 'HH:mm dd/MM/yyyy')}
           </Text>
         </Flex>
-        <Text weight="medium" size="3" className="ml-1">
-          {comment.authorLogin}
-        </Text>
       </Flex>
       <Text size="2" className="ml-2">
         {comment.text}

@@ -11,6 +11,7 @@ interface GenericFormDialogProps {
   trigger: ReactNode
   isOpen: boolean
   onOpenChange: (isOpen: boolean) => void
+  minWidth?: string
 }
 
 const GenericDialog: FC<GenericFormDialogProps> = ({
@@ -19,12 +20,13 @@ const GenericDialog: FC<GenericFormDialogProps> = ({
   description,
   trigger,
   isOpen,
-  onOpenChange
+  onOpenChange,
+  minWidth
 }) => {
   return (
     <Dialog.Root open={isOpen} onOpenChange={onOpenChange}>
       <Dialog.Trigger>{trigger}</Dialog.Trigger>
-      <Dialog.Content>
+      <Dialog.Content minWidth={minWidth}>
         <Cross2Icon
           color="gray"
           className="w-6 h-6 absolute top-2 right-2 "

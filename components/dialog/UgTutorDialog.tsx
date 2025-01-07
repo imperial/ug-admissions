@@ -86,61 +86,72 @@ const UgTutorForm: FC<UgTutorFormProps> = ({ data, readOnly, setCurrentTab }) =>
 
         <Box pt="3">
           <Tabs.Content value="outcomes">
-            {outcomes.map((outcome, i) => (
-              <Card
-                key={outcome.id}
-                className={`my-2 ${decisionColourMap[outcome.decision]}`}
-                variant="classic"
-                size="2"
-              >
-                <Flex direction="column" gap="1">
-                  <Heading size="3">{outcome.degreeCode}</Heading>
-                  <Flex gap="1">
-                    <Text size="2" weight="medium">
-                      Academic eligibility:
-                    </Text>
-                    <Text size="2">{outcome.academicEligibilityNotes}</Text>
-                  </Flex>
-                  <Separator className="w-full my-1" />
-                  <Flex direction="column" gap="3">
-                    <LabelText label="Decision" weight="medium">
-                      <Dropdown
-                        values={Object.keys(Decision)}
-                        currentValue={outcome.decision}
-                        onValueChange={(newDecision) => {
-                          setOutcomes((prevOutcomes) => {
-                            const newOutcomes = [...prevOutcomes]
-                            newOutcomes[i].decision = newDecision as Decision
-                            return newOutcomes
-                          })
-                        }}
-                        disabled={readOnly}
-                        className="flex-grow"
-                      />
-                      <input
-                        name={'decision'.concat('-', outcome.degreeCode)}
-                        type="hidden"
-                        value={outcome.decision.toString()}
-                      />
-                    </LabelText>
-                    <LabelText label="Offer Code" weight="medium">
-                      <TextField.Root
-                        name={'offerCode'.concat('-', outcome.degreeCode)}
-                        defaultValue={outcome.offerCode ?? ''}
-                        disabled={readOnly}
-                      />
-                    </LabelText>
-                    <LabelText label="Offer Text" weight="medium">
-                      <TextField.Root
-                        name={'offerText'.concat('-', outcome.degreeCode)}
-                        defaultValue={outcome.offerText ?? ''}
-                        disabled={readOnly}
-                      />
-                    </LabelText>
-                  </Flex>
+            <Flex justify="between" gap="2">
+              <Flex className="w-4/7">
+                <Flex direction="column" gap="3">
+                  {outcomes.map((outcome, i) => (
+                    <Card
+                      key={outcome.id}
+                      className={`my-2 ${decisionColourMap[outcome.decision]}`}
+                      variant="classic"
+                      size="2"
+                    >
+                      <Flex direction="column" gap="1">
+                        <Heading size="3">{outcome.degreeCode}</Heading>
+                        <Flex gap="1">
+                          <Text size="2" weight="medium">
+                            Academic eligibility:
+                          </Text>
+                          <Text size="2">{outcome.academicEligibilityNotes}</Text>
+                        </Flex>
+                        <Separator className="w-full my-1" />
+                        <Flex direction="column" gap="3">
+                          <LabelText label="Decision" weight="medium">
+                            <Dropdown
+                              values={Object.keys(Decision)}
+                              currentValue={outcome.decision}
+                              onValueChange={(newDecision) => {
+                                setOutcomes((prevOutcomes) => {
+                                  const newOutcomes = [...prevOutcomes]
+                                  newOutcomes[i].decision = newDecision as Decision
+                                  return newOutcomes
+                                })
+                              }}
+                              disabled={readOnly}
+                              className="flex-grow"
+                            />
+                            <input
+                              name={'decision'.concat('-', outcome.degreeCode)}
+                              type="hidden"
+                              value={outcome.decision.toString()}
+                            />
+                          </LabelText>
+                          <LabelText label="Offer Code" weight="medium">
+                            <TextField.Root
+                              name={'offerCode'.concat('-', outcome.degreeCode)}
+                              defaultValue={outcome.offerCode ?? ''}
+                              disabled={readOnly}
+                            />
+                          </LabelText>
+                          <LabelText label="Offer Text" weight="medium">
+                            <TextField.Root
+                              name={'offerText'.concat('-', outcome.degreeCode)}
+                              defaultValue={outcome.offerText ?? ''}
+                              disabled={readOnly}
+                            />
+                          </LabelText>
+                        </Flex>
+                      </Flex>
+                    </Card>
+                  ))}
                 </Flex>
-              </Card>
-            ))}
+              </Flex>
+              <Flex direction="column" gap="3">
+                {sortedComments.map((comment: ApplicationComment) => (
+                  <CommentItem key={comment.commentNo} comment={comment} />
+                ))}
+              </Flex>
+            </Flex>
           </Tabs.Content>
 
           <Tabs.Content value="comments">
@@ -222,6 +233,7 @@ const UgTutorDialog: FC<UgTutorDialogProps> = ({ data, user }) => {
           UG Tutor
         </Button>
       }
+      minWidth="1200px"
     >
       <FormWrapper
         action={currentTab === 'outcomes' ? upsertOutcomeWithId : addCommentWithId}
