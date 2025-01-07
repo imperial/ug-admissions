@@ -63,6 +63,8 @@ model Application {
   nextAction               NextAction           @default(ADMIN_SCORING_MISSING_TMUA)
   reviewer                 User?                @relation(fields: [reviewerId], references: [id])
   reviewerId               Int?
+  reviewerRank             Int?
+  reviewerPercentile       Int?
   outcomes                 Outcome[]
 
   @@unique([admissionsCycle, cid])
