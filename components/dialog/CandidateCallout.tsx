@@ -1,5 +1,5 @@
 import { shortenEmail } from '@/lib/utils'
-import { Callout, DataList } from '@radix-ui/themes'
+import { Callout, DataList, Flex } from '@radix-ui/themes'
 import React, { FC } from 'react'
 
 interface CandidateCalloutProps {
@@ -25,25 +25,27 @@ const CandidateCallout: FC<CandidateCalloutProps> = ({
 }) => {
   return (
     <Callout.Root>
-      <DataList.Root>
-        <DataList.Item align="center">
-          <DataList.Label>Applicant:</DataList.Label>
-          <DataList.Value className="font-bold">
-            {firstName} {surname}
-          </DataList.Value>
-        </DataList.Item>
-        <DataList.Item align="center">
-          <DataList.Label>UCAS number:</DataList.Label>
-          <DataList.Value className="font-bold">{ucasNumber}</DataList.Value>
-        </DataList.Item>
+      <Flex align="center" gap="9">
+        <DataList.Root>
+          <DataList.Item align="center">
+            <DataList.Label>Applicant:</DataList.Label>
+            <DataList.Value className="font-bold">
+              {firstName} {surname}
+            </DataList.Value>
+          </DataList.Item>
+          <DataList.Item align="center">
+            <DataList.Label>UCAS number:</DataList.Label>
+            <DataList.Value className="font-bold">{ucasNumber}</DataList.Value>
+          </DataList.Item>{' '}
+          <DataList.Item align="center">
+            <DataList.Label>Reviewer:</DataList.Label>
+            <DataList.Value className="font-bold">
+              {reviewer ? shortenEmail(reviewer) : 'Unassigned'}
+            </DataList.Value>
+          </DataList.Item>
+        </DataList.Root>
         {isTutorDialog && (
-          <>
-            <DataList.Item align="center">
-              <DataList.Label>Reviewer:</DataList.Label>
-              <DataList.Value className="font-bold">
-                {reviewer ? shortenEmail(reviewer) : 'Unassigned'}
-              </DataList.Value>
-            </DataList.Item>
+          <DataList.Root>
             <DataList.Item align="center">
               <DataList.Label>Reviewer percentile:</DataList.Label>
               <DataList.Value className="font-bold">{reviewerPercentile || 'N/A'}</DataList.Value>
@@ -56,9 +58,9 @@ const CandidateCallout: FC<CandidateCalloutProps> = ({
               <DataList.Label>Academic comments:</DataList.Label>
               <DataList.Value className="font-bold">{academicComments || 'N/A'}</DataList.Value>
             </DataList.Item>
-          </>
+          </DataList.Root>
         )}
-      </DataList.Root>
+      </Flex>
     </Callout.Root>
   )
 }
