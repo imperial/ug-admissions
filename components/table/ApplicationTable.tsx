@@ -63,6 +63,7 @@ const ApplicationTable: FC<ApplicationTableProps> = ({
   const [globalFilter, setGlobalFilter] = useState<string>('')
   const [nextActionFilterValue, setNextActionFilterValue] = useState<string>(ALL_DROPDOWN_OPTION)
   const [reviewerFilterValue, setReviewerFilterValue] = useState<string>(ALL_DROPDOWN_OPTION)
+  const [percentileThreshold, setPercentileThreshold] = useState<string>('')
 
   // searchParams determine what filters should be applied and the value of the dropdown
   useEffect(() => {
@@ -140,6 +141,11 @@ const ApplicationTable: FC<ApplicationTableProps> = ({
         header: 'Reviewer',
         id: SEARCH_PARAM_REVIEWER
       }),
+      columnHelper.accessor('internalReview.reviewerPercentile', {
+        cell: (info) => info.getValue() || 'N/A',
+        header: 'R %',
+        id: 'percentile'
+      }),
       columnHelper.display({
         id: 'forms',
         header: 'Forms',
@@ -156,7 +162,7 @@ const ApplicationTable: FC<ApplicationTableProps> = ({
         )
       })
     ],
-    [cycle, email, role]
+    [cycle, email, role, percentileThreshold]
   )
 
   return (
