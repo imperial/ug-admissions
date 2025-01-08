@@ -112,13 +112,13 @@ export async function upsertReviewerScoring(
   return { status: 'success', message: 'Reviewer scoring form updated successfully.' }
 }
 
-export async function upsertOutcome(
+export async function updateOutcomes(
   applicationId: number,
   partialOutcomes: { id: number; degreeCode: string }[],
   _: FormPassbackState,
   formData: FormData
 ): Promise<FormPassbackState> {
-  const groupedOutcomes = partialOutcomes.map(({ id, degreeCode }) => {
+  const fullOutcomes = partialOutcomes.map(({ id, degreeCode }) => {
     const offerCode = formData.get('offerCode-'.concat(degreeCode))
     const offerText = formData.get('offerText-'.concat(degreeCode))
     const decision = formData.get('decision-'.concat(degreeCode)) as Decision
@@ -128,7 +128,7 @@ export async function upsertOutcome(
 
   await updateNextAction(formData.get('nextAction'), applicationId)
 
-  for (const { id, offerCode, offerText, decision } of groupedOutcomes) {
+  for (const { id, offerCode, offerText, decision } of fullOutcomes) {
     await prisma.outcome.update({
       where: { id },
       data: {
@@ -140,7 +140,7 @@ export async function upsertOutcome(
   }
 
   revalidatePath('/')
-  return { status: 'success', message: 'UG tutor form updated outcome successfully.' }
+  return { status: 'success', message: 'Outcomes updated successfully.' }
 }
 
 export async function insertComment(
@@ -167,7 +167,7 @@ export async function insertComment(
   })
 
   revalidatePath('/')
-  return { status: 'success', message: 'UG tutor form added comment successfully.' }
+  return { status: 'success', message: 'Added comment successfully.' }
 }
 
 export async function updateNextAction(
@@ -183,5 +183,4 @@ export async function updateNextAction(
       nextAction
     }
   })
-  revalidatePath('/')
 }

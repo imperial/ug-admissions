@@ -1,3 +1,5 @@
+'use client'
+
 import CandidateCallout from '@/components/dialog/CandidateCallout'
 import CommentItem from '@/components/dialog/CommentItem'
 import FormWrapper from '@/components/dialog/FormWrapper'
@@ -7,7 +9,7 @@ import Dropdown from '@/components/general/Dropdown'
 import LabelText from '@/components/general/LabelText'
 import { ApplicationRow } from '@/components/table/ApplicationTable'
 import { adminAccess } from '@/lib/access'
-import { insertComment, upsertOutcome } from '@/lib/query/forms'
+import { insertComment, updateOutcomes } from '@/lib/query/forms'
 import { FormPassbackState } from '@/lib/types'
 import { decimalToNumber } from '@/lib/utils'
 import {
@@ -30,10 +32,9 @@ import {
   TextArea,
   TextField
 } from '@radix-ui/themes'
-import React, { FC, useMemo, useState } from 'react'
+import React, { FC, useEffect, useMemo, useState } from 'react'
 
 interface UgTutorDialogProps {
-  // generalComments relation does not type check otherwise
   data: ApplicationRow
   reviewerLogin?: string
   user: { email: string; role?: Role }
@@ -60,7 +61,12 @@ const UgTutorForm: FC<UgTutorFormProps> = ({ data, reviewerLogin, readOnly, setC
   const [nextAction, setNextAction] = useState('Unchanged')
   const [commentType, setCommentType] = useState(CommentType.NOTE.toString())
 
-  // sort comments in descending order (most recent)
+  // don't reinitialise outcomes when switching tabs
+  useEffect(() => {
+    setOutcomes(data.outcomes)
+  }, [data.outcomes])
+
+  // comments ordered as most recent (in descending order)
   const sortedComments = useMemo(
     () =>
       internalReview?.generalComments.toSorted(
@@ -207,14 +213,13 @@ const UgTutorForm: FC<UgTutorFormProps> = ({ data, reviewerLogin, readOnly, setC
 
 const UgTutorDialog: FC<UgTutorDialogProps> = ({ data, reviewerLogin, user }) => {
   const [isOpen, setIsOpen] = useState(false)
-  const handleFormSuccess = () => setIsOpen(false)
   const [currentTab, setCurrentTab] = useState<Tab>('outcomes')
 
   const { id, admissionsCycle, internalReview } = data
   const { email, role } = user
 
   const upsertOutcomeWithId = async (prevState: FormPassbackState, formData: FormData) => {
-    return await upsertOutcome(
+    return await updateOutcomes(
       id,
       data.outcomes.map((o) => ({
         id: o.id,
@@ -245,7 +250,6 @@ const UgTutorDialog: FC<UgTutorDialogProps> = ({ data, reviewerLogin, user }) =>
     >
       <FormWrapper
         action={currentTab === 'outcomes' ? upsertOutcomeWithId : addCommentWithId}
-        onSuccess={handleFormSuccess}
         submitButtonText={currentTab === 'outcomes' ? 'Save' : 'Add Comment'}
         submitIcon={currentTab === 'outcomes' ? <DoubleArrowRightIcon /> : <Pencil2Icon />}
       >
