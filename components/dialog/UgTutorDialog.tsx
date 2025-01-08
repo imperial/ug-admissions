@@ -56,7 +56,7 @@ const decisionColourMap = {
 }
 
 const UgTutorForm: FC<UgTutorFormProps> = ({ data, reviewerLogin, readOnly, setCurrentTab }) => {
-  const { applicant, internalReview, reviewerPercentile } = data
+  const { applicant, internalReview } = data
   const [outcomes, setOutcomes] = useState(data.outcomes)
   const [nextAction, setNextAction] = useState('Unchanged')
   const [commentType, setCommentType] = useState(CommentType.NOTE.toString())
@@ -85,7 +85,7 @@ const UgTutorForm: FC<UgTutorFormProps> = ({ data, reviewerLogin, readOnly, setC
         isTutorDialog={true}
         reviewer={reviewerLogin}
         overallScore={decimalToNumber(internalReview?.overallScore)}
-        reviewerPercentile={reviewerPercentile}
+        reviewerPercentile={internalReview?.reviewerPercentile}
         academicComments={internalReview?.academicComments}
       />
 

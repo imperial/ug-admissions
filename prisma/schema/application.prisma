@@ -63,8 +63,6 @@ model Application {
   nextAction               NextAction           @default(ADMIN_SCORING_MISSING_TMUA)
   reviewer                 User?                @relation(fields: [reviewerId], references: [id])
   reviewerId               Int?
-  reviewerRank             Int?
-  reviewerPercentile       Int?
   outcomes                 Outcome[]
 
   @@unique([admissionsCycle, cid])
@@ -82,6 +80,8 @@ model InternalReview {
   motivationReviewerScore      Decimal?    @db.Decimal(3, 1)
   extracurricularReviewerScore Decimal?    @db.Decimal(3, 1)
   referenceReviewerScore       Decimal?    @db.Decimal(3, 1)
+  reviewerPercentile           Int?
+  reviewerRank                 Int?
   overallScore                 Decimal?    @db.Decimal(3, 1)
   academicComments             String?
   lastReviewerEditOn           DateTime?
