@@ -38,7 +38,7 @@ export function prettifyOption(value: string): string {
 
 export function shortenEmail(email: string | undefined): string {
   // strip domain from email to save space
-  return email ? email.replace(/@.*$/, '') : 'Not allocated'
+  return email ? email.replace(/@.*$/, '') : 'Unassigned'
 }
 
 export function formatCycle(cycle: number | string): string {
