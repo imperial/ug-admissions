@@ -183,4 +183,5 @@ export async function updateNextAction(
       nextAction
     }
   })
+  revalidatePath('/')
 }
