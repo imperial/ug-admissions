@@ -1,11 +1,7 @@
-import { CommentType, Comment as PrismaComment } from '@prisma/client'
+import { Comment as ApplicationComment, CommentType } from '@prisma/client'
 import { Badge, Card, Flex, Text } from '@radix-ui/themes'
 import { format } from 'date-fns'
 import { FC } from 'react'
-
-interface CommentProps {
-  comment: PrismaComment
-}
 
 const CommentTypeBadgeMap = {
   [CommentType.NOTE]: <Badge color="orange">Note</Badge>,
@@ -14,7 +10,11 @@ const CommentTypeBadgeMap = {
   [CommentType.AMEND_OFFER]: <Badge color="red">Amend Offer</Badge>
 }
 
-const CommentItem: FC<CommentProps> = ({ comment }) => {
+interface CommentItemProps {
+  comment: ApplicationComment
+}
+
+const CommentItem: FC<CommentItemProps> = ({ comment }) => {
   return (
     <Card>
       <Flex direction="column">
@@ -35,4 +35,18 @@ const CommentItem: FC<CommentProps> = ({ comment }) => {
   )
 }
 
-export default CommentItem
+interface AllCommentsProps {
+  sortedComments: ApplicationComment[]
+}
+
+const AllComments: FC<AllCommentsProps> = ({ sortedComments }) => {
+  return (
+    <Flex direction="column" gap="3">
+      {sortedComments.map((comment: ApplicationComment, index: number) => (
+        <CommentItem key={index} comment={comment} />
+      ))}
+    </Flex>
+  )
+}
+
+export default AllComments

@@ -1,7 +1,7 @@
 'use client'
 
+import AllComments from '@/components/dialog/AllComments'
 import CandidateCallout from '@/components/dialog/CandidateCallout'
-import CommentItem from '@/components/dialog/CommentItem'
 import FormWrapper from '@/components/dialog/FormWrapper'
 import GenericDialog from '@/components/dialog/GenericDialog'
 import TmuaGradeBox from '@/components/dialog/TmuaGradeBox'
@@ -160,19 +160,13 @@ const UgTutorForm: FC<UgTutorFormProps> = ({ data, reviewerLogin, readOnly, setC
                   ))}
                 </Flex>
               </Flex>
-              <Flex direction="column" gap="3">
-                {sortedComments.map((comment: ApplicationComment) => (
-                  <CommentItem key={comment.commentNo} comment={comment} />
-                ))}
-              </Flex>
+              <AllComments sortedComments={sortedComments} />
             </Flex>
           </Tabs.Content>
 
           <Tabs.Content value="comments">
             <Flex direction="column" gap="3">
-              {sortedComments.map((comment: ApplicationComment) => (
-                <CommentItem key={comment.commentNo} comment={comment} />
-              ))}
+              <AllComments sortedComments={sortedComments} />
               <Flex>
                 <LabelText label="Type">
                   <Dropdown
