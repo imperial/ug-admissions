@@ -158,7 +158,7 @@ const ApplicationTable: FC<ApplicationTableProps> = ({
           return (
             value !== undefined &&
             value !== null &&
-            parseFloat(value.toString()) <= parseFloat(percentileThreshold)
+            parseInt(value.toString(), 10) <= parseInt(percentileThreshold, 10)
           )
         }
       }),
