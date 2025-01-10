@@ -6,7 +6,7 @@ interface CandidateCalloutProps {
   firstName: string
   surname: string
   ucasNumber: string
-  isTutorDialog?: boolean
+  showExtraInformation?: boolean
   reviewer?: string
   reviewerPercentile?: number | null
   overallScore?: number | null
@@ -17,7 +17,7 @@ const CandidateCallout: FC<CandidateCalloutProps> = ({
   firstName,
   surname,
   ucasNumber,
-  isTutorDialog = false,
+  showExtraInformation = false,
   reviewer,
   overallScore,
   reviewerPercentile,
@@ -44,7 +44,7 @@ const CandidateCallout: FC<CandidateCalloutProps> = ({
             </DataList.Value>
           </DataList.Item>
         </DataList.Root>
-        {isTutorDialog && (
+        {showExtraInformation && (
           <DataList.Root>
             <DataList.Item align="center">
               <DataList.Label>Reviewer percentile:</DataList.Label>
