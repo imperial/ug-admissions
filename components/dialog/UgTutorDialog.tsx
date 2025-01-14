@@ -34,19 +34,21 @@ import {
 } from '@radix-ui/themes'
 import React, { FC, useEffect, useMemo, useState } from 'react'
 
+type Tab = 'outcomes' | 'comments'
+
 interface UgTutorDialogProps {
   data: ApplicationRow
   reviewerLogin?: string
   user: { email: string; role?: Role }
 }
 
-type Tab = 'outcomes' | 'comments'
-
 interface UgTutorFormProps {
   data: ApplicationRow
   reviewerLogin?: string
   readOnly: boolean
   setCurrentTab: (tab: Tab) => void
+  nextAction: string
+  setNextAction: (nextAction: string) => void
 }
 
 const decisionColourMap = {
@@ -55,10 +57,16 @@ const decisionColourMap = {
   [Decision.PENDING]: 'bg-amber-200'
 }
 
-const UgTutorForm: FC<UgTutorFormProps> = ({ data, reviewerLogin, readOnly, setCurrentTab }) => {
+const UgTutorForm: FC<UgTutorFormProps> = ({
+  data,
+  reviewerLogin,
+  readOnly,
+  setCurrentTab,
+  nextAction,
+  setNextAction
+}) => {
   const { applicant, internalReview } = data
   const [outcomes, setOutcomes] = useState(data.outcomes)
-  const [nextAction, setNextAction] = useState('Unchanged')
   const [commentType, setCommentType] = useState(CommentType.NOTE.toString())
 
   // don't reinitialise outcomes when switching tabs
@@ -180,7 +188,7 @@ const UgTutorForm: FC<UgTutorFormProps> = ({ data, reviewerLogin, readOnly, setC
                 </LabelText>
               </Flex>
               <LabelText label="Comment">
-                <TextArea name="text" defaultValue="" disabled={readOnly} />
+                <TextArea name="text" defaultValue="" disabled={readOnly} minLength={1} required />
               </LabelText>
             </Flex>
           </Tabs.Content>
@@ -208,6 +216,7 @@ const UgTutorForm: FC<UgTutorFormProps> = ({ data, reviewerLogin, readOnly, setC
 const UgTutorDialog: FC<UgTutorDialogProps> = ({ data, reviewerLogin, user }) => {
   const [isOpen, setIsOpen] = useState(false)
   const [currentTab, setCurrentTab] = useState<Tab>('outcomes')
+  const [nextAction, setNextAction] = useState<string>('Unchanged')
 
   const { id, admissionsCycle, internalReview } = data
   const { email, role } = user
@@ -246,12 +255,15 @@ const UgTutorDialog: FC<UgTutorDialogProps> = ({ data, reviewerLogin, user }) =>
         action={currentTab === 'outcomes' ? upsertOutcomeWithId : addCommentWithId}
         submitButtonText={currentTab === 'outcomes' ? 'Save' : 'Add Comment'}
         submitIcon={currentTab === 'outcomes' ? <DoubleArrowRightIcon /> : <Pencil2Icon />}
+        onSuccess={() => setIsOpen(nextAction === 'Unchanged')}
       >
         <UgTutorForm
           data={data}
           reviewerLogin={reviewerLogin}
           readOnly={!adminAccess(email, role)}
           setCurrentTab={setCurrentTab}
+          nextAction={nextAction}
+          setNextAction={setNextAction}
         />
       </FormWrapper>
     </GenericDialog>
