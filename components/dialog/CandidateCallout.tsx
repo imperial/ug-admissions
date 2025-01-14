@@ -27,41 +27,39 @@ const CandidateCallout: FC<CandidateCalloutProps> = ({
     <Callout.Root>
       <Flex align="center" gap="9">
         <DataList.Root>
-          <DataList.Item align="center">
-            <DataList.Label>Applicant:</DataList.Label>
-            <DataList.Value className="font-bold">
-              {firstName} {surname}
-            </DataList.Value>
-          </DataList.Item>
-          <DataList.Item align="center">
-            <DataList.Label>UCAS number:</DataList.Label>
-            <DataList.Value className="font-bold">{ucasNumber}</DataList.Value>
-          </DataList.Item>{' '}
-          <DataList.Item align="center">
-            <DataList.Label>Reviewer:</DataList.Label>
-            <DataList.Value className="font-bold">
-              {reviewer ? shortenEmail(reviewer) : 'Unassigned'}
-            </DataList.Value>
-          </DataList.Item>
+          <ListItem label="Applicant" value={`${firstName} ${surname}`} />
+          <ListItem label="UCAS number" value={ucasNumber} />
+          <ListItem label="Reviewer" value={reviewer ? shortenEmail(reviewer) : 'Unassigned'} />
         </DataList.Root>
         {showExtraInformation && (
           <DataList.Root>
-            <DataList.Item align="center">
-              <DataList.Label>Reviewer percentile:</DataList.Label>
-              <DataList.Value className="font-bold">{reviewerPercentile || 'N/A'}</DataList.Value>
-            </DataList.Item>
-            <DataList.Item align="center">
-              <DataList.Label>Overall score:</DataList.Label>
-              <DataList.Value className="font-bold">{overallScore || 'N/A'}</DataList.Value>
-            </DataList.Item>
-            <DataList.Item align="center">
-              <DataList.Label>Academic comments:</DataList.Label>
-              <DataList.Value className="font-bold">{academicComments || 'N/A'}</DataList.Value>
-            </DataList.Item>
+            <ListItem
+              label="Reviewer percentile"
+              value={reviewerPercentile ? reviewerPercentile.toString() : 'N/A'}
+            />
+            <ListItem
+              label="Overall score"
+              value={overallScore ? overallScore.toString() : 'N/A'}
+            />
+            <ListItem label="Academic comments" value={academicComments || 'N/A'} />
           </DataList.Root>
         )}
       </Flex>
     </Callout.Root>
+  )
+}
+
+interface ListItemProps {
+  label: string
+  value: string
+}
+
+const ListItem: FC<ListItemProps> = ({ label, value }) => {
+  return (
+    <DataList.Item align="center">
+      <DataList.Label>{label}:</DataList.Label>
+      <DataList.Value className="font-bold">{value}</DataList.Value>
+    </DataList.Item>
   )
 }
 
