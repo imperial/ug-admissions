@@ -114,7 +114,7 @@ const UgTutorForm: FC<UgTutorFormProps> = ({
                   {outcomes.map((outcome, i) => (
                     <Card
                       key={outcome.id}
-                      className={`my-2 ${decisionColourMap[outcome.decision]}`}
+                      className={`my-2 ${decisionColourMap[outcome.decision]} w-[40rem]`}
                       variant="classic"
                       size="2"
                     >
