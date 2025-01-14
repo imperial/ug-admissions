@@ -53,6 +53,7 @@ const ReviewerScoringForm: FC<ReviewerScoringFormProps> = ({ data, readOnly }) =
         firstName={applicant.firstName}
         surname={applicant.surname}
         ucasNumber={applicant.ucasNumber}
+        reviewer={data.reviewer?.login}
       />
 
       <Callout.Root>

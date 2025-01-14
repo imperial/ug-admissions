@@ -80,6 +80,8 @@ model InternalReview {
   motivationReviewerScore      Decimal?    @db.Decimal(3, 1)
   extracurricularReviewerScore Decimal?    @db.Decimal(3, 1)
   referenceReviewerScore       Decimal?    @db.Decimal(3, 1)
+  reviewerPercentile           Int?
+  reviewerRank                 Int?
   overallScore                 Decimal?    @db.Decimal(3, 1)
   academicComments             String?
   lastReviewerEditOn           DateTime?

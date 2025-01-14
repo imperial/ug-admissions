@@ -21,6 +21,7 @@ import {
 import { CheckboxIcon, Link2Icon, MagnifyingGlassIcon } from '@radix-ui/react-icons'
 import { Button, Card, Flex, Link, Text, TextField } from '@radix-ui/themes'
 import { ColumnFiltersState, createColumnHelper } from '@tanstack/react-table'
+import { isNil } from 'lodash'
 import { useSession } from 'next-auth/react'
 import { usePathname, useSearchParams } from 'next/navigation'
 import React, { FC, useEffect, useMemo, useState } from 'react'
@@ -37,6 +38,7 @@ export type ApplicationRow = Application & {
 const ALL_DROPDOWN_OPTION = 'All'
 const SEARCH_PARAM_NEXT_ACTION = 'nextAction'
 const SEARCH_PARAM_REVIEWER = 'reviewer'
+const SEARCH_PARAM_PERCENTILE = 'percentile'
 
 const columnHelper = createColumnHelper<ApplicationRow>()
 
@@ -63,6 +65,7 @@ const ApplicationTable: FC<ApplicationTableProps> = ({
   const [globalFilter, setGlobalFilter] = useState<string>('')
   const [nextActionFilterValue, setNextActionFilterValue] = useState<string>(ALL_DROPDOWN_OPTION)
   const [reviewerFilterValue, setReviewerFilterValue] = useState<string>(ALL_DROPDOWN_OPTION)
+  const [percentileThreshold, setPercentileThreshold] = useState<string>('')
 
   // searchParams determine what filters should be applied and the value of the dropdown
   useEffect(() => {
@@ -70,7 +73,14 @@ const ApplicationTable: FC<ApplicationTableProps> = ({
 
     setNextActionFilterValue(searchParams.get(SEARCH_PARAM_NEXT_ACTION) || ALL_DROPDOWN_OPTION)
     setReviewerFilterValue(searchParams.get(SEARCH_PARAM_REVIEWER) || ALL_DROPDOWN_OPTION)
-  }, [searchParams, setNextActionFilterValue, setReviewerFilterValue, setColumnFilters])
+    setPercentileThreshold(searchParams.get(SEARCH_PARAM_PERCENTILE) || '')
+  }, [
+    searchParams,
+    setNextActionFilterValue,
+    setReviewerFilterValue,
+    setPercentileThreshold,
+    setColumnFilters
+  ])
 
   const updateSearchParam = (name: string, value: string) => {
     const params = new URLSearchParams(searchParams.toString())
@@ -85,8 +95,8 @@ const ApplicationTable: FC<ApplicationTableProps> = ({
   }
 
   // update searchParams which in turn update the dropdown value and the filters
-  const onFilterDropdownChange = (name: string, value: string) => {
-    if (value === ALL_DROPDOWN_OPTION) removeSearchParam(name)
+  const onFilterTextChange = (name: string, value: string) => {
+    if (value === ALL_DROPDOWN_OPTION || value === '') removeSearchParam(name)
     else updateSearchParam(name, value)
   }
 
@@ -140,19 +150,37 @@ const ApplicationTable: FC<ApplicationTableProps> = ({
         header: 'Reviewer',
         id: SEARCH_PARAM_REVIEWER
       }),
+      columnHelper.accessor('internalReview.reviewerPercentile', {
+        cell: (info) => info.getValue() || 'N/A',
+        header: 'R %',
+        id: 'percentile',
+        filterFn: (row) => {
+          const reviewerPercentile = row.original.internalReview?.reviewerPercentile
+          return (
+            !isNil(reviewerPercentile) && reviewerPercentile <= parseInt(percentileThreshold, 10)
+          )
+        }
+      }),
       columnHelper.display({
         id: 'forms',
         header: 'Forms',
-        cell: (info) => (
-          <Flex gap="1">
-            <AdminScoringDialog data={info.row.original} user={{ email: email, role: role }} />
-            <ReviewerScoringDialog data={info.row.original} userEmail={email} />
-            <UgTutorDialog data={info.row.original} user={{ email: email, role: role }} />
-          </Flex>
-        )
+        cell: (info) => {
+          const data = info.row.original
+          return (
+            <Flex gap="1">
+              <AdminScoringDialog data={data} user={{ email: email, role: role }} />
+              <ReviewerScoringDialog data={data} userEmail={email} />
+              <UgTutorDialog
+                data={data}
+                user={{ email: email, role: role }}
+                reviewerLogin={data?.reviewer?.login}
+              />
+            </Flex>
+          )
+        }
       })
     ],
-    [cycle, email, role]
+    [cycle, email, role, percentileThreshold]
   )
 
   return (
@@ -165,7 +193,7 @@ const ApplicationTable: FC<ApplicationTableProps> = ({
               <Dropdown
                 values={[ALL_DROPDOWN_OPTION, ...Object.keys(NextAction)]}
                 currentValue={nextActionFilterValue}
-                onValueChange={(value) => onFilterDropdownChange(SEARCH_PARAM_NEXT_ACTION, value)}
+                onValueChange={(value) => onFilterTextChange(SEARCH_PARAM_NEXT_ACTION, value)}
               />
             </Flex>
 
@@ -174,8 +202,19 @@ const ApplicationTable: FC<ApplicationTableProps> = ({
               <Dropdown
                 values={[ALL_DROPDOWN_OPTION, ...reviewerLogins]}
                 currentValue={reviewerFilterValue}
-                onValueChange={(value) => onFilterDropdownChange(SEARCH_PARAM_REVIEWER, value)}
+                onValueChange={(value) => onFilterTextChange(SEARCH_PARAM_REVIEWER, value)}
                 valueFormatter={shortenEmail}
+              />
+            </Flex>
+
+            <Flex align="center" gap="2">
+              <Text weight="medium">%:</Text>
+              <TextField.Root
+                onChange={(e) => onFilterTextChange(SEARCH_PARAM_PERCENTILE, e.target.value)}
+                value={percentileThreshold}
+                type="number"
+                size="2"
+                className="w-8"
               />
             </Flex>
           </Flex>

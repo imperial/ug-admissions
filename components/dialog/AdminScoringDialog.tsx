@@ -50,6 +50,7 @@ const AdminScoringForm: FC<AdminScoringFormProps> = ({ data, readOnly }) => {
         firstName={applicant.firstName}
         surname={applicant.surname}
         ucasNumber={applicant.ucasNumber}
+        reviewer={data.reviewer?.login}
       />
 
       {/* Reviewers should not be able to see TMUA grades */}
