@@ -21,6 +21,7 @@ import {
 import { CheckboxIcon, Link2Icon, MagnifyingGlassIcon } from '@radix-ui/react-icons'
 import { Button, Card, Flex, Link, Text, TextField } from '@radix-ui/themes'
 import { ColumnFiltersState, createColumnHelper } from '@tanstack/react-table'
+import { isNil } from 'lodash'
 import { useSession } from 'next-auth/react'
 import { usePathname, useSearchParams } from 'next/navigation'
 import React, { FC, useEffect, useMemo, useState } from 'react'
@@ -154,28 +155,29 @@ const ApplicationTable: FC<ApplicationTableProps> = ({
         header: 'R %',
         id: 'percentile',
         filterFn: (row) => {
-          const value = row.original.internalReview?.reviewerPercentile
+          const reviewerPercentile = row.original.internalReview?.reviewerPercentile
           return (
-            value !== undefined &&
-            value !== null &&
-            parseInt(value.toString(), 10) <= parseInt(percentileThreshold, 10)
+            !isNil(reviewerPercentile) && reviewerPercentile <= parseInt(percentileThreshold, 10)
           )
         }
       }),
       columnHelper.display({
         id: 'forms',
         header: 'Forms',
-        cell: (info) => (
-          <Flex gap="1">
-            <AdminScoringDialog data={info.row.original} user={{ email: email, role: role }} />
-            <ReviewerScoringDialog data={info.row.original} userEmail={email} />
-            <UgTutorDialog
-              data={info.row.original}
-              user={{ email: email, role: role }}
-              reviewerLogin={info.row.original?.reviewer?.login}
-            />
-          </Flex>
-        )
+        cell: (info) => {
+          const data = info.row.original
+          return (
+            <Flex gap="1">
+              <AdminScoringDialog data={data} user={{ email: email, role: role }} />
+              <ReviewerScoringDialog data={data} userEmail={email} />
+              <UgTutorDialog
+                data={data}
+                user={{ email: email, role: role }}
+                reviewerLogin={data?.reviewer?.login}
+              />
+            </Flex>
+          )
+        }
       })
     ],
     [cycle, email, role, percentileThreshold]
