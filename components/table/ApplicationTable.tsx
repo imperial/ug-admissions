@@ -270,6 +270,17 @@ const NextActionCell: FC<{ nextAction: NextAction; applicationId: number }> = ({
           size="1"
           color="grass"
           onClick={async () => {
+            await updateNextAction(NextAction.FINAL_CHECK, applicationId)
+          }}
+        >
+          <CheckboxIcon />
+        </Button>
+      )}
+      {nextAction === NextAction.FINAL_CHECK && (
+        <Button
+          size="1"
+          color="grass"
+          onClick={async () => {
             await updateNextAction(NextAction.CANDIDATE_INFORMED, applicationId)
           }}
         >
