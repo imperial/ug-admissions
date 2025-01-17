@@ -265,28 +265,33 @@ const NextActionCell: FC<{ nextAction: NextAction; applicationId: number }> = ({
   return (
     <Flex align="center" justify="between" gap="2">
       {prettifyOption(nextAction)}
-      {nextAction === NextAction.INFORM_CANDIDATE && (
+      {(nextAction === NextAction.INFORM_CANDIDATE || nextAction === NextAction.FINAL_CHECK) && (
         <Button
           size="1"
           color="grass"
           onClick={async () => {
-            await updateNextAction(NextAction.FINAL_CHECK, applicationId)
+            await updateNextAction(
+              nextAction === NextAction.INFORM_CANDIDATE
+                ? NextAction.FINAL_CHECK
+                : NextAction.CANDIDATE_INFORMED,
+              applicationId
+            )
           }}
         >
           <CheckboxIcon />
         </Button>
       )}
-      {nextAction === NextAction.FINAL_CHECK && (
+      {/* {nextAction === NextAction.FINAL_CHECK && (
         <Button
           size="1"
           color="grass"
           onClick={async () => {
             await updateNextAction(NextAction.CANDIDATE_INFORMED, applicationId)
-          }}
-        >
+          }}  
+         >
           <CheckboxIcon />
         </Button>
-      )}
+      )} */}
     </Flex>
   )
 }
