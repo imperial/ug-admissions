@@ -281,17 +281,6 @@ const NextActionCell: FC<{ nextAction: NextAction; applicationId: number }> = ({
           <CheckboxIcon />
         </Button>
       )}
-      {/* {nextAction === NextAction.FINAL_CHECK && (
-        <Button
-          size="1"
-          color="grass"
-          onClick={async () => {
-            await updateNextAction(NextAction.CANDIDATE_INFORMED, applicationId)
-          }}  
-         >
-          <CheckboxIcon />
-        </Button>
-      )} */}
     </Flex>
   )
 }
