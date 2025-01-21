@@ -1,6 +1,7 @@
 'use server'
 
 import prisma from '@/db'
+import { getUserFromCycleAndEmail } from '@/lib/query/users'
 import {
   formAdminSchema,
   formCommentSchema,
@@ -60,14 +61,18 @@ export async function upsertAdminScoring(
       extracurricularAdminScore,
       examComments,
       lastAdminEditBy: adminLogin,
-      lastAdminEditOn: new Date()
+      lastAdminEditOn: new Date(),
+      lastUserEditBy: adminLogin,
+      lastUserEditOn: new Date()
     },
     update: {
       motivationAdminScore,
       extracurricularAdminScore,
       examComments,
       lastAdminEditBy: adminLogin,
-      lastAdminEditOn: new Date()
+      lastAdminEditOn: new Date(),
+      lastUserEditBy: adminLogin,
+      lastUserEditOn: new Date()
     }
   })
 
@@ -77,6 +82,7 @@ export async function upsertAdminScoring(
 
 export async function upsertReviewerScoring(
   applicationId: number,
+  userEmail: string,
   _: FormPassbackState,
   formData: FormData
 ): Promise<FormPassbackState> {
@@ -104,7 +110,9 @@ export async function upsertReviewerScoring(
       extracurricularReviewerScore,
       referenceReviewerScore,
       academicComments,
-      lastReviewerEditOn: new Date()
+      lastReviewerEditOn: new Date(),
+      lastUserEditBy: userEmail,
+      lastUserEditOn: new Date()
     }
   })
 

@@ -142,7 +142,7 @@ const ReviewerScoringDialog: FC<ReviewerScoringDialogProps> = ({ data, userEmail
   const handleFormSuccess = () => setIsOpen(false)
 
   const upsertReviewerScoringWithId = (prevState: FormPassbackState, formData: FormData) =>
-    upsertReviewerScoring(data.id, prevState, formData)
+    upsertReviewerScoring(data.id, userEmail, prevState, formData)
 
   const readOnly = !reviewerAccess(data.reviewer?.login, userEmail)
 
