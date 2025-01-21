@@ -32,6 +32,7 @@ import {
   TextArea,
   TextField
 } from '@radix-ui/themes'
+import { format } from 'date-fns'
 import React, { FC, useEffect, useMemo, useState } from 'react'
 
 type Tab = 'outcomes' | 'comments'
@@ -86,6 +87,13 @@ const UgTutorForm: FC<UgTutorFormProps> = ({
 
   return (
     <Flex direction="column" gap="3">
+      {internalReview?.lastUserEditOn && internalReview?.lastUserEditBy && (
+        <Text size="2" className="italic text-gray-500">
+          Last edited by {internalReview.lastUserEditBy} on{' '}
+          {format(internalReview.lastUserEditOn, "dd/MM/yy 'at' HH:mm")}
+        </Text>
+      )}
+
       <CandidateCallout
         firstName={applicant.firstName}
         surname={applicant.surname}
