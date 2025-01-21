@@ -211,7 +211,9 @@ function updateAdminScoring(
             extracurricularAdminScore: a.extracurricularAdminScore,
             examComments: a.examComments,
             lastAdminEditBy: userEmail,
-            lastAdminEditOn: new Date()
+            lastAdminEditOn: new Date(),
+            lastUserEditBy: userEmail,
+            lastUserEditOn: new Date()
           }
         }
       }
