@@ -199,6 +199,7 @@ const UgTutorForm: FC<UgTutorFormProps> = ({
                 'Unchanged',
                 NextAction.UG_TUTOR_REVIEW,
                 NextAction.INFORM_CANDIDATE,
+                NextAction.FINAL_CHECK,
                 NextAction.CANDIDATE_INFORMED
               ]}
               currentValue={nextAction}
