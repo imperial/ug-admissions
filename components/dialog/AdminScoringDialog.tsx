@@ -7,6 +7,7 @@ import TmuaGradeBox from '@/components/dialog/TmuaGradeBox'
 import Dropdown from '@/components/general/Dropdown'
 import LabelText from '@/components/general/LabelText'
 import { adminAccess } from '@/lib/access'
+import { dateFormatting } from '@/lib/constants'
 import { upsertAdminScoring } from '@/lib/query/forms'
 import { FormPassbackState } from '@/lib/types'
 import { decimalToNumber } from '@/lib/utils'
@@ -42,7 +43,7 @@ const AdminScoringForm: FC<AdminScoringFormProps> = ({ data, readOnly }) => {
       {internalReview?.lastAdminEditOn && internalReview?.lastAdminEditBy && (
         <Text size="2" className="italic text-gray-500">
           Last edited by {internalReview.lastAdminEditBy} on{' '}
-          {format(internalReview.lastAdminEditOn, "dd/MM/yy 'at' HH:mm")}
+          {format(internalReview.lastAdminEditOn, dateFormatting)}
         </Text>
       )}
 

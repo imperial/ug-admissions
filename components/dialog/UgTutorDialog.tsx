@@ -9,6 +9,7 @@ import Dropdown from '@/components/general/Dropdown'
 import LabelText from '@/components/general/LabelText'
 import { ApplicationRow } from '@/components/table/ApplicationTable'
 import { adminAccess } from '@/lib/access'
+import { dateFormatting } from '@/lib/constants'
 import { insertComment, updateOutcomes } from '@/lib/query/forms'
 import { FormPassbackState } from '@/lib/types'
 import { decimalToNumber } from '@/lib/utils'
@@ -90,7 +91,7 @@ const UgTutorForm: FC<UgTutorFormProps> = ({
       {internalReview?.lastUserEditOn && internalReview?.lastUserEditBy && (
         <Text size="2" className="italic text-gray-500">
           Last edited by {internalReview.lastUserEditBy} on{' '}
-          {format(internalReview.lastUserEditOn, "dd/MM/yy 'at' HH:mm")}
+          {format(internalReview.lastUserEditOn, dateFormatting)}
         </Text>
       )}
 
