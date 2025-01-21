@@ -192,6 +192,7 @@ function updateAdminScoring(
     if (currentNextAction === NextAction.ADMIN_SCORING_WITH_TMUA)
       nextNextAction = NextAction.REVIEWER_SCORING
 
+    const currentTimestamp = new Date()
     return prisma.application.update({
       where: {
         admissionsCycle_cid: {
@@ -211,9 +212,9 @@ function updateAdminScoring(
             extracurricularAdminScore: a.extracurricularAdminScore,
             examComments: a.examComments,
             lastAdminEditBy: userEmail,
-            lastAdminEditOn: new Date(),
+            lastAdminEditOn: currentTimestamp,
             lastUserEditBy: userEmail,
-            lastUserEditOn: new Date()
+            lastUserEditOn: currentTimestamp
           }
         }
       }

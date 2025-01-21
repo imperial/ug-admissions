@@ -51,6 +51,7 @@ export async function upsertAdminScoring(
     }
   })
 
+  const currentTimestamp = new Date()
   await prisma.internalReview.upsert({
     where: {
       applicationId
@@ -61,18 +62,18 @@ export async function upsertAdminScoring(
       extracurricularAdminScore,
       examComments,
       lastAdminEditBy: adminLogin,
-      lastAdminEditOn: new Date(),
+      lastAdminEditOn: currentTimestamp,
       lastUserEditBy: adminLogin,
-      lastUserEditOn: new Date()
+      lastUserEditOn: currentTimestamp
     },
     update: {
       motivationAdminScore,
       extracurricularAdminScore,
       examComments,
       lastAdminEditBy: adminLogin,
-      lastAdminEditOn: new Date(),
+      lastAdminEditOn: currentTimestamp,
       lastUserEditBy: adminLogin,
-      lastUserEditOn: new Date()
+      lastUserEditOn: currentTimestamp
     }
   })
 
@@ -103,6 +104,7 @@ export async function upsertReviewerScoring(
     }
   })
 
+  const currentTimestamp = new Date()
   await prisma.internalReview.update({
     where: { applicationId },
     data: {
@@ -110,9 +112,9 @@ export async function upsertReviewerScoring(
       extracurricularReviewerScore,
       referenceReviewerScore,
       academicComments,
-      lastReviewerEditOn: new Date(),
+      lastReviewerEditOn: currentTimestamp,
       lastUserEditBy: userEmail,
-      lastUserEditOn: new Date()
+      lastUserEditOn: currentTimestamp
     }
   })
 
