@@ -45,7 +45,7 @@ const ReviewerScoringForm: FC<ReviewerScoringFormProps> = ({ data, readOnly }) =
     <Flex direction="column" gap="3">
       {internalReview?.lastReviewerEditOn && (
         <Text size="2" className="italic text-gray-500">
-          Last edited on {format(internalReview.lastReviewerEditOn, "dd/MM/yy 'at' HH:mm")}
+          Last reviewed on {format(internalReview.lastReviewerEditOn, "dd/MM/yy 'at' HH:mm")}
         </Text>
       )}
 
