@@ -90,7 +90,7 @@ const UgTutorForm: FC<UgTutorFormProps> = ({
     <Flex direction="column" gap="3">
       {internalReview?.lastUserEditOn && internalReview?.lastUserEditBy && (
         <Text size="2" className="italic text-gray-500">
-          Last edited by {internalReview.lastUserEditBy} on{' '}
+          Last overall edit by {internalReview.lastUserEditBy} on{' '}
           {format(internalReview.lastUserEditOn, dateFormatting)}
         </Text>
       )}
