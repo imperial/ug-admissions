@@ -140,7 +140,11 @@ const ApplicationTable: FC<ApplicationTableProps> = ({
       }),
       columnHelper.accessor('nextAction', {
         cell: (info) => (
-          <NextActionCell nextAction={info.getValue()} applicationId={info.row.original.id} />
+          <NextActionCell
+            userEmail={email}
+            nextAction={info.getValue()}
+            applicationId={info.row.original.id}
+          />
         ),
         header: 'Next Action',
         id: SEARCH_PARAM_NEXT_ACTION
@@ -258,9 +262,10 @@ const WPColourMap: Record<WP, 'green' | 'red' | 'yellow'> = {
   [WP.NOT_CALCULATED]: 'yellow'
 }
 
-const NextActionCell: FC<{ nextAction: NextAction; applicationId: number }> = ({
+const NextActionCell: FC<{ nextAction: NextAction; applicationId: number; userEmail: string }> = ({
   nextAction,
-  applicationId
+  applicationId,
+  userEmail
 }) => {
   return (
     <Flex align="center" justify="between" gap="2">
@@ -271,6 +276,7 @@ const NextActionCell: FC<{ nextAction: NextAction; applicationId: number }> = ({
           color="grass"
           onClick={async () => {
             await updateNextAction(
+              userEmail,
               nextAction === NextAction.INFORM_CANDIDATE
                 ? NextAction.FINAL_CHECK
                 : NextAction.CANDIDATE_INFORMED,

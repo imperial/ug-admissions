@@ -233,6 +233,7 @@ const UgTutorDialog: FC<UgTutorDialogProps> = ({ data, reviewerLogin, user }) =>
   const upsertOutcomeWithId = async (prevState: FormPassbackState, formData: FormData) => {
     return await updateOutcomes(
       id,
+      email,
       data.outcomes.map((o) => ({
         id: o.id,
         degreeCode: o.degreeCode
