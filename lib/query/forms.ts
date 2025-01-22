@@ -50,6 +50,7 @@ export async function upsertAdminScoring(
     }
   })
 
+  const currentTimestamp = new Date()
   await prisma.internalReview.upsert({
     where: {
       applicationId
@@ -60,14 +61,18 @@ export async function upsertAdminScoring(
       extracurricularAdminScore,
       examComments,
       lastAdminEditBy: adminLogin,
-      lastAdminEditOn: new Date()
+      lastAdminEditOn: currentTimestamp,
+      lastUserEditBy: adminLogin,
+      lastUserEditOn: currentTimestamp
     },
     update: {
       motivationAdminScore,
       extracurricularAdminScore,
       examComments,
       lastAdminEditBy: adminLogin,
-      lastAdminEditOn: new Date()
+      lastAdminEditOn: currentTimestamp,
+      lastUserEditBy: adminLogin,
+      lastUserEditOn: currentTimestamp
     }
   })
 
@@ -77,6 +82,7 @@ export async function upsertAdminScoring(
 
 export async function upsertReviewerScoring(
   applicationId: number,
+  userEmail: string,
   _: FormPassbackState,
   formData: FormData
 ): Promise<FormPassbackState> {
@@ -97,6 +103,7 @@ export async function upsertReviewerScoring(
     }
   })
 
+  const currentTimestamp = new Date()
   await prisma.internalReview.update({
     where: { applicationId },
     data: {
@@ -104,7 +111,9 @@ export async function upsertReviewerScoring(
       extracurricularReviewerScore,
       referenceReviewerScore,
       academicComments,
-      lastReviewerEditOn: new Date()
+      lastReviewerEditOn: currentTimestamp,
+      lastUserEditBy: userEmail,
+      lastUserEditOn: currentTimestamp
     }
   })
 
@@ -114,6 +123,7 @@ export async function upsertReviewerScoring(
 
 export async function updateOutcomes(
   applicationId: number,
+  userEmail: string,
   partialOutcomes: { id: number; degreeCode: string }[],
   _: FormPassbackState,
   formData: FormData
@@ -126,7 +136,7 @@ export async function updateOutcomes(
     return { id, ...parsedOutcome }
   })
 
-  await updateNextAction(formData.get('nextAction'), applicationId)
+  await updateNextAction(userEmail, formData.get('nextAction'), applicationId)
 
   for (const { id, offerCode, offerText, decision } of fullOutcomes) {
     await prisma.outcome.update({
@@ -156,7 +166,7 @@ export async function insertComment(
   const result = formCommentSchema.safeParse(Object.fromEntries(formData))
   if (!result.success) return { status: 'error', message: result.error.issues[0].message }
 
-  await updateNextAction(formData.get('nextAction'), applicationId)
+  await updateNextAction(authorEmail, formData.get('nextAction'), applicationId)
 
   await prisma.comment.create({
     data: {
@@ -171,12 +181,21 @@ export async function insertComment(
 }
 
 export async function updateNextAction(
+  userEmail: string,
   nextActionInput: FormDataEntryValue | string | null,
   applicationId: number
 ) {
-  if (!nextActionInput || nextActionInput === 'Unchanged') return
+  await prisma.internalReview.update({
+    where: { applicationId },
+    data: {
+      lastUserEditBy: userEmail,
+      lastUserEditOn: new Date()
+    }
+  })
 
+  if (!nextActionInput || nextActionInput === 'Unchanged') return
   const nextAction = nextActionField.parse(nextActionInput)
+
   await prisma.application.update({
     where: { id: applicationId },
     data: {

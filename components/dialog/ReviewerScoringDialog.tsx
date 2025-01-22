@@ -5,6 +5,7 @@ import FormWrapper from '@/components/dialog/FormWrapper'
 import GenericDialog from '@/components/dialog/GenericDialog'
 import LabelText from '@/components/general/LabelText'
 import { reviewerAccess } from '@/lib/access'
+import { dateFormatting } from '@/lib/constants'
 import { upsertReviewerScoring } from '@/lib/query/forms'
 import { FormPassbackState } from '@/lib/types'
 import { ord } from '@/lib/utils'
@@ -45,7 +46,7 @@ const ReviewerScoringForm: FC<ReviewerScoringFormProps> = ({ data, readOnly }) =
     <Flex direction="column" gap="3">
       {internalReview?.lastReviewerEditOn && (
         <Text size="2" className="italic text-gray-500">
-          Last edited on {format(internalReview.lastReviewerEditOn, "dd/MM/yy 'at' HH:mm")}
+          Last reviewed on {format(internalReview.lastReviewerEditOn, dateFormatting)}
         </Text>
       )}
 
@@ -142,7 +143,7 @@ const ReviewerScoringDialog: FC<ReviewerScoringDialogProps> = ({ data, userEmail
   const handleFormSuccess = () => setIsOpen(false)
 
   const upsertReviewerScoringWithId = (prevState: FormPassbackState, formData: FormData) =>
-    upsertReviewerScoring(data.id, prevState, formData)
+    upsertReviewerScoring(data.id, userEmail, prevState, formData)
 
   const readOnly = !reviewerAccess(data.reviewer?.login, userEmail)
 

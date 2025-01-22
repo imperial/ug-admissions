@@ -9,6 +9,7 @@ import Dropdown from '@/components/general/Dropdown'
 import LabelText from '@/components/general/LabelText'
 import { ApplicationRow } from '@/components/table/ApplicationTable'
 import { adminAccess } from '@/lib/access'
+import { dateFormatting } from '@/lib/constants'
 import { insertComment, updateOutcomes } from '@/lib/query/forms'
 import { FormPassbackState } from '@/lib/types'
 import { decimalToNumber } from '@/lib/utils'
@@ -32,6 +33,7 @@ import {
   TextArea,
   TextField
 } from '@radix-ui/themes'
+import { format } from 'date-fns'
 import React, { FC, useEffect, useMemo, useState } from 'react'
 
 type Tab = 'outcomes' | 'comments'
@@ -86,6 +88,13 @@ const UgTutorForm: FC<UgTutorFormProps> = ({
 
   return (
     <Flex direction="column" gap="3">
+      {internalReview?.lastUserEditOn && internalReview?.lastUserEditBy && (
+        <Text size="2" className="italic text-gray-500">
+          Last overall edit by {internalReview.lastUserEditBy} on{' '}
+          {format(internalReview.lastUserEditOn, dateFormatting)}
+        </Text>
+      )}
+
       <CandidateCallout
         firstName={applicant.firstName}
         surname={applicant.surname}
@@ -225,6 +234,7 @@ const UgTutorDialog: FC<UgTutorDialogProps> = ({ data, reviewerLogin, user }) =>
   const upsertOutcomeWithId = async (prevState: FormPassbackState, formData: FormData) => {
     return await updateOutcomes(
       id,
+      email,
       data.outcomes.map((o) => ({
         id: o.id,
         degreeCode: o.degreeCode
