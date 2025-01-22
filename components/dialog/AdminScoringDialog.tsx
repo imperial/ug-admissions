@@ -42,7 +42,7 @@ const AdminScoringForm: FC<AdminScoringFormProps> = ({ data, readOnly }) => {
     <Flex direction="column" gap="3">
       {internalReview?.lastAdminEditOn && internalReview?.lastAdminEditBy && (
         <Text size="2" className="italic text-gray-500">
-          Last edited by {internalReview.lastAdminEditBy} on{' '}
+          Last admin scoring by {internalReview.lastAdminEditBy} on{' '}
           {format(internalReview.lastAdminEditOn, dateFormatting)}
         </Text>
       )}
