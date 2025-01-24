@@ -33,7 +33,7 @@ export async function upsertAdminScoring(
     examComments
   } = result.data
 
-  let nextAction: NextAction = NextAction.REVIEWER_SCORING
+  let nextAction: NextAction = NextAction.ADMIN_SCORED
   // don't backtrack the application state
   if (currentAction > nextAction) nextAction = currentAction
   if (includes([NextAction.ADMIN_SCORING_MISSING_TMUA, NextAction.PENDING_TMUA], currentAction))

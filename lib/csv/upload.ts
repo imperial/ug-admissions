@@ -101,9 +101,9 @@ function upsertApplication(applications: z.infer<typeof csvApplicationSchema>[])
         ? NextAction.ADMIN_SCORING_WITH_TMUA
         : NextAction.ADMIN_SCORING_MISSING_TMUA
     // don't backtrack the application state
-    if (ord(currentNextAction) >= ord(NextAction.REVIEWER_SCORING)) return currentNextAction
+    if (ord(currentNextAction) >= ord(NextAction.ADMIN_SCORED)) return currentNextAction
     if (currentNextAction === NextAction.PENDING_TMUA && isTmuaPresent)
-      return NextAction.REVIEWER_SCORING
+      return NextAction.ADMIN_SCORED
     if (currentNextAction === NextAction.ADMIN_SCORING_MISSING_TMUA && isTmuaPresent)
       return NextAction.ADMIN_SCORING_WITH_TMUA
     return currentNextAction
@@ -143,8 +143,8 @@ function upsertApplication(applications: z.infer<typeof csvApplicationSchema>[])
 /**
  * Updates the TMUA scores for existing applications
  * - If current nextAction is ADMIN_SCORING_MISSING_TMUA, set nextAction to ADMIN_SCORING_WITH_TMUA
- * - If current nextAction is PENDING_TMUA, move to REVIEWER_SCORING
- * - Otherwise, nextAction is unchanged by the upload
+ * - If current nextAction is PENDING_TMUA, move to ADMIN_SCORED
+ * - Otherwise, nextAction is unchanged by the upload to prevent backtracking
  *
  * @param scores - an array of schema objects containing TMUA scores
  */
@@ -158,7 +158,7 @@ function updateTmuaScores(scores: z.infer<typeof csvTmuaScoresSchema>[]) {
     if (currentNextAction === NextAction.ADMIN_SCORING_MISSING_TMUA) {
       nextNextAction = NextAction.ADMIN_SCORING_WITH_TMUA
     } else if (currentNextAction === NextAction.PENDING_TMUA) {
-      nextNextAction = NextAction.REVIEWER_SCORING
+      nextNextAction = NextAction.ADMIN_SCORED
     }
     // if another nextAction, keep it as is
 
@@ -190,7 +190,7 @@ function updateAdminScoring(
     if (currentNextAction === NextAction.ADMIN_SCORING_MISSING_TMUA)
       nextNextAction = NextAction.PENDING_TMUA
     if (currentNextAction === NextAction.ADMIN_SCORING_WITH_TMUA)
-      nextNextAction = NextAction.REVIEWER_SCORING
+      nextNextAction = NextAction.ADMIN_SCORED
 
     const currentTimestamp = new Date()
     return prisma.application.update({
