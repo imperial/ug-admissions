@@ -12,7 +12,7 @@ import { adminAccess } from '@/lib/access'
 import { dateFormatting } from '@/lib/constants'
 import { insertComment, updateOutcomes } from '@/lib/query/forms'
 import { FormPassbackState } from '@/lib/types'
-import { decimalToNumber } from '@/lib/utils'
+import { decimalToNumber, shortenEmail } from '@/lib/utils'
 import {
   Comment as ApplicationComment,
   CommentType,
@@ -90,7 +90,7 @@ const UgTutorForm: FC<UgTutorFormProps> = ({
     <Flex direction="column" gap="3">
       {internalReview?.lastUserEditOn && internalReview?.lastUserEditBy && (
         <Text size="2" className="italic text-gray-500">
-          Last overall edit by {internalReview.lastUserEditBy} on{' '}
+          Last overall edit by {shortenEmail(internalReview.lastUserEditBy)} on{' '}
           {format(internalReview.lastUserEditOn, dateFormatting)}
         </Text>
       )}
