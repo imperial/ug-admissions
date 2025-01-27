@@ -257,7 +257,7 @@ const UgTutorDialog: FC<UgTutorDialogProps> = ({ data, reviewerLogin, user }) =>
       isOpen={isOpen}
       onOpenChange={setIsOpen}
       trigger={
-        <Button className="min-h-10 w-20" color="ruby">
+        <Button className="min-h-10 w-20" color={decideTriggerColour(data)}>
           UG Tutor
         </Button>
       }
@@ -280,6 +280,31 @@ const UgTutorDialog: FC<UgTutorDialogProps> = ({ data, reviewerLogin, user }) =>
       </FormWrapper>
     </GenericDialog>
   )
+}
+
+/**
+ * Determines the trigger colour based on the application's outcomes.
+ * Orange if reviewer percentile set and ≤ 50, next action is UG_TUTOR_REVIEW and any decision pending
+ * Yellow if next action is UG_TUTOR_REVIEW and no pending decisions
+ * Bronze otherwise.
+ *
+ * @param {ApplicationRow} application - The application data.
+ * @returns {string} - Radix button colour.
+ */
+function decideTriggerColour(application: ApplicationRow): 'orange' | 'yellow' | 'bronze' {
+  const isOrange =
+    application.nextAction === NextAction.UG_TUTOR_REVIEW &&
+    application.internalReview?.reviewerPercentile &&
+    application.internalReview.reviewerPercentile <= 50 &&
+    application.outcomes.some((o) => o.decision === Decision.PENDING)
+  if (isOrange) return 'orange'
+
+  const isYellow =
+    application.nextAction === NextAction.UG_TUTOR_REVIEW &&
+    !application.outcomes.some((o) => o.decision === Decision.PENDING)
+  if (isYellow) return 'yellow'
+
+  return 'bronze'
 }
 
 export default UgTutorDialog
