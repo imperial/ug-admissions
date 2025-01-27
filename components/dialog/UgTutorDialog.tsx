@@ -207,6 +207,7 @@ const UgTutorForm: FC<UgTutorFormProps> = ({
               values={[
                 'Unchanged',
                 NextAction.UG_TUTOR_REVIEW,
+                NextAction.UG_TUTOR_RECONSIDER,
                 NextAction.INFORM_CANDIDATE,
                 NextAction.FINAL_CHECK,
                 NextAction.CANDIDATE_INFORMED
