@@ -2,7 +2,7 @@ import { shortenEmail } from '@/lib/utils'
 import { Card, DataList, Flex, Text } from '@radix-ui/themes'
 import React, { FC } from 'react'
 
-interface CandidateCalloutProps {
+interface KeyCandidateInformation {
   firstName: string
   surname: string
   ucasNumber: string
@@ -13,11 +13,11 @@ interface CandidateCalloutProps {
   academicComments?: string | null
 }
 
-const CandidateCallout: FC<CandidateCalloutProps> = ({
+const KeyCandidateInformation: FC<KeyCandidateInformation> = ({
   firstName,
   surname,
   ucasNumber,
-  showExtraInformation = false,
+  showExtraInformation,
   reviewer,
   overallScore,
   reviewerPercentile,
@@ -69,4 +69,4 @@ const ListItem: FC<ListItemProps> = ({ label, value }) => {
   )
 }
 
-export default CandidateCallout
+export default KeyCandidateInformation

@@ -1,8 +1,8 @@
 'use client'
 
-import CandidateCallout from '@/components/dialog/CandidateCallout'
 import FormWrapper from '@/components/dialog/FormWrapper'
 import GenericDialog from '@/components/dialog/GenericDialog'
+import KeyCandidateInformation from '@/components/dialog/KeyCandidateInformation'
 import TmuaGradeBox from '@/components/dialog/TmuaGradeBox'
 import Dropdown from '@/components/general/Dropdown'
 import LabelText from '@/components/general/LabelText'
@@ -47,7 +47,7 @@ const AdminScoringForm: FC<AdminScoringFormProps> = ({ data, readOnly }) => {
         </Text>
       )}
 
-      <CandidateCallout
+      <KeyCandidateInformation
         firstName={applicant.firstName}
         surname={applicant.surname}
         ucasNumber={applicant.ucasNumber}
