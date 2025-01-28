@@ -1,3 +1,4 @@
+import { shortenEmail } from '@/lib/utils'
 import { Comment as ApplicationComment, CommentType } from '@prisma/client'
 import { Badge, Card, Flex, Text } from '@radix-ui/themes'
 import { format } from 'date-fns'
@@ -21,7 +22,7 @@ const CommentItem: FC<CommentItemProps> = ({ comment }) => {
         {CommentTypeBadgeMap[comment.type]}
         <Flex gap="3" align="center">
           <Text weight="medium" size="3" className="ml-1">
-            {comment.authorLogin}
+            {shortenEmail(comment.authorLogin)}
           </Text>{' '}
           <Text size="2" color="gray">
             {format(new Date(comment.madeOn), 'HH:mm dd/MM/yyyy')}

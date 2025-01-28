@@ -1,8 +1,8 @@
 'use client'
 
-import CandidateCallout from '@/components/dialog/CandidateCallout'
 import FormWrapper from '@/components/dialog/FormWrapper'
 import GenericDialog from '@/components/dialog/GenericDialog'
+import KeyCandidateInformation from '@/components/dialog/KeyCandidateInformation'
 import LabelText from '@/components/general/LabelText'
 import { reviewerAccess } from '@/lib/access'
 import { dateFormatting } from '@/lib/constants'
@@ -50,7 +50,7 @@ const ReviewerScoringForm: FC<ReviewerScoringFormProps> = ({ data, readOnly }) =
         </Text>
       )}
 
-      <CandidateCallout
+      <KeyCandidateInformation
         firstName={applicant.firstName}
         surname={applicant.surname}
         ucasNumber={applicant.ucasNumber}

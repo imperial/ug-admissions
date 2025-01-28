@@ -1,9 +1,9 @@
 'use client'
 
 import AllComments from '@/components/dialog/AllComments'
-import CandidateCallout from '@/components/dialog/CandidateCallout'
 import FormWrapper from '@/components/dialog/FormWrapper'
 import GenericDialog from '@/components/dialog/GenericDialog'
+import KeyCandidateInformation from '@/components/dialog/KeyCandidateInformation'
 import TmuaGradeBox from '@/components/dialog/TmuaGradeBox'
 import Dropdown from '@/components/general/Dropdown'
 import LabelText from '@/components/general/LabelText'
@@ -12,7 +12,7 @@ import { adminAccess } from '@/lib/access'
 import { dateFormatting } from '@/lib/constants'
 import { insertComment, updateOutcomes } from '@/lib/query/forms'
 import { FormPassbackState } from '@/lib/types'
-import { decimalToNumber } from '@/lib/utils'
+import { decimalToNumber, shortenEmail } from '@/lib/utils'
 import {
   Comment as ApplicationComment,
   CommentType,
@@ -90,12 +90,12 @@ const UgTutorForm: FC<UgTutorFormProps> = ({
     <Flex direction="column" gap="3">
       {internalReview?.lastUserEditOn && internalReview?.lastUserEditBy && (
         <Text size="2" className="italic text-gray-500">
-          Last overall edit by {internalReview.lastUserEditBy} on{' '}
+          Last overall edit by {shortenEmail(internalReview.lastUserEditBy)} on{' '}
           {format(internalReview.lastUserEditOn, dateFormatting)}
         </Text>
       )}
 
-      <CandidateCallout
+      <KeyCandidateInformation
         firstName={applicant.firstName}
         surname={applicant.surname}
         ucasNumber={applicant.ucasNumber}
@@ -257,7 +257,7 @@ const UgTutorDialog: FC<UgTutorDialogProps> = ({ data, reviewerLogin, user }) =>
       isOpen={isOpen}
       onOpenChange={setIsOpen}
       trigger={
-        <Button className="min-h-10 w-20" color="ruby">
+        <Button className="min-h-10 w-20" color={decideTriggerColour(data)}>
           UG Tutor
         </Button>
       }
@@ -280,6 +280,31 @@ const UgTutorDialog: FC<UgTutorDialogProps> = ({ data, reviewerLogin, user }) =>
       </FormWrapper>
     </GenericDialog>
   )
+}
+
+/**
+ * Determines the trigger colour based on the application's outcomes.
+ * Orange if reviewer percentile set and ≤ 50, next action is UG_TUTOR_REVIEW and any decision pending
+ * Yellow if next action is UG_TUTOR_REVIEW and no pending decisions
+ * Bronze otherwise.
+ *
+ * @param {ApplicationRow} application - The application data.
+ * @returns {string} - Radix button colour.
+ */
+function decideTriggerColour(application: ApplicationRow): 'orange' | 'yellow' | 'bronze' {
+  const isOrange =
+    application.nextAction === NextAction.UG_TUTOR_REVIEW &&
+    application.internalReview?.reviewerPercentile &&
+    application.internalReview.reviewerPercentile <= 50 &&
+    application.outcomes.some((o) => o.decision === Decision.PENDING)
+  if (isOrange) return 'orange'
+
+  const isYellow =
+    application.nextAction === NextAction.UG_TUTOR_REVIEW &&
+    !application.outcomes.some((o) => o.decision === Decision.PENDING)
+  if (isYellow) return 'yellow'
+
+  return 'bronze'
 }
 
 export default UgTutorDialog

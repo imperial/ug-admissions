@@ -1,8 +1,8 @@
 'use client'
 
-import CandidateCallout from '@/components/dialog/CandidateCallout'
 import FormWrapper from '@/components/dialog/FormWrapper'
 import GenericDialog from '@/components/dialog/GenericDialog'
+import KeyCandidateInformation from '@/components/dialog/KeyCandidateInformation'
 import TmuaGradeBox from '@/components/dialog/TmuaGradeBox'
 import Dropdown from '@/components/general/Dropdown'
 import LabelText from '@/components/general/LabelText'
@@ -10,7 +10,7 @@ import { adminAccess } from '@/lib/access'
 import { dateFormatting } from '@/lib/constants'
 import { upsertAdminScoring } from '@/lib/query/forms'
 import { FormPassbackState } from '@/lib/types'
-import { decimalToNumber } from '@/lib/utils'
+import { decimalToNumber, shortenEmail } from '@/lib/utils'
 import { AlevelQualification, GCSEQualification, Role } from '@prisma/client'
 import { IdCardIcon } from '@radix-ui/react-icons'
 import { Button, Flex, Heading, Popover, Text, TextField } from '@radix-ui/themes'
@@ -42,12 +42,12 @@ const AdminScoringForm: FC<AdminScoringFormProps> = ({ data, readOnly }) => {
     <Flex direction="column" gap="3">
       {internalReview?.lastAdminEditOn && internalReview?.lastAdminEditBy && (
         <Text size="2" className="italic text-gray-500">
-          Last admin scoring by {internalReview.lastAdminEditBy} on{' '}
+          Last admin scoring by {shortenEmail(internalReview.lastAdminEditBy)} on{' '}
           {format(internalReview.lastAdminEditOn, dateFormatting)}
         </Text>
       )}
 
-      <CandidateCallout
+      <KeyCandidateInformation
         firstName={applicant.firstName}
         surname={applicant.surname}
         ucasNumber={applicant.ucasNumber}
