@@ -15,11 +15,10 @@ import React from 'react'
 
 export const dynamic = 'force-dynamic'
 
-export default async function AdmissionsCycleApplicationsPage({
-  params
-}: {
-  params: { cycle: string }
+export default async function AdmissionsCycleApplicationsPage(props: {
+  params: Promise<{ cycle: string }>
 }) {
+  const params = await props.params
   // Redirect to login page if not authenticated
   const session = await auth()
   if (!session) {
