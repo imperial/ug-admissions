@@ -8,8 +8,9 @@ import { reviewerAccess } from '@/lib/access'
 import { dateFormatting } from '@/lib/constants'
 import { upsertReviewerScoring } from '@/lib/query/forms'
 import { FormPassbackState } from '@/lib/types'
-import { ord } from '@/lib/utils'
+import { decimalToNumber, ord } from '@/lib/utils'
 import { NextAction } from '@prisma/client'
+import { Decimal } from '@prisma/client/runtime/binary'
 import {
   Badge,
   Button,
@@ -86,7 +87,7 @@ const ReviewerScoringForm: FC<ReviewerScoringFormProps> = ({ data, readOnly }) =
             min={0.0}
             max={10.0}
             step={0.1}
-            defaultValue={parseFloat(internalReview?.motivationReviewerScore?.toString() ?? '')}
+            defaultValue={decimalToNumberOrUndefined(internalReview?.motivationReviewerScore)}
             required
             disabled={readOnly}
           />
@@ -101,9 +102,7 @@ const ReviewerScoringForm: FC<ReviewerScoringFormProps> = ({ data, readOnly }) =
             min={0.0}
             max={10.0}
             step={0.1}
-            defaultValue={parseFloat(
-              internalReview?.extracurricularReviewerScore?.toString() ?? ''
-            )}
+            defaultValue={decimalToNumberOrUndefined(internalReview?.extracurricularReviewerScore)}
             required
             disabled={readOnly}
           />
@@ -117,7 +116,7 @@ const ReviewerScoringForm: FC<ReviewerScoringFormProps> = ({ data, readOnly }) =
             min={0.0}
             max={10.0}
             step={0.1}
-            defaultValue={parseFloat(internalReview?.referenceReviewerScore?.toString() ?? '')}
+            defaultValue={decimalToNumberOrUndefined(internalReview?.referenceReviewerScore)}
             required
             disabled={readOnly}
           />
@@ -195,6 +194,11 @@ const ReviewerScoringDialog: FC<ReviewerScoringDialogProps> = ({ data, userEmail
       </FormWrapper>
     </GenericDialog>
   )
+}
+
+function decimalToNumberOrUndefined(value: Decimal | null | undefined): number | undefined {
+  const parseResult = decimalToNumber(value)
+  return isNaN(parseResult) ? undefined : parseResult
 }
 
 export default ReviewerScoringDialog
