@@ -8,8 +8,7 @@ import {
   UpdateIcon
 } from '@radix-ui/react-icons'
 import { Button, Callout, Flex, Spinner } from '@radix-ui/themes'
-import React, { FC, ReactNode, useState } from 'react'
-import { useFormState } from 'react-dom'
+import React, { FC, ReactNode, useActionState } from 'react'
 
 const DEFAULT_SUBMIT_BTN_TEXT = 'Save'
 
@@ -33,18 +32,16 @@ const FormWrapper: FC<FormInDialogProps> = ({
   readOnly = false,
   refreshButton = false
 }) => {
-  const [pending, setPending] = useState(false)
   const wrappedAction = async (
     prevState: FormPassbackState,
     formData: FormData
   ): Promise<FormPassbackState> => {
     const res = await action(prevState, formData)
-    setPending(false)
     if (res.status === 'success') onSuccess()
     return res
   }
 
-  const [state, formAction] = useFormState(wrappedAction, { status: '', message: '' })
+  const [state, formAction, isPending] = useActionState(wrappedAction, { status: '', message: '' })
   return (
     <Flex direction="column" gap="2">
       {!!state.message && (
@@ -57,7 +54,7 @@ const FormWrapper: FC<FormInDialogProps> = ({
         </Callout.Root>
       )}
 
-      <form action={formAction} onSubmit={() => setPending(true)}>
+      <form action={formAction}>
         {children}
         <Flex justify="end" gap="2" mt="4">
           {refreshButton && (
@@ -66,8 +63,8 @@ const FormWrapper: FC<FormInDialogProps> = ({
               Refresh (to load changes)
             </Button>
           )}
-          <Button type="submit" disabled={pending || readOnly}>
-            {pending ? <Spinner /> : (submitButtonText ?? DEFAULT_SUBMIT_BTN_TEXT)}
+          <Button type="submit" disabled={isPending || readOnly}>
+            {isPending ? <Spinner /> : (submitButtonText ?? DEFAULT_SUBMIT_BTN_TEXT)}
             {submitIcon}
           </Button>
         </Flex>
