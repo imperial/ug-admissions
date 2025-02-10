@@ -8,6 +8,7 @@ import {
   formReviewerSchema,
   nextActionField
 } from '@/lib/schema'
+import { ord } from '@/lib/utils'
 import { Decision, NextAction } from '@prisma/client'
 import { includes } from 'lodash'
 import { revalidatePath } from 'next/cache'
@@ -35,7 +36,7 @@ export async function upsertAdminScoring(
 
   let nextAction: NextAction = NextAction.ADMIN_SCORED
   // don't backtrack the application state
-  if (currentAction > nextAction) nextAction = currentAction
+  if (ord(currentAction) > ord(nextAction)) nextAction = currentAction
   if (includes([NextAction.ADMIN_SCORING_MISSING_TMUA, NextAction.PENDING_TMUA], currentAction))
     nextAction = NextAction.PENDING_TMUA
 
