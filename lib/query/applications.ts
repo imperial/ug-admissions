@@ -1,6 +1,7 @@
 'use server'
 
 import prisma from '@/db'
+import { prettifyOption, shortenEmail } from '@/lib/utils'
 import { Decision } from '@prisma/client'
 
 export async function getApplicationsIncludingAllNested(cycle: number) {
@@ -45,38 +46,69 @@ export async function countNextActions(cycle: number) {
 
 export async function getAllOffers(cycle: number) {
   const offers = await prisma.outcome.findMany({
-    select: {
+    include: {
       application: {
-        select: {
-          applicant: {
-            select: {
-              firstName: true,
-              surname: true,
-              ucasNumber: true
+        include: {
+          applicant: true,
+          reviewer: true,
+          internalReview: {
+            include: {
+              generalComments: true
             }
           }
         }
-      },
-      cid: true,
-      degreeCode: true,
-      offerCode: true,
-      offerText: true
+      }
     },
     where: {
       application: {
         admissionsCycle: cycle
       },
       decision: Decision.OFFER
-    }
+    },
+    orderBy: [
+      {
+        application: {
+          applicant: {
+            surname: 'asc'
+          }
+        }
+      },
+      {
+        application: {
+          applicant: {
+            firstName: 'asc'
+          }
+        }
+      }
+    ]
   })
 
   return offers.map((o) => ({
     'First Name': o.application.applicant.firstName,
     Surname: o.application.applicant.surname,
+    CID: o.application.cid,
     'UCAS Number': o.application.applicant.ucasNumber,
-    CID: o.cid,
+    WP: prettifyOption(o.application.wideningParticipation),
+    'Next Action': prettifyOption(o.application.nextAction),
+    'TMUA Score': o.application.tmuaScore,
     'Degree Code': o.degreeCode,
     'Offer Code': o.offerCode,
-    'Offer Text': o.offerText
+    'Offer Text': o.offerText,
+    'UG Tutor Form Comments': o.application.internalReview?.generalComments
+      .map((c) => `${prettifyOption(c.type)}: ${c.text}`)
+      .join(', '),
+    'Academic Eligibility Notes': o.academicEligibilityNotes,
+    Reviewer: shortenEmail(o.application.reviewer?.login),
+    'Reviewer Motivation Score': o.application.internalReview?.motivationReviewerScore,
+    'Reviewer Extracurricular Score': o.application.internalReview?.extracurricularReviewerScore,
+    'Reviewer Reference Score': o.application.internalReview?.referenceReviewerScore,
+    'Reviewer Comments': o.application.internalReview?.academicComments,
+    'Age 16 Exam Type': prettifyOption(o.application.gcseQualification ?? 'N/A'),
+    'Age 16 Exam Score': o.application.gcseQualificationScore,
+    'Age 18 Exam Type': prettifyOption(o.application.aLevelQualification ?? 'N/A'),
+    'Age 18 Exam Score': o.application.aLevelQualificationScore,
+    'Admin Motivation Score': o.application.internalReview?.motivationAdminScore,
+    'Admin Extracurricular Score': o.application.internalReview?.extracurricularAdminScore,
+    'Exam Comments': o.application.internalReview?.examComments
   }))
 }
