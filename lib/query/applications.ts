@@ -44,8 +44,8 @@ export async function countNextActions(cycle: number) {
   })
 }
 
-export async function getAllOffers(cycle: number) {
-  const offers = await prisma.outcome.findMany({
+export async function getAllOutcomes(cycle: number, decision: Decision) {
+  const outcomes = await prisma.outcome.findMany({
     include: {
       application: {
         include: {
@@ -60,10 +60,10 @@ export async function getAllOffers(cycle: number) {
       }
     },
     where: {
+      decision,
       application: {
         admissionsCycle: cycle
-      },
-      decision: Decision.OFFER
+      }
     },
     orderBy: [
       {
@@ -83,12 +83,13 @@ export async function getAllOffers(cycle: number) {
     ]
   })
 
-  return offers.map((o) => ({
+  return outcomes.map((o) => ({
     'First Name': o.application.applicant.firstName,
     Surname: o.application.applicant.surname,
     CID: o.application.cid,
     'UCAS Number': o.application.applicant.ucasNumber,
     WP: prettifyOption(o.application.wideningParticipation),
+    'Fee Status': prettifyOption(o.application.feeStatus),
     'Next Action': prettifyOption(o.application.nextAction),
     'TMUA Score': o.application.tmuaScore,
     'Degree Code': o.degreeCode,
