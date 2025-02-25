@@ -15,7 +15,7 @@ const DownloadCsvButton: FC<DownloadCsvButtonProps> = ({ cycle }) => {
     <Link href={destination} download="offers.csv">
       <Button className="w-full" color="brown">
         <Flex align="center" justify="center" gap="2">
-          <DownloadIcon /> Download Offers CSV
+          <DownloadIcon /> Download Outcomes CSV
         </Flex>
       </Button>
     </Link>

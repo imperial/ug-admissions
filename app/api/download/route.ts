@@ -1,4 +1,4 @@
-import { getAllOffers } from '@/lib/query/applications'
+import { getAllOutcomes } from '@/lib/query/applications'
 import { AsyncParser } from '@json2csv/node'
 import { NextRequest, NextResponse } from 'next/server'
 
@@ -10,18 +10,18 @@ export async function GET(request: NextRequest) {
   }
 
   try {
-    const offers = await getAllOffers(Number(cycle))
-    if (!Array.isArray(offers) || offers.length === 0) {
+    const outcomes = await getAllOutcomes(Number(cycle))
+    if (!Array.isArray(outcomes) || outcomes.length === 0) {
       return new NextResponse('No data available for the given cycle', { status: 404 })
     }
 
     const parser = new AsyncParser()
-    const csv = await parser.parse(offers).promise()
+    const csv = await parser.parse(outcomes).promise()
 
     return new NextResponse(csv, {
       headers: {
         'Content-Type': 'text/csv',
-        'Content-Disposition': `attachment; filename="offers_${cycle}.csv"`
+        'Content-Disposition': `attachment; filename="outcomes_${cycle}.csv"`
       }
     })
   } catch (error) {

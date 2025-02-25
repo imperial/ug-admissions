@@ -2,7 +2,6 @@
 
 import prisma from '@/db'
 import { prettifyOption, shortenEmail } from '@/lib/utils'
-import { Decision } from '@prisma/client'
 
 export async function getApplicationsIncludingAllNested(cycle: number) {
   return prisma.application.findMany({
@@ -44,7 +43,7 @@ export async function countNextActions(cycle: number) {
   })
 }
 
-export async function getAllOffers(cycle: number) {
+export async function getAllOutcomes(cycle: number) {
   const offers = await prisma.outcome.findMany({
     include: {
       application: {
@@ -62,10 +61,10 @@ export async function getAllOffers(cycle: number) {
     where: {
       application: {
         admissionsCycle: cycle
-      },
-      decision: Decision.OFFER
+      }
     },
     orderBy: [
+      { decision: 'desc' },
       {
         application: {
           applicant: {
@@ -89,7 +88,9 @@ export async function getAllOffers(cycle: number) {
     CID: o.application.cid,
     'UCAS Number': o.application.applicant.ucasNumber,
     WP: prettifyOption(o.application.wideningParticipation),
+    'Fee Status': prettifyOption(o.application.feeStatus),
     'Next Action': prettifyOption(o.application.nextAction),
+    Decision: prettifyOption(o.decision),
     'TMUA Score': o.application.tmuaScore,
     'Degree Code': o.degreeCode,
     'Offer Code': o.offerCode,
