@@ -170,7 +170,7 @@ function updateTmuaScores(scores: z.infer<typeof csvTmuaScoresSchema>[]) {
         }
       },
       data: {
-        tmuaScore: s.tmuaScore === 'DELETE' ? null : s.tmuaScore,
+        tmuaScore: s.tmuaScore === 'CLEAR' ? null : s.tmuaScore,
         nextAction: nextNextAction
       }
     })
