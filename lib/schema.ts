@@ -113,7 +113,7 @@ export const csvApplicationSchema = z.object({
 export const csvTmuaScoresSchema = z.object({
   cid: cidField,
   admissionsCycle: cycleField,
-  tmuaScore: numberSchema(1, 9, 'TMUA score')
+  tmuaScore: z.union([numberSchema(1, 9, 'TMUA score'), z.literal('CLEAR')])
 })
 
 export const csvAdminScoringSchema = z.object({
