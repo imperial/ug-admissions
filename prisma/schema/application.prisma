@@ -1,5 +1,6 @@
 enum FeeStatus {
   HOME
+  HOME_ELQ
   OVERSEAS
   UNKNOWN
 }

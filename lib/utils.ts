@@ -28,7 +28,7 @@ export function ord(nextAction: NextAction): number {
 export function prettifyOption(value: string): string {
   // leave emails untouched
   if (value.includes('@')) return value
-  const ACRONYMS = ['Tmua', 'Ib', 'Ap', 'Ug', 'Gcse', 'Xii']
+  const ACRONYMS = ['Tmua', 'Ib', 'Ap', 'Ug', 'Gcse', 'Xii', 'Elq']
   return value
     .split('_')
     .map(capitalize)

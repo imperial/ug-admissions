@@ -234,6 +234,7 @@ function transformDataFormats(df: DataFrame): DataFrame {
   return df.withColumn('feeStatus', (row: any) => {
     const feeStatus = row.get('feeStatus')
     if (feeStatus === 'Query') return 'UNKNOWN'
+    if (feeStatus === 'Home - ELQ') return 'HOME_ELQ'
     return feeStatus?.toUpperCase()
   })
 }

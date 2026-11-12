@@ -252,6 +252,7 @@ const ApplicationTable: FC<ApplicationTableProps> = ({
 
 const FeeStatusColourMap: Record<FeeStatus, 'green' | 'blue' | 'yellow'> = {
   [FeeStatus.HOME]: 'green',
+  [FeeStatus.HOME_ELQ]: 'green',
   [FeeStatus.OVERSEAS]: 'blue',
   [FeeStatus.UNKNOWN]: 'yellow'
 }
