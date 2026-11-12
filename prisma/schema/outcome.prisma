@@ -17,6 +17,8 @@ enum DegreeCode {
   // JMC
   GG14
   GG41
+  GG02
+  GG03
 }
 
 model Outcome {
